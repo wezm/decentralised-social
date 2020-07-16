@@ -86,9 +86,9 @@ defmodule Mix.Tasks.Pleroma.Instance do
         get_option(
           options,
           :indexable,
-          "Do you want search engines to index your site? (y/n)",
-          "y"
-        ) === "y"
+          "Do you want to deny Search Engine bots from crawling the site? (y/n)",
+          "n"
+        ) === "n"
 
       db_configurable? =
         get_option(
@@ -275,7 +275,8 @@ defmodule Mix.Tasks.Pleroma.Instance do
     end
   end
 
-  defp write_robots_txt(static_dir, indexable, template_dir) do
+  @spec write_robots_txt(Path.t(), boolean(), Path.t()) :: :ok | no_return()
+  def write_robots_txt(static_dir, indexable, template_dir) do
     robots_txt =
       EEx.eval_file(
         template_dir <> "/robots_txt.eex",
@@ -289,7 +290,7 @@ defmodule Mix.Tasks.Pleroma.Instance do
       shell_info("Backing up existing robots.txt to #{robots_txt_path}.bak")
     end
 
-    File.write(robots_txt_path, robots_txt)
+    :ok = File.write(robots_txt_path, robots_txt)
     shell_info("Writing #{robots_txt_path}.")
   end
 

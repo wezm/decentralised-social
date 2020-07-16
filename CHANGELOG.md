@@ -6,7 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+### Added
+
 - The `application` metadata returned with statuses is no longer hardcoded. Apps that want to display these details will now have valid data for new posts after this change.
+- Config Versioning.
+- Web installer.
 
 ## Unreleased (Patch)
 
@@ -51,7 +55,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Pleroma API: Reroute `/api/pleroma/*` to `/api/v1/pleroma/*`
 
 </details>
-- Improved hashtag timeline performance (requires a background migration). 
+- Improved hashtag timeline performance (requires a background migration).
 
 ### Added
 
@@ -88,6 +92,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Mastodon API: `/api/v1/accounts/:id` & `/api/v1/mutes` endpoints accept `with_relationships` parameter and return filled `pleroma.relationship` field.
 - Mastodon API: Endpoint to remove a conversation (`DELETE /api/v1/conversations/:id`).
 - Mastodon API: `expires_in` in the scheduled post `params` field on `/api/v1/statuses` and `/api/v1/scheduled_statuses/:id` endpoints.
+- Admin API: (`GET /api/pleroma/admin/config/versions`) - endpoint to get list of config versions.
+- Admin API: (`GET /api/pleroma/admin/config/versions/rollback/:id`) - endpoint to rollback config to specific version.
 </details>
 
 ### Fixed

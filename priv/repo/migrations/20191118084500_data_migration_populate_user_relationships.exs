@@ -1,7 +1,6 @@
 defmodule Pleroma.Repo.Migrations.DataMigrationPopulateUserRelationships do
   use Ecto.Migration
 
-  alias Ecto.Adapters.SQL
   alias Pleroma.Repo
 
   require Logger
@@ -25,7 +24,7 @@ defmodule Pleroma.Repo.Migrations.DataMigrationPopulateUserRelationships do
     Logger.info("Processing users.#{field}...")
 
     {:ok, %{rows: field_rows}} =
-      SQL.query(Repo, "SELECT id, #{field} FROM users WHERE #{field} != '{}'")
+      Repo.query("SELECT id, #{field} FROM users WHERE #{field} != '{}'")
 
     target_ap_ids =
       Enum.flat_map(
@@ -36,7 +35,7 @@ defmodule Pleroma.Repo.Migrations.DataMigrationPopulateUserRelationships do
 
     # Selecting ids of all targets at once in order to reduce the number of SELECT queries
     {:ok, %{rows: target_ap_id_id}} =
-      SQL.query(Repo, "SELECT ap_id, id FROM users WHERE ap_id = ANY($1)", [target_ap_ids])
+      Repo.query("SELECT ap_id, id FROM users WHERE ap_id = ANY($1)", [target_ap_ids])
 
     target_id_by_ap_id = Enum.into(target_ap_id_id, %{}, fn [k, v] -> {k, v} end)
 

@@ -28,3 +28,6 @@ Mox.defmock(Pleroma.Web.FederatorMock, for: Pleroma.Web.Federator.Publishing)
 Mox.defmock(Pleroma.ConfigMock, for: Pleroma.Config.Getting)
 
 Mox.defmock(Pleroma.LoggerMock, for: Pleroma.Logging)
+
+Mox.defmock(Pleroma.Installer.InstallerRepoMock, for: Pleroma.Installer.InstallerRepo)
+Mox.defmock(Pleroma.Installer.FileMock, for: Pleroma.Installer.File)
