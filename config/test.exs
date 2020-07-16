@@ -7,6 +7,11 @@ config :pleroma, Pleroma.Web.Endpoint,
   url: [port: 4001],
   server: true
 
+config :pleroma, Pleroma.InstallerWeb.Endpoint,
+  http: [port: 4002],
+  url: [port: 4002],
+  server: true
+
 # Disable captha for tests
 config :pleroma, Pleroma.Captcha,
   # It should not be enabled for automatic tests
@@ -46,7 +51,7 @@ config :pleroma, Pleroma.Repo,
   username: "postgres",
   password: "postgres",
   database: "pleroma_test",
-  hostname: System.get_env("DB_HOST") || "localhost",
+  hostname: System.get_env("DB_HOST", "localhost"),
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 50
 
@@ -91,7 +96,9 @@ config :pleroma, Pleroma.ScheduledActivity,
   total_user_limit: 3,
   enabled: false
 
-config :pleroma, :rate_limit, %{}
+# Hack to drop default settings from `config.exs`, because keywords are deeply merged, so there is no other way to do it.
+config :pleroma, :rate_limit, nil
+config :pleroma, :rate_limit, []
 
 config :pleroma, :http_security, report_uri: "https://endpoint.com"
 
@@ -132,6 +139,10 @@ config :pleroma, :cachex, provider: Pleroma.CachexMock
 config :pleroma, :side_effects,
   ap_streamer: Pleroma.Web.ActivityPub.ActivityPubMock,
   logger: Pleroma.LoggerMock
+
+config :pleroma, :installer,
+  repo: Pleroma.Installer.InstallerRepoMock,
+  file: Pleroma.Installer.FileMock
 
 if File.exists?("./config/test.secret.exs") do
   import_config "test.secret.exs"

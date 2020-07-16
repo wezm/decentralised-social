@@ -6,7 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+### Added
+
 - The `application` metadata returned with statuses is no longer hardcoded. Apps that want to display these details will now have valid data for new posts after this change.
+- Config Versioning.
+- Web installer.
 
 ## Unreleased (Patch)
 
@@ -24,6 +28,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Breaking**: Changed `mix pleroma.user toggle_confirmed` to `mix pleroma.user confirm`
 - **Breaking**: Changed `mix pleroma.user toggle_activated` to `mix pleroma.user activate/deactivate`
+- **Breaking**: AdminAPI changed User field `confirmation_pending` to `is_confirmed`
+- **Breaking**: AdminAPI changed User field `approval_pending` to `is_approved`
+- **Breaking**: AdminAPI changed User field `deactivated` to `is_active`
+- **Breaking**: AdminAPI configs can be without key parameter.
 - Polls now always return a `voters_count`, even if they are single-choice.
 - Admin Emails: The ap id is used as the user link in emails now.
 - Improved registration workflow for email confirmation and account approval modes.
@@ -87,6 +95,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Mastodon API: `/api/v1/accounts/:id` & `/api/v1/mutes` endpoints accept `with_relationships` parameter and return filled `pleroma.relationship` field.
 - Mastodon API: Endpoint to remove a conversation (`DELETE /api/v1/conversations/:id`).
 - Mastodon API: `expires_in` in the scheduled post `params` field on `/api/v1/statuses` and `/api/v1/scheduled_statuses/:id` endpoints.
+- Admin API: (`GET /api/pleroma/admin/config/versions`) - endpoint to get list of config versions.
+- Admin API: (`GET /api/pleroma/admin/config/versions/rollback/:id`) - endpoint to rollback config to specific version.
 </details>
 
 ### Fixed
@@ -506,7 +516,6 @@ switched to a new configuration mechanism, however it was not officially removed
 - Static-FE: Fix remote posts not being sanitized
 
 ### Fixed
-=======
 - Rate limiter crashes when there is no explicitly specified ip in the config
 - 500 errors when no `Accept` header is present if Static-FE is enabled
 - Instance panel not being updated immediately due to wrong `Cache-Control` headers

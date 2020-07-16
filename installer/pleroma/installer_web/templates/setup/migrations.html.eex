@@ -1,0 +1,8 @@
+<div class="container">
+  <div class="row">
+    <div class="column" id="migrations">
+      <p>The database is almost ready. Migrations are running.</p>
+      <p style="color: red; visibility: hidden;" id="error">Something went wrong. <a class="button" href="<%= Routes.setup_path(@conn, :index) %>">Start over</a></p>
+    </div>
+  </div>
+</div>
