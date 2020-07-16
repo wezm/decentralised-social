@@ -4,7 +4,7 @@ defmodule Pleroma.Repo.Migrations.MoveActivityExpirationsToOban do
   import Ecto.Query, only: [from: 2]
 
   def change do
-    Pleroma.Config.Oban.warn()
+    Pleroma.Config.DeprecationWarnings.check_oban_config()
 
     Application.ensure_all_started(:oban)
 

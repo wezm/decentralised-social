@@ -41,7 +41,8 @@ defmodule Pleroma.Config.DeprecationWarnings do
          :ok <- check_gun_pool_options(),
          :ok <- check_activity_expiration_config(),
          :ok <- check_remote_ip_plug_name(),
-         :ok <- check_uploders_s3_public_endpoint() do
+         :ok <- check_uploders_s3_public_endpoint(),
+         :ok <- check_oban_config() do
       :ok
     else
       _ ->
@@ -79,7 +80,7 @@ defmodule Pleroma.Config.DeprecationWarnings do
     move_namespace_and_warn(@mrf_config_map, warning_preface)
   end
 
-  @spec move_namespace_and_warn([config_map()], String.t()) :: :ok | nil
+  @spec move_namespace_and_warn([config_map()], String.t()) :: :ok | :error
   def move_namespace_and_warn(config_map, warning_preface) do
     warning =
       Enum.reduce(config_map, "", fn
@@ -102,7 +103,7 @@ defmodule Pleroma.Config.DeprecationWarnings do
     end
   end
 
-  @spec check_media_proxy_whitelist_config() :: :ok | nil
+  @spec check_media_proxy_whitelist_config() :: :ok | :error
   def check_media_proxy_whitelist_config do
     whitelist = Config.get([:media_proxy, :whitelist])
 
@@ -163,7 +164,7 @@ defmodule Pleroma.Config.DeprecationWarnings do
     end
   end
 
-  @spec check_activity_expiration_config() :: :ok | nil
+  @spec check_activity_expiration_config() :: :ok | :error
   def check_activity_expiration_config do
     warning_preface = """
     !!!DEPRECATION WARNING!!!
@@ -210,6 +211,43 @@ defmodule Pleroma.Config.DeprecationWarnings do
       \n* `config :pleroma, Pleroma.Upload, base_url`
       """)
 
+      :error
+    else
+      :ok
+    end
+  end
+
+  @spec check_oban_config() :: :ok | :error
+  def check_oban_config do
+    oban_config = Config.get(Oban)
+
+    {crontab, changed?} =
+      [
+        Pleroma.Workers.Cron.StatsWorker,
+        Pleroma.Workers.Cron.PurgeExpiredActivitiesWorker,
+        Pleroma.Workers.Cron.ClearOauthTokenWorker
+      ]
+      |> Enum.reduce({oban_config[:crontab], false}, fn removed_worker, {acc, changed?} ->
+        with acc when is_list(acc) <- acc,
+             setting when is_tuple(setting) <-
+               Enum.find(acc, fn {_, worker} -> worker == removed_worker end) do
+          """
+          !!!OBAN CONFIG WARNING!!!
+          You are using old workers in Oban crontab settings, which were removed.
+          Please, remove setting from crontab in your config file (prod.secret.exs): #{
+            inspect(setting)
+          }
+          """
+          |> Logger.warn()
+
+          {List.delete(acc, setting), true}
+        else
+          _ -> {acc, changed?}
+        end
+      end)
+
+    if changed? do
+      Config.put(Oban, Keyword.put(oban_config, :crontab, crontab))
       :error
     else
       :ok

@@ -458,7 +458,7 @@ defmodule Pleroma.Factory do
       value:
         sequence(
           :value,
-          &%{another_key: "#{&1}somevalue", another: "#{&1}somevalue"}
+          &[another_key: "#{&1}somevalue", another: "#{&1}somevalue"]
         )
     }
     |> merge_attributes(attrs)
@@ -488,6 +488,13 @@ defmodule Pleroma.Factory do
       filter_id: sequence(:filter_id, & &1),
       phrase: "cofe",
       context: ["home"]
+    }
+  end
+
+  def config_version_factory do
+    %Pleroma.Config.Version{
+      backup: sequence(:value, &[pleroma: [instance: [name: "Instance name #{&1}"]]]),
+      current: false
     }
   end
 end

@@ -6,7 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+### Added
+
 - The `application` metadata returned with statuses is no longer hardcoded. Apps that want to display these details will now have valid data for new posts after this change.
+- Config Versioning.
+
+<details>
+  <summary>API Changes</summary>
+
+- Admin API: (`GET /api/pleroma/admin/config/versions`) - endpoint to get list of config versions.
+- Admin API: (`GET /api/pleroma/admin/config/versions/rollback/:id`) - endpoint to rollback config to specific version.
+
+</details>
+
+### Changed
+
+- Improved hashtag timeline performance (requires a background migration).
+
+<details>
+  <summary>API Changes</summary>
+
+- **Breaking**: AdminAPI configs can be without key parameter.
+
+</details>
 
 ## Unreleased (Patch)
 
@@ -50,7 +72,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Pleroma API: Reroute `/api/pleroma/*` to `/api/v1/pleroma/*`
 
 </details>
-- Improved hashtag timeline performance (requires a background migration). 
 
 ### Added
 
@@ -506,7 +527,6 @@ switched to a new configuration mechanism, however it was not officially removed
 - Static-FE: Fix remote posts not being sanitized
 
 ### Fixed
-=======
 - Rate limiter crashes when there is no explicitly specified ip in the config
 - 500 errors when no `Accept` header is present if Static-FE is enabled
 - Instance panel not being updated immediately due to wrong `Cache-Control` headers

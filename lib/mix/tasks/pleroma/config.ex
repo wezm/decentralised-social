@@ -14,10 +14,13 @@ defmodule Mix.Tasks.Pleroma.Config do
   @shortdoc "Manages the location of the config"
   @moduledoc File.read!("docs/administration/CLI_tasks/config.md")
 
-  def run(["migrate_to_db"]) do
+  def run(["migrate_to_db" | options]) do
     check_configdb(fn ->
       start_pleroma()
-      migrate_to_db()
+
+      {opts, _} = OptionParser.parse!(options, strict: [config: :string])
+
+      migrate_to_db(opts)
     end)
   end
 
@@ -39,15 +42,13 @@ defmodule Mix.Tasks.Pleroma.Config do
     check_configdb(fn ->
       start_pleroma()
 
-      header = config_header()
-
       settings =
         ConfigDB
         |> Repo.all()
         |> Enum.sort()
 
       unless settings == [] do
-        shell_info("#{header}")
+        shell_info("#{Pleroma.Config.Loader.config_header()}")
 
         Enum.each(settings, &dump(&1))
       else
@@ -73,9 +74,10 @@ defmodule Mix.Tasks.Pleroma.Config do
     check_configdb(fn ->
       start_pleroma()
 
-      group = maybe_atomize(group)
-
-      dump_group(group)
+      group
+      |> maybe_atomize()
+      |> ConfigDB.get_all_by_group()
+      |> Enum.each(&dump/1)
     end)
   end
 
@@ -97,17 +99,11 @@ defmodule Mix.Tasks.Pleroma.Config do
     end)
   end
 
-  def run(["reset", "--force"]) do
+  def run(["reset" | opts]) do
     check_configdb(fn ->
       start_pleroma()
-      truncatedb()
-      shell_info("The ConfigDB settings have been removed from the database.")
-    end)
-  end
 
-  def run(["reset"]) do
-    check_configdb(fn ->
-      start_pleroma()
+      {opts, []} = OptionParser.parse!(opts, strict: [force: :boolean])
 
       shell_info("The following settings will be permanently removed:")
 
@@ -118,8 +114,8 @@ defmodule Mix.Tasks.Pleroma.Config do
 
       shell_error("\nTHIS CANNOT BE UNDONE!")
 
-      if shell_prompt("Are you sure you want to continue?", "n") in ~w(Yn Y y) do
-        truncatedb()
+      if opts[:force] or shell_prompt("Are you sure you want to continue?", "n") in ~w(Yn Y y) do
+        Pleroma.Config.Versioning.reset()
 
         shell_info("The ConfigDB settings have been removed from the database.")
       else
@@ -128,55 +124,65 @@ defmodule Mix.Tasks.Pleroma.Config do
     end)
   end
 
-  def run(["delete", "--force", group, key]) do
+  def run(["delete", group]), do: delete(group, force: false)
+  def run(["delete", "--force", group]), do: delete(group, force: true)
+
+  def run(["delete", group, key]), do: delete(group, key, force: false)
+  def run(["delete", "--force", group, key]), do: delete(group, key, force: true)
+
+  def run(["rollback" | options]) do
+    check_configdb(fn ->
+      start_pleroma()
+      {opts, _} = OptionParser.parse!(options, strict: [steps: :integer], aliases: [s: :steps])
+
+      do_rollback(opts)
+    end)
+  end
+
+  defp delete(group, opts) do
+    start_pleroma()
+
+    group = maybe_atomize(group)
+
+    configs = ConfigDB.get_all_by_group(group)
+
+    if configs != [] do
+      shell_info("The following settings will be removed from ConfigDB:\n")
+      Enum.each(configs, &dump/1)
+
+      if opts[:force] or shell_prompt("Are you sure you want to continue?", "n") in ~w(Yn Y y) do
+        Enum.each(configs, fn config ->
+          Pleroma.Config.Versioning.new_version(%{
+            group: config.group,
+            key: config.key,
+            delete: true
+          })
+        end)
+      else
+        shell_error("No changes made.")
+      end
+    else
+      shell_error("No settings in ConfigDB for #{inspect(group)}. Aborting.")
+    end
+  end
+
+  defp delete(group, key, opts) do
     start_pleroma()
 
     group = maybe_atomize(group)
     key = maybe_atomize(key)
 
-    with true <- key_exists?(group, key) do
+    with %ConfigDB{} = config <- ConfigDB.get_by_group_and_key(group, key) do
       shell_info("The following settings will be removed from ConfigDB:\n")
 
-      group
-      |> ConfigDB.get_by_group_and_key(key)
-      |> dump()
+      dump(config)
 
-      delete_key(group, key)
-    else
-      _ ->
-        shell_error("No settings in ConfigDB for #{inspect(group)}, #{inspect(key)}. Aborting.")
-    end
-  end
-
-  def run(["delete", "--force", group]) do
-    start_pleroma()
-
-    group = maybe_atomize(group)
-
-    with true <- group_exists?(group) do
-      shell_info("The following settings will be removed from ConfigDB:\n")
-      dump_group(group)
-      delete_group(group)
-    else
-      _ -> shell_error("No settings in ConfigDB for #{inspect(group)}. Aborting.")
-    end
-  end
-
-  def run(["delete", group, key]) do
-    start_pleroma()
-
-    group = maybe_atomize(group)
-    key = maybe_atomize(key)
-
-    with true <- key_exists?(group, key) do
-      shell_info("The following settings will be removed from ConfigDB:\n")
-
-      group
-      |> ConfigDB.get_by_group_and_key(key)
-      |> dump()
-
-      if shell_prompt("Are you sure you want to continue?", "n") in ~w(Yn Y y) do
-        delete_key(group, key)
+      if opts[:force] or shell_prompt("Are you sure you want to continue?", "n") in ~w(Yn Y y) do
+        Pleroma.Config.Versioning.new_version(%{
+          group: config.group,
+          key: config.key,
+          delete: true
+        })
       else
         shell_error("No changes made.")
       end
@@ -186,40 +192,36 @@ defmodule Mix.Tasks.Pleroma.Config do
     end
   end
 
-  def run(["delete", group]) do
-    start_pleroma()
+  defp do_rollback(opts) do
+    steps = opts[:steps] || 1
 
-    group = maybe_atomize(group)
+    case Pleroma.Config.Versioning.rollback(steps) do
+      {:ok, _} ->
+        shell_info("Success rollback")
 
-    with true <- group_exists?(group) do
-      shell_info("The following settings will be removed from ConfigDB:\n")
-      dump_group(group)
+      {:error, :no_current_version} ->
+        shell_error("No version to rollback")
 
-      if shell_prompt("Are you sure you want to continue?", "n") in ~w(Yn Y y) do
-        delete_group(group)
-      else
-        shell_error("No changes made.")
-      end
-    else
-      _ -> shell_error("No settings in ConfigDB for #{inspect(group)}. Aborting.")
+      {:error, :rollback_not_possible} ->
+        shell_error("Rollback not possible. Incorrect steps value.")
+
+      {:error, _, _, _} ->
+        shell_error("Problem with backup. Rollback not possible.")
+
+      error ->
+        shell_error("error occuried: #{inspect(error)}")
     end
   end
 
-  @spec migrate_to_db(Path.t() | nil) :: any()
-  def migrate_to_db(file_path \\ nil) do
+  defp migrate_to_db(opts) do
     with :ok <- Pleroma.Config.DeprecationWarnings.warn() do
-      config_file =
-        if file_path do
-          file_path
-        else
-          if Pleroma.Config.get(:release) do
-            Pleroma.Config.get(:config_path)
-          else
-            "config/#{Pleroma.Config.get(:env)}.secret.exs"
-          end
-        end
+      config_file = opts[:config] || Pleroma.Application.config_path()
 
-      do_migrate_to_db(config_file)
+      if File.exists?(config_file) do
+        do_migrate_to_db(config_file)
+      else
+        shell_info("To migrate settings, you must define custom settings in #{config_file}.")
+      end
     else
       _ ->
         shell_error("Migration is not allowed until all deprecation warnings have been resolved.")
@@ -227,33 +229,9 @@ defmodule Mix.Tasks.Pleroma.Config do
   end
 
   defp do_migrate_to_db(config_file) do
-    if File.exists?(config_file) do
-      shell_info("Migrating settings from file: #{Path.expand(config_file)}")
-      truncatedb()
-
-      custom_config =
-        config_file
-        |> read_file()
-        |> elem(0)
-
-      custom_config
-      |> Keyword.keys()
-      |> Enum.each(&create(&1, custom_config))
-    else
-      shell_info("To migrate settings, you must define custom settings in #{config_file}.")
-    end
-  end
-
-  defp create(group, settings) do
-    group
-    |> Pleroma.Config.Loader.filter_group(settings)
-    |> Enum.each(fn {key, value} ->
-      {:ok, _} = ConfigDB.update_or_create(%{group: group, key: key, value: value})
-
-      shell_info("Settings for key #{key} migrated.")
-    end)
-
-    shell_info("Settings for group #{inspect(group)} migrated.")
+    shell_info("Migrating settings from file: #{Path.expand(config_file)}")
+    {:ok, _} = Pleroma.Config.Versioning.migrate(config_file)
+    shell_info("Settings migrated.")
   end
 
   defp migrate_from_db(opts) do
@@ -270,12 +248,42 @@ defmodule Mix.Tasks.Pleroma.Config do
       |> Path.join("#{env}.exported_from_db.secret.exs")
 
     file = File.open!(config_path, [:write, :utf8])
+    IO.write(file, Pleroma.Config.Loader.config_header())
 
-    IO.write(file, config_header())
+    changes =
+      ConfigDB
+      |> Repo.all()
+      |> Enum.reduce([], fn %{group: group} = config, acc ->
+        group_str = inspect(group)
+        value = inspect(config.value, limit: :infinity)
 
-    ConfigDB
-    |> Repo.all()
-    |> Enum.each(&write_and_delete(&1, file, opts[:delete]))
+        msg =
+          if group in ConfigDB.groups_without_keys() do
+            IO.write(file, "config #{group_str}, #{value}\r\n\r\n")
+            "config #{group_str} was deleted."
+          else
+            key_str = inspect(config.key)
+            IO.write(file, "config #{group_str}, #{key_str}, #{value}\r\n\r\n")
+            "config #{group_str}, #{key_str} was deleted."
+          end
+
+        if opts[:delete] do
+          shell_info(msg)
+
+          change =
+            config
+            |> Map.take([:group, :key])
+            |> Map.put(:delete, true)
+
+          [change | acc]
+        else
+          acc
+        end
+      end)
+
+    if opts[:delete] and changes != [] do
+      Pleroma.Config.Versioning.new_version(changes)
+    end
 
     :ok = File.close(file)
     System.cmd("mix", ["format", config_path])
@@ -285,38 +293,6 @@ defmodule Mix.Tasks.Pleroma.Config do
     )
   end
 
-  if Code.ensure_loaded?(Config.Reader) do
-    defp config_header, do: "import Config\r\n\r\n"
-    defp read_file(config_file), do: Config.Reader.read_imports!(config_file)
-  else
-    defp config_header, do: "use Mix.Config\r\n\r\n"
-    defp read_file(config_file), do: Mix.Config.eval!(config_file)
-  end
-
-  defp write_and_delete(config, file, delete?) do
-    config
-    |> write(file)
-    |> delete(delete?)
-  end
-
-  defp write(config, file) do
-    value = inspect(config.value, limit: :infinity)
-
-    IO.write(file, "config #{inspect(config.group)}, #{inspect(config.key)}, #{value}\r\n\r\n")
-
-    config
-  end
-
-  defp delete(config, true) do
-    {:ok, _} = Repo.delete(config)
-
-    shell_info(
-      "config #{inspect(config.group)}, #{inspect(config.key)} was deleted from the ConfigDB."
-    )
-  end
-
-  defp delete(_config, _), do: :ok
-
   defp dump(%ConfigDB{} = config) do
     value = inspect(config.value, limit: :infinity)
 
@@ -325,31 +301,12 @@ defmodule Mix.Tasks.Pleroma.Config do
 
   defp dump(_), do: :noop
 
-  defp dump_group(group) when is_atom(group) do
-    group
-    |> ConfigDB.get_all_by_group()
-    |> Enum.each(&dump/1)
-  end
-
-  defp group_exists?(group) do
-    group
-    |> ConfigDB.get_all_by_group()
-    |> Enum.any?()
-  end
-
-  defp key_exists?(group, key) do
-    group
-    |> ConfigDB.get_by_group_and_key(key)
-    |> is_nil
-    |> Kernel.!()
-  end
-
   defp maybe_atomize(arg) when is_atom(arg), do: arg
 
   defp maybe_atomize(":" <> arg), do: maybe_atomize(arg)
 
   defp maybe_atomize(arg) when is_binary(arg) do
-    if ConfigDB.module_name?(arg) do
+    if Pleroma.Config.Converter.module_name?(arg) do
       String.to_existing_atom("Elixir." <> arg)
     else
       String.to_atom(arg)
@@ -365,24 +322,5 @@ defmodule Mix.Tasks.Pleroma.Config do
           "ConfigDB not enabled. Please check the value of :configurable_from_database in your configuration."
         )
     end
-  end
-
-  defp delete_key(group, key) do
-    check_configdb(fn ->
-      ConfigDB.delete(%{group: group, key: key})
-    end)
-  end
-
-  defp delete_group(group) do
-    check_configdb(fn ->
-      group
-      |> ConfigDB.get_all_by_group()
-      |> Enum.each(&ConfigDB.delete/1)
-    end)
-  end
-
-  defp truncatedb do
-    Ecto.Adapters.SQL.query!(Repo, "TRUNCATE config;")
-    Ecto.Adapters.SQL.query!(Repo, "ALTER SEQUENCE config_id_seq RESTART;")
   end
 end

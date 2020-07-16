@@ -232,6 +232,8 @@ defmodule Pleroma.Web.Router do
     get("/config", ConfigController, :show)
     post("/config", ConfigController, :update)
     get("/config/descriptions", ConfigController, :descriptions)
+    get("/config/versions", ConfigController, :versions)
+    get("/config/versions/rollback/:id", ConfigController, :rollback)
     get("/need_reboot", AdminAPIController, :need_reboot)
     get("/restart", AdminAPIController, :restart)
 
