@@ -6,18 +6,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
-### Changed
-
-- The `application` metadata returned with statuses is no longer hardcoded. Apps that want to display these details will now have valid data for new posts after this change.
-- HTTPSecurityPlug now sends a response header to opt out of Google's FLoC (Federated Learning of Cohorts) targeted advertising.
-
 ### Added
 
+- The `application` metadata returned with statuses is no longer hardcoded. Apps that want to display these details will now have valid data for new posts after this change.
+- MRF (`FollowBotPolicy`): New MRF Policy which makes a designated local Bot account attempt to follow all users in public Notes received by your instance. Users who require approving follower requests or have #nobot in their profile are excluded.
+- HTTPSecurityPlug now sends a response header to opt out of Google's FLoC (Federated Learning of Cohorts) targeted advertising.
+- Config Versioning.
 - MRF (`FollowBotPolicy`): New MRF Policy which makes a designated local Bot account attempt to follow all users in public Notes received by your instance. Users who require approving follower requests or have #nobot in their profile are excluded.
 - Return OAuth token `id` (primary key) in POST `/oauth/token`.
 
+<details>
+  <summary>API Changes</summary>
+
+- Admin API: (`GET /api/pleroma/admin/config/versions`) - endpoint to get list of config versions.
+- Admin API: (`GET /api/pleroma/admin/config/versions/rollback/:id`) - endpoint to rollback config to specific version.
+
+</details>
+
 ### Fixed
+
 - Don't crash so hard when email settings are invalid.
+
+### Changed
+
+- Improved hashtag timeline performance (requires a background migration).
+
+<details>
+  <summary>API Changes</summary>
+
+- **Breaking**: AdminAPI configs can be without key parameter.
+
+</details>
 
 ## Unreleased (Patch)
 
@@ -71,7 +90,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Pleroma API: Reroute `/api/pleroma/*` to `/api/v1/pleroma/*`
 
 </details>
-- Improved hashtag timeline performance (requires a background migration).
 
 ### Added
 

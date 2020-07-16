@@ -57,3 +57,6 @@ pleroma.iml
 # Editor temp files
 /*~
 /*#
+
+# local iex
+.iex.exs

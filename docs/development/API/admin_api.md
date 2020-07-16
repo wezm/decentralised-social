@@ -282,7 +282,7 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
   - *optional* `with_reblogs`: `true`/`false` – allows to see reblogs (default is false)
 - Response:
   - On failure: `Not found`
- - On success: JSON, where:
+  - On success: JSON, where:
     - `total`: total count of the statuses for the user
     - `activities`: list of the statuses for the user
 
@@ -339,7 +339,7 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
 Params: none
 Response:
 
-* On success: JSON array of relays
+- On success: JSON array of relays
 
 ```json
 [
@@ -354,11 +354,11 @@ Response:
 
 Params:
 
-* `relay_url`
+- `relay_url`
 
 Response:
 
-* On success: relay json object
+- On success: relay json object
 
 ```json
 {"actor": "https://example.com/relay", "followed_back": true}
@@ -374,7 +374,7 @@ Response:
 
 Response:
 
-* On success: URL of the unfollowed relay
+- On success: URL of the unfollowed relay
 
 ```json
 {"https://example.com/relay"}
@@ -472,7 +472,6 @@ Response:
 
 ### Get a password reset token for a given nickname
 
-
 - Params: none
 - Response:
 
@@ -493,7 +492,7 @@ Response:
 
 ## PUT `/api/v1/pleroma/admin/users/disable_mfa`
 
-### Disable mfa for user's account.
+### Disable MFA for user's account
 
 - Params:
   - `nickname`
@@ -551,30 +550,30 @@ Response:
 
 ### Change the user's email, password, display and settings-related fields
 
-* Params:
-  * `email`
-  * `password`
-  * `name`
-  * `bio`
-  * `avatar`
-  * `locked`
-  * `no_rich_text`
-  * `default_scope`
-  * `banner`
-  * `hide_follows`
-  * `hide_followers`
-  * `hide_followers_count`
-  * `hide_follows_count`
-  * `hide_favorites`
-  * `allow_following_move`
-  * `background`
-  * `show_role`
-  * `skip_thread_containment`
-  * `fields`
-  * `is_discoverable`
-  * `actor_type`
+- Params:
+  - `email`
+  - `password`
+  - `name`
+  - `bio`
+  - `avatar`
+  - `locked`
+  - `no_rich_text`
+  - `default_scope`
+  - `banner`
+  - `hide_follows`
+  - `hide_followers`
+  - `hide_followers_count`
+  - `hide_follows_count`
+  - `hide_favorites`
+  - `allow_following_move`
+  - `background`
+  - `show_role`
+  - `skip_thread_containment`
+  - `fields`
+  - `is_discoverable`
+  - `actor_type`
 
-* Responses:
+- Responses:
 
 Status: 200
 
@@ -896,7 +895,7 @@ Status: 404
 - Params: none
 - Response:
   - On failure:
-    - 400 Bad Request `"To use this endpoint you need to enable configuration from database."`
+    - 400 Bad Request `"You must enable configurable_from_database in your config file."`
 
 ```json
 {}
@@ -909,6 +908,7 @@ Status: 404
 - Params: none
 - Response:
   - `need_reboot` - boolean
+
 ```json
 {
   "need_reboot": false
@@ -917,7 +917,7 @@ Status: 404
 
 ## `GET /api/v1/pleroma/admin/config`
 
-### Get list of merged default settings with saved in database.
+### Get list of merged default settings with saved in database
 
 *If `need_reboot` is `true`, instance must be restarted, so reboot time settings can take effect.*
 
@@ -927,7 +927,7 @@ Status: 404
   - `only_db`: true (*optional*, get only saved in database settings)
 - Response:
   - On failure:
-    - 400 Bad Request `"To use this endpoint you need to enable configuration from database."`
+    - 400 Bad Request `"You must enable configurable_from_database in your config file."`
 
 ```json
 {
@@ -952,34 +952,34 @@ Status: 404
 
 Some modifications are necessary to save the config settings correctly:
 
-- strings which start with `Pleroma.`, `Phoenix.`, `Tesla.` or strings like `Oban`, `Ueberauth` will be converted to modules;
-```
-"Pleroma.Upload" -> Pleroma.Upload
-"Oban" -> Oban
-```
-- strings starting with `:` will be converted to atoms;
-```
-":pleroma" -> :pleroma
-```
-- objects with `tuple` key and array value will be converted to tuples;
-```
-{"tuple": ["string", "Pleroma.Upload", []]} -> {"string", Pleroma.Upload, []}
-```
-- arrays with *tuple objects* will be converted to keywords;
-```
-[{"tuple": [":key1", "value"]}, {"tuple": [":key2", "value"]}] -> [key1: "value", key2: "value"]
-```
+- strings which start with `Pleroma.`, `Phoenix.`, `Tesla.` or strings like `Oban`, `Ueberauth` will be converted to modules
+  - `"Pleroma.Upload"` -> `Pleroma.Upload`
+  - `"Oban"` -> `Oban`
+- strings starting with `:` will be converted to atoms
+  - `":pleroma"` -> `:pleroma`
+- objects with `tuple` key and array value will be converted to tuples
+  - `{"tuple": ["string", "Pleroma.Upload", []]}` -> `{"string", Pleroma.Upload, []}`
+- arrays with *tuple objects* will be converted to keywords
+  - `[{"tuple": [":key1", "value"]}, {"tuple": [":key2", "value"]}]` -> `[key1: "value", key2: "value"]`
 
-Most of the settings will be applied in `runtime`, this means that you don't need to restart the instance. But some settings are applied in `compile time` and require a reboot of the instance, such as:
-- all settings inside these keys:
-  - `:hackney_pools`
-  - `:connections_pool`
-  - `:pools`
+Most of the settings will be applied in `runtime`, this means that changes will be applied immediately. But some settings are applied on `startup time` and will take effect after restart of the pleroma parts, such as:
+
+- all settings inside these keys
   - `:chat`
+  - `Oban`
+  - `:rate_limit`
+  - `:streamer`
+  - `:pools`
+  - `:connections_pool`
+  - `:hackney_pools`
+  - `:gopher`
+  - `:eshhd`
+  - `:ex_aws`
 - partially settings inside these keys:
   - `:seconds_valid` in `Pleroma.Captcha`
   - `:proxy_remote` in `Pleroma.Upload`
   - `:upload_limit` in `:instance`
+  - `:enabled` in `:fed_sockets`
 
 - Params:
   - `configs` - array of config objects
@@ -990,34 +990,33 @@ Most of the settings will be applied in `runtime`, this means that you don't nee
     - `delete` - true (*optional*, if setting must be deleted)
     - `subkeys` - array of strings (*optional*, only works when `delete=true` parameter is passed, otherwise will be ignored)
 
-*When a value have several nested settings, you can delete only some nested settings by passing a parameter `subkeys`, without deleting all settings by key.*
-```
-[subkey: val1, subkey2: val2, subkey3: val3] \\ initial value
-{"group": ":pleroma", "key": "some_key", "delete": true, "subkeys": [":subkey", ":subkey3"]} \\ passing json for deletion
-[subkey2: val2] \\ value after deletion
-```
+#### Partial deletion
 
-*Most of the settings can be partially updated through merge old values with new values, except settings value of which is list or is not keyword.*
+Keys inside value can be partially deleted by passing `subkeys` parameter. If after partial deleting an empty list remains, then the entire setting will be deleted.
 
-Example of setting without keyword in value:
+Example:
+
 ```elixir
-config :tesla, :adapter, Tesla.Adapter.Hackney
+# initial value
+[subkey: :val1, subkey2: :val2, subkey3: :val3]
 ```
 
-List of settings which support only full update by key:
+```json
+// config object for deletion
+{"group": ":pleroma", "key": "some_key", "delete": true, "subkeys": [":subkey", ":subkey3"]}
+```
+
 ```elixir
-@full_key_update [
-    {:pleroma, :ecto_repos},
-    {:quack, :meta},
-    {:mime, :types},
-    {:cors_plug, [:max_age, :methods, :expose, :headers]},
-    {:auto_linker, :opts},
-    {:swarm, :node_blacklist},
-    {:logger, :backends}
-  ]
+# value after deletion
+[subkey2: :val2]
 ```
 
-List of settings which support only full update by subkey:
+#### Partial update
+
+Most settings can be partially updated: new values will be merged with existing ones.
+
+The following settings are exceptions and should be fully updated:
+
 ```elixir
 @full_subkey_update [
     {:pleroma, :assets, :mascots},
@@ -1028,22 +1027,24 @@ List of settings which support only full update by subkey:
   ]
 ```
 
-*Settings without explicit key must be sended in separate config object params.*
+#### Settings without explicit keys
+
+Settings without explicit key must be sended in one config object with null value as key.
+
 ```elixir
 config :quack,
   level: :debug,
-  meta: [:all],
-  ...
+  meta: [:all]
 ```
+
 ```json
 {
   "configs": [
-    {"group": ":quack", "key": ":level", "value": ":debug"},
-    {"group": ":quack", "key": ":meta", "value": [":all"]},
-    ...
+    {"group": ":quack", "key": null, "value": [{"tuple": [":level", ":debug"]}, {"tuple": [":meta", ":all"]}]}
   ]
 }
 ```
+
 - Request:
 
 ```json
@@ -1077,7 +1078,8 @@ config :quack,
 
 - Response:
   - On failure:
-    - 400 Bad Request `"To use this endpoint you need to enable configuration from database."`
+    - 400 Bad Request `"You must enable configurable_from_database in your config file."`
+
 ```json
 {
   "configs": [
@@ -1091,9 +1093,10 @@ config :quack,
 }
 ```
 
-## ` GET /api/v1/pleroma/admin/config/descriptions`
+## `GET /api/v1/pleroma/admin/config/descriptions`
 
-### Get JSON with config descriptions.
+### Get JSON with config descriptions
+
 Loads json generated from `config/descriptions.exs`.
 
 - Params: none
@@ -1122,6 +1125,37 @@ Loads json generated from `config/descriptions.exs`.
       }
     ]
 }]
+```
+
+## `GET /api/v1/pleroma/admin/config/versions/rollback/:id`
+
+### Rollback config changes for a given version
+
+- Params:
+  - `id` - version id for rollback
+- Response:
+  - On success: `204`, empty response
+  - On failure:
+    - 400 Bad Request `"You must enable configurable_from_database in your config file."` or endpoint error
+    - 404 Not found
+
+## `GET /api/v1/pleroma/admin/config/versions`
+
+### Get list of config versions
+
+- Params: none
+- Response:
+
+```json
+{
+  "versions": [
+    {
+      "id": 1,
+      "current": true,
+      "inserted_at": "2020-04-21T15:11:46.000Z"
+     }
+  ]
+}
 ```
 
 ## `GET /api/v1/pleroma/admin/moderation_log`
@@ -1230,7 +1264,6 @@ Loads json generated from `config/descriptions.exs`.
 }
 ```
 
-
 ## `POST /api/v1/pleroma/admin/oauth_app`
 
 ### Create OAuth App
@@ -1257,6 +1290,7 @@ Loads json generated from `config/descriptions.exs`.
 ```
 
 - On failure:
+
 ```json
 {
   "redirect_uris": "can't be blank",
@@ -1269,11 +1303,11 @@ Loads json generated from `config/descriptions.exs`.
 ### Update OAuth App
 
 - Params:
-  -  *optional* `name`
-  -  *optional* `redirect_uris`
-  -  *optional* `scopes`
-  -  *optional* `website`
-  -  *optional* `trusted`
+  - *optional* `name`
+  - *optional* `redirect_uris`
+  - *optional* `scopes`
+  - *optional* `website`
+  - *optional* `trusted`
 
 - Response:
 
@@ -1491,6 +1525,7 @@ Returns the content of the document
 ```
 
 ## `PATCH /api/v1/pleroma/admin/instance_document/:document_name`
+
 - Params:
   - `file` (the file to be uploaded, using multipart form data.)
 
