@@ -23,7 +23,10 @@ defmodule Pleroma.Config.DeprecationWarnings do
   def check_simple_policy_tuples do
     has_strings =
       Config.get([:mrf_simple])
-      |> Enum.map(fn {_, v} -> v == [] || Enum.max(v) end)
+      |> Enum.map(fn
+        {_, []} -> {}
+        {_, v} -> Enum.max(v)
+      end)
       |> Enum.max()
       |> is_binary
 
@@ -76,7 +79,7 @@ defmodule Pleroma.Config.DeprecationWarnings do
 
       Config.put([:mrf_simple], new_config)
 
-      :ok
+      :error
     else
       :ok
     end

@@ -22,7 +22,6 @@ defmodule Pleroma.Config.DeprecationWarningsTest do
         reject_deletes: ["some.reject.deletes"]
       )
 
-      # TODO: Can I take the actual config and new config instead? Note that it'll need to be clear where you put the reason.
       assert capture_log(fn -> DeprecationWarnings.check_simple_policy_tuples() end) =~
                """
                !!!DEPRECATION WARNING!!!
