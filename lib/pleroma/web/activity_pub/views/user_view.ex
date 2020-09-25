@@ -9,9 +9,9 @@ defmodule Pleroma.Web.ActivityPub.UserView do
   alias Pleroma.Object
   alias Pleroma.Repo
   alias Pleroma.User
+  alias Pleroma.Web.ActivityPub.Builder
   alias Pleroma.Web.ActivityPub.ObjectView
   alias Pleroma.Web.ActivityPub.Transmogrifier
-  alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.Endpoint
   alias Pleroma.Web.Router.Helpers
 
@@ -60,7 +60,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
       "endpoints" => endpoints,
       "invisible" => User.invisible?(user)
     }
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
   end
 
   # the instance itself is not a Person, but instead an Application
@@ -120,7 +120,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
     }
     |> Map.merge(maybe_make_image(&User.avatar_url/2, "icon", user))
     |> Map.merge(maybe_make_image(&User.banner_url/2, "image", user))
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
   end
 
   def render("following.json", %{user: user, page: page} = opts) do
@@ -139,7 +139,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
       end
 
     collection(following, "#{user.ap_id}/following", page, showing_items, total)
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
   end
 
   def render("following.json", %{user: user} = opts) do
@@ -168,7 +168,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
           "#{user.ap_id}/following?page=1"
         end
     }
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
   end
 
   def render("followers.json", %{user: user, page: page} = opts) do
@@ -187,7 +187,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
       end
 
     collection(followers, "#{user.ap_id}/followers", page, showing_items, total)
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
   end
 
   def render("followers.json", %{user: user} = opts) do
@@ -216,7 +216,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
         end
     }
     |> maybe_put_total_items(showing_count, total)
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
   end
 
   def render("activity_collection.json", %{iri: iri}) do
@@ -225,7 +225,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
       "type" => "OrderedCollection",
       "first" => "#{iri}?page=true"
     }
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
   end
 
   def render("activity_collection_page.json", %{
@@ -244,7 +244,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
       "partOf" => iri,
       "orderedItems" => collection
     }
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
     |> Map.merge(pagination)
   end
 
@@ -264,7 +264,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
       "orderedItems" => objects,
       "totalItems" => length(objects)
     }
-    |> Map.merge(Utils.make_json_ld_header())
+    |> Map.merge(Builder.json_ld_header())
   end
 
   defp maybe_put_total_items(map, false, _total), do: map

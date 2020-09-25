@@ -13,6 +13,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   alias Pleroma.Repo
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.ActivityPub
+  alias Pleroma.Web.ActivityPub.Builder
   alias Pleroma.Web.ActivityPub.Visibility
   alias Pleroma.Web.AdminAPI.AccountView
   alias Pleroma.Web.Endpoint
@@ -107,22 +108,6 @@ defmodule Pleroma.Web.ActivityPub.Utils do
     end
   end
 
-  def make_json_ld_header do
-    %{
-      "@context" => [
-        "https://www.w3.org/ns/activitystreams",
-        "#{Endpoint.url()}/schemas/litepub-0.1.jsonld",
-        %{
-          "@language" => "und"
-        }
-      ]
-    }
-  end
-
-  def make_date do
-    DateTime.utc_now() |> DateTime.to_iso8601()
-  end
-
   def generate_activity_id do
     generate_id("activities")
   end
@@ -199,7 +184,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   def lazy_put_activity_defaults(map, true) do
     map
     |> Map.put_new("id", "pleroma:fakeid")
-    |> Map.put_new_lazy("published", &make_date/0)
+    |> Map.put_new_lazy("published", &Builder.date/0)
     |> Map.put_new("context", "pleroma:fakecontext")
     |> Map.put_new("context_id", -1)
     |> lazy_put_object_defaults(true)
@@ -210,7 +195,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
 
     map
     |> Map.put_new_lazy("id", &generate_activity_id/0)
-    |> Map.put_new_lazy("published", &make_date/0)
+    |> Map.put_new_lazy("published", &Builder.date/0)
     |> Map.put_new("context", context)
     |> Map.put_new("context_id", context_id)
     |> lazy_put_object_defaults(false)
@@ -224,7 +209,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
     object =
       map
       |> Map.put_new("id", "pleroma:fake_object_id")
-      |> Map.put_new_lazy("published", &make_date/0)
+      |> Map.put_new_lazy("published", &Builder.date/0)
       |> Map.put_new("context", activity["context"])
       |> Map.put_new("context_id", activity["context_id"])
       |> Map.put_new("fake", true)
@@ -237,7 +222,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
     object =
       map
       |> Map.put_new_lazy("id", &generate_object_id/0)
-      |> Map.put_new_lazy("published", &make_date/0)
+      |> Map.put_new_lazy("published", &Builder.date/0)
       |> Map.put_new("context", activity["context"])
       |> Map.put_new("context_id", activity["context_id"])
 
@@ -662,7 +647,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   #### Create-related helpers
 
   def make_create_data(params, additional) do
-    published = params.published || make_date()
+    published = params.published || Builder.date()
 
     %{
       "type" => "Create",

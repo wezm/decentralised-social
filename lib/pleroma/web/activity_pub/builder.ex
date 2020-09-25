@@ -120,7 +120,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
        "to" => recipients,
        "object" => object,
        "type" => "Create",
-       "published" => DateTime.utc_now() |> DateTime.to_iso8601()
+       "published" => date()
      }
      |> Pleroma.Maps.put_if_present("context", context), []}
   end
@@ -132,7 +132,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
       "type" => "ChatMessage",
       "to" => [recipient],
       "content" => content,
-      "published" => DateTime.utc_now() |> DateTime.to_iso8601(),
+      "published" => date(),
       "emoji" => Emoji.Formatter.get_emoji_map(content)
     }
 
@@ -160,7 +160,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
        "name" => name,
        "inReplyTo" => object.data["id"],
        "context" => object.data["context"],
-       "published" => DateTime.utc_now() |> DateTime.to_iso8601(),
+       "published" => date(),
        "id" => Utils.generate_object_id()
      }, []}
   end
@@ -240,7 +240,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
        "to" => to,
        "context" => object.data["context"],
        "type" => "Announce",
-       "published" => Utils.make_date()
+       "published" => date()
      }, []}
   end
 
@@ -313,9 +313,25 @@ defmodule Pleroma.Web.ActivityPub.Builder do
       "to" => params.to |> Enum.uniq(),
       "actor" => params.actor.ap_id,
       "object" => params.object,
-      "published" => params.published || Utils.make_date(),
+      "published" => params.published || date(),
       "context" => params.context
     }
     |> Map.merge(additional)
+  end
+
+  def json_ld_header do
+    %{
+      "@context" => [
+        "https://www.w3.org/ns/activitystreams",
+        "#{Pleroma.Web.Endpoint.url()}/schemas/litepub-0.1.jsonld",
+        %{
+          "@language" => "und"
+        }
+      ]
+    }
+  end
+
+  def date do
+    DateTime.utc_now() |> DateTime.to_iso8601()
   end
 end
