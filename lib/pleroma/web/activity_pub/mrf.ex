@@ -51,6 +51,11 @@ defmodule Pleroma.Web.ActivityPub.MRF do
     Enum.any?(domains, fn domain -> Regex.match?(domain, host) end)
   end
 
+  @spec instance_list_from_tuples([{String.t(), String.t()}]) :: [String.t()]
+  def instance_list_from_tuples(list) do
+    Enum.map(list, fn {instance, _} -> instance end)
+  end
+
   @callback describe() :: {:ok | :error, Map.t()}
 
   def describe(policies) do
