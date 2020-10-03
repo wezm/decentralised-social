@@ -769,12 +769,12 @@ config :pleroma, :config_description, [
       },
       %{
         key: :quarantined_instances,
-        type: {:list, :string},
+        type: {:list, :tuple},
         description:
-          "List of ActivityPub instances where private (DMs, followers-only) activities will not be sent",
+          "List of ActivityPub instances where private (DMs, followers-only) activities will not be sent and the reason for doing so",
         suggestions: [
-          "quarantined.com",
-          "*.quarantined.com"
+          {"quarantined.com", "Reason"},
+          {"*.quarantined.com", "Reason"}
         ]
       },
       %{
@@ -1577,11 +1577,11 @@ config :pleroma, :config_description, [
       %{
         key: :transparency_exclusions,
         label: "MRF transparency exclusions",
-        type: {:list, :string},
+        type: {:list, :tuple},
         description:
           "Exclude specific instance names from MRF transparency. The use of the exclusions feature will be disclosed in nodeinfo as a boolean value.",
         suggestions: [
-          "exclusion.com"
+          {"exclusion.com", "Reason for exclusion"}
         ]
       }
     ]
@@ -1597,65 +1597,70 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :media_removal,
-        type: {:list, :string},
-        description: "List of instances to strip media attachments from",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description:
+          "List of instances to strip media attachments from and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :media_nsfw,
         label: "Media NSFW",
-        type: {:list, :string},
-        description: "List of instances to tag all media as NSFW (sensitive) from",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description:
+          "List of instances to tag all media as NSFW (sensitive) from and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :federated_timeline_removal,
-        type: {:list, :string},
+        type: {:list, :tuple},
         description:
-          "List of instances to remove from the Federated (aka The Whole Known Network) Timeline",
-        suggestions: ["example.com", "*.example.com"]
+          "List of instances to remove from the Federated Timeline (aka The Whole Known Network) and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :reject,
-        type: {:list, :string},
-        description: "List of instances to reject activities from (except deletes)",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description:
+          "List of instances to reject activities (except deletes) from and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :accept,
-        type: {:list, :string},
-        description: "List of instances to only accept activities from (except deletes)",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description:
+          "List of instances to only accept activities (except deletes) from and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :followers_only,
-        type: {:list, :string},
-        description: "Force posts from the given instances to be visible by followers only",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description:
+          "Force posts from the given instances to be visible by followers only and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :report_removal,
-        type: {:list, :string},
-        description: "List of instances to reject reports from",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description: "List of instances to reject reports from and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :avatar_removal,
-        type: {:list, :string},
-        description: "List of instances to strip avatars from",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description: "List of instances to strip avatars from and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :banner_removal,
-        type: {:list, :string},
-        description: "List of instances to strip banners from",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description: "List of instances to strip banners from and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       },
       %{
         key: :reject_deletes,
-        type: {:list, :string},
-        description: "List of instances to reject deletions from",
-        suggestions: ["example.com", "*.example.com"]
+        type: {:list, :tuple},
+        description: "List of instances to reject deletions from and the reason for doing so",
+        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
       }
     ]
   },
