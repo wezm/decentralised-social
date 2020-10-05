@@ -170,20 +170,21 @@ defmodule Pleroma.Config.DeprecationWarnings do
   end
 
   def warn do
-    with :ok <- check_hellthread_threshold(),
-         :ok <- check_old_mrf_config(),
-         :ok <- check_media_proxy_whitelist_config(),
-         :ok <- check_welcome_message_config(),
-         :ok <- check_gun_pool_options(),
-         :ok <- check_activity_expiration_config(),
-         :ok <- check_quarantined_instances_tuples(),
-         :ok <- check_transparency_exclusions_tuples(),
-         :ok <- check_simple_policy_tuples() do
-      :ok
-    else
-      _ ->
-        :error
-    end
+    [
+      check_hellthread_threshold(),
+      check_old_mrf_config(),
+      check_media_proxy_whitelist_config(),
+      check_welcome_message_config(),
+      check_gun_pool_options(),
+      check_activity_expiration_config(),
+      check_quarantined_instances_tuples(),
+      check_transparency_exclusions_tuples(),
+      check_simple_policy_tuples()
+    ]
+    |> Enum.reduce(:ok, fn
+      :ok, :ok -> :ok
+      _, _ -> :error
+    end)
   end
 
   def check_welcome_message_config do
