@@ -490,4 +490,8 @@ defmodule Pleroma.Factory do
       context: ["home"]
     }
   end
+
+  def tag_factory do
+    %Pleroma.Tag{name: "verify"}
+  end
 end
