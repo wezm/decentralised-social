@@ -88,6 +88,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Mastodon API: `/api/v1/accounts/:id` & `/api/v1/mutes` endpoints accept `with_relationships` parameter and return filled `pleroma.relationship` field.
 - Mastodon API: Endpoint to remove a conversation (`DELETE /api/v1/conversations/:id`).
 - Mastodon API: `expires_in` in the scheduled post `params` field on `/api/v1/statuses` and `/api/v1/scheduled_statuses/:id` endpoints.
+- Add `GET /api/pleroma/admin/users/tag` - returns a list of users tags.
 </details>
 
 ### Fixed
@@ -152,6 +153,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Security
 
 - Fixed the possibility of using file uploads to spoof posts.
+=======
+- Mix tasks for controlling user account confirmation status in bulk (`mix pleroma.user confirm_all` and `mix pleroma.user unconfirm_all`)
+- Mix task for sending confirmation emails to all unconfirmed users (`mix pleroma.email send_confirmation_mails`)
+- Mix task option for force-unfollowing relays
 
 ### Changed
 

@@ -119,6 +119,19 @@ The `/api/v1/pleroma/admin/*` path is backwards compatible with `/api/pleroma/ad
 }
 ```
 
+## `GET /api/v1/pleroma/admin/users/tag`
+
+### List tags
+
+- Params: None
+
+- Response:
+
+``` json
+["verify", "mrf_tag:media-force-nsfw"]
+
+```
+
 ## `PUT /api/v1/pleroma/admin/users/tag`
 
 ### Tag a list of users
