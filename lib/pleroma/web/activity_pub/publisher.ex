@@ -243,9 +243,7 @@ defmodule Pleroma.Web.ActivityPub.Publisher do
     end)
   end
 
-  @doc """
-  Publishes an activity to all relevant peers.
-  """
+  # Publishes an activity to all relevant peers.
   def publish(%User{} = actor, %Activity{} = activity) do
     public = is_public?(activity)
 
