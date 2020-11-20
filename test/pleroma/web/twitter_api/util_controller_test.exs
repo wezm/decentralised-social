@@ -27,9 +27,8 @@ defmodule Pleroma.Web.TwitterAPI.UtilControllerTest do
       conn
       |> put("/api/pleroma/notification_settings", %{
         "block_from_strangers" => true,
-        "bar" => 1
-        "followers" => false,
         "bar" => 1,
+        "followers" => false,
         "exclude_types" => ["follow"]
       })
       |> json_response(:ok)
@@ -38,7 +37,7 @@ defmodule Pleroma.Web.TwitterAPI.UtilControllerTest do
 
       assert %Pleroma.User.NotificationSetting{
                block_from_strangers: true,
-               hide_notification_contents: false
+               hide_notification_contents: false,
                followers: false,
                follows: true,
                non_follows: true,

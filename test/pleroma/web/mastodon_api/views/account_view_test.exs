@@ -124,7 +124,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountViewTest do
 
     notification_settings = %{
       block_from_strangers: false,
-      hide_notification_contents: false
+      hide_notification_contents: false,
       followers: true,
       follows: true,
       non_followers: true,
