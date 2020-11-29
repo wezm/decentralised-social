@@ -563,10 +563,12 @@ config :pleroma, Oban,
     remote_fetcher: 2,
     attachments_cleanup: 1,
     new_users_digest: 1,
-    mute_expire: 5
+    mute_expire: 5,
+    email_mentions: 1
   ],
   plugins: [Oban.Plugins.Pruner],
   crontab: [
+    {"*/15 * * * *", Pleroma.Workers.Cron.EmailMentionsWorker},
     {"0 0 * * 0", Pleroma.Workers.Cron.DigestEmailsWorker},
     {"0 0 * * *", Pleroma.Workers.Cron.NewUsersDigestWorker}
   ]
@@ -850,6 +852,10 @@ config :pleroma, ConcurrentLimiter, [
   {Pleroma.Web.RichMedia.Helpers, [max_running: 5, max_waiting: 5]},
   {Pleroma.Web.ActivityPub.MRF.MediaProxyWarmingPolicy, [max_running: 5, max_waiting: 5]}
 ]
+
+config :pleroma, Pleroma.Workers.Cron.EmailMentionsWorker,
+  enabled: false,
+  timeframe: 30
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

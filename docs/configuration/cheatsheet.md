@@ -715,6 +715,7 @@ Pleroma has these periodic job workers:
 
 * `Pleroma.Workers.Cron.DigestEmailsWorker` - digest emails for users with new mentions and follows
 * `Pleroma.Workers.Cron.NewUsersDigestWorker` - digest emails for admins with new registrations
+* `Pleroma.Workers.Cron.EmailMentionsWorker` - email with missed mentions notifications in special timeframe
 
 ```elixir
 config :pleroma, Oban,
@@ -726,6 +727,7 @@ config :pleroma, Oban,
     federator_outgoing: 50
   ],
   crontab: [
+    {"*/15 * * * *", Pleroma.Workers.Cron.EmailMentionsWorker},
     {"0 0 * * 0", Pleroma.Workers.Cron.DigestEmailsWorker},
     {"0 0 * * *", Pleroma.Workers.Cron.NewUsersDigestWorker}
   ]
@@ -1154,3 +1156,10 @@ Each job has these settings:
 
 * `:max_running` - max concurrently runnings jobs
 * `:max_waiting` - max waiting jobs
+
+## Mention emails (Pleroma.Workers.Cron.EmailMentionsWorker)
+
+The worker sends email notifications not read in a certain timeframe.
+
+* `:enabled` - enables email notifications for missed mentions & chat mentions
+* `:timeframe` - the period after which the sending of emails begins for missed mentions (in minutes)
