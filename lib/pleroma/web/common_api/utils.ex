@@ -11,6 +11,7 @@ defmodule Pleroma.Web.CommonAPI.Utils do
   alias Pleroma.Config
   alias Pleroma.Conversation.Participation
   alias Pleroma.Formatter
+  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.Repo
   alias Pleroma.User
@@ -37,8 +38,8 @@ defmodule Pleroma.Web.CommonAPI.Utils do
 
   def attachments_from_ids_no_descs(ids) do
     Enum.map(ids, fn media_id ->
-      case Repo.get(Object, media_id) do
-        %Object{data: data} -> data
+      case Repo.get(Media, media_id) do
+        %Media{} = media -> Media.to_object_form(media)
         _ -> nil
       end
     end)
@@ -51,8 +52,9 @@ defmodule Pleroma.Web.CommonAPI.Utils do
     {_, descs} = Jason.decode(descs_str)
 
     Enum.map(ids, fn media_id ->
-      with %Object{data: data} <- Repo.get(Object, media_id) do
-        Map.put(data, "name", descs[media_id])
+      with %Media{} = media <- Repo.get(Media, media_id) do
+        %Media{media | name: descs[media_id]}
+        |> Media.to_object_form()
       end
     end)
     |> Enum.reject(&is_nil/1)

@@ -46,6 +46,8 @@ defmodule Pleroma.Web.Plugs.UploadedMedia do
 
     config = Pleroma.Config.get(Pleroma.Upload)
 
+    # https://pleroma.local/media/cf61935ec407b4df8fd3dcf58352948eb6231bdfe12fcbf5270e653c20da9860.jpeg
+
     with uploader <- Keyword.fetch!(config, :uploader),
          proxy_remote = Keyword.get(config, :proxy_remote, false),
          {:ok, get_method} <- uploader.get_file(file),
