@@ -32,18 +32,19 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   """
   def fix_object(object, options \\ []) do
     object
-    |> strip_internal_fields
-    |> fix_actor
-    |> fix_url
-    |> fix_attachments
-    |> fix_context
+    |> strip_internal_fields()
+    |> fix_actor()
+    |> fix_url()
+    |> fix_attachments()
+    |> fix_media()
+    |> fix_context()
     |> fix_in_reply_to(options)
-    |> fix_emoji
-    |> fix_tag
-    |> set_sensitive
-    |> fix_content_map
-    |> fix_addressing
-    |> fix_summary
+    |> fix_emoji()
+    |> fix_tag()
+    |> set_sensitive()
+    |> fix_content_map()
+    |> fix_addressing()
+    |> fix_summary()
     |> fix_type(options)
   end
 
@@ -269,6 +270,16 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   end
 
   def fix_attachments(object), do: object
+
+  def fix_media(%{"attachment" => [_ | _] = attachments} = object) do
+    Enum.each(attachments, fn attachment ->
+      IO.inspect({:fix_media, %{attachment: attachment, object: object}})
+    end)
+
+    object
+  end
+
+  def fix_media(object), do: object
 
   def fix_url(%{"url" => url} = object) when is_map(url) do
     Map.put(object, "url", url["href"])
