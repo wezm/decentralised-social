@@ -82,7 +82,8 @@ defmodule Pleroma.Media do
       "name" => media.name,
       "type" => "Document",
       "blurhash" => media.blurhash,
-      "mediaType" => media.media_type
+      "mediaType" => media.media_type,
+      "actor" => User.get_by_id(media.user_id).ap_id
     }
   end
 end
