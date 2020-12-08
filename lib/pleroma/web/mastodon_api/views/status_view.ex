@@ -242,9 +242,9 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
         true -> CommonAPI.thread_muted?(opts[:for], activity)
       end
 
-    attachment_data = object.data["attachments"] || []
+    attachment_data = object.data["attachment"] || []
     # attachments = render_many(attachment_data, StatusView, "attachment.json", as: :attachment)
-    attachments = render_many(attachment_data, StatusView, "media.json", as: :media)
+    attachments = render_many(attachment_data, StatusView, "object_media.json", as: :media)
 
     created_at = Utils.to_masto_date(object.data["published"])
 
@@ -434,6 +434,33 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
       description: attachment["name"],
       pleroma: %{mime_type: media_type},
       blurhash: attachment["blurhash"]
+    }
+  end
+
+  def render("object_media.json", %{media: media}) do
+    [url] = media["url"]
+    media_type = media["mediaType"] || "image"
+    href = MediaProxy.url(url["href"])
+    href_preview = MediaProxy.preview_url(url["href"])
+
+    type =
+      cond do
+        String.contains?(media_type, "image") -> "image"
+        String.contains?(media_type, "video") -> "video"
+        String.contains?(media_type, "audio") -> "audio"
+        true -> "unknown"
+      end
+
+    %{
+      id: to_string(media["id"]),
+      url: href,
+      remote_url: href,
+      preview_url: href_preview,
+      text_url: href,
+      type: type,
+      description: media["name"],
+      pleroma: %{mime_type: media_type},
+      blurhash: media["blurhash"]
     }
   end
 
