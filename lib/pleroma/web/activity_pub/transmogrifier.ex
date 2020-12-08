@@ -9,6 +9,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   alias Pleroma.Activity
   alias Pleroma.EctoType.ActivityPub.ObjectValidators
   alias Pleroma.Maps
+  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.Object.Containment
   alias Pleroma.Repo
@@ -272,9 +273,10 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   def fix_attachments(object), do: object
 
   def fix_media(%{"attachment" => [_ | _] = attachments} = object) do
-    Enum.each(attachments, fn attachment ->
-      IO.inspect({:fix_media, %{attachment: attachment, object: object}})
-    end)
+    Enum.each(
+      attachments,
+      &Media.create_from_object_data(&1, %{user: User.get_by_ap_id(object.actor), object: object})
+    )
 
     object
   end

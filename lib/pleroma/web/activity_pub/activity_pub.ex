@@ -164,7 +164,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
 
   defp maybe_update_media(%Object{data: %{"attachment" => []}}), do: :ok
 
-  defp maybe_update_media(%Object{id: id, data: %{"attachment" => attachments}}) do
+  defp maybe_update_media(%Object{data: %{"id" => id, "attachment" => attachments}}) do
     Enum.each(attachments, fn data ->
       with %{"id" => media_id} <- data do
         media_id

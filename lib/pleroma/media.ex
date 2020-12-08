@@ -26,7 +26,9 @@ defmodule Pleroma.Media do
     timestamps()
   end
 
-  def create_from_object_data(%{"url" => [url]} = data, %{user: user} = _opts) do
+  def create_from_object_data(%{"url" => [url]} = data, %{user: user} = opts) do
+    object_id = get_in(opts, [:object, "id"])
+
     %Media{}
     |> changeset(%{
       href: url["href"],
@@ -35,7 +37,8 @@ defmodule Pleroma.Media do
       name: data["name"],
       blurhash: nil,
       meta: %{},
-      user_id: user.id
+      user_id: user.id,
+      object_id: object_id
     })
     |> Repo.insert()
   end
