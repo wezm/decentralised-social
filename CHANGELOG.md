@@ -53,6 +53,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 </details>
 - Improved hashtag timeline performance (requires a background migration). 
 
+<details>
+  <summary>API Changes</summary>
+  - **Breaking** Admin API: methods and routes for users tags.
+</details>
+
 ### Added
 
 - Reports now generate notifications for admins and mods.
@@ -88,7 +93,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Mastodon API: `/api/v1/accounts/:id` & `/api/v1/mutes` endpoints accept `with_relationships` parameter and return filled `pleroma.relationship` field.
 - Mastodon API: Endpoint to remove a conversation (`DELETE /api/v1/conversations/:id`).
 - Mastodon API: `expires_in` in the scheduled post `params` field on `/api/v1/statuses` and `/api/v1/scheduled_statuses/:id` endpoints.
-- Add `GET /api/pleroma/admin/users/tag` - returns a list of users tags.
+- Admin API: add `GET /api/pleroma/admin/users/tag` - returns a list of users tags.
 </details>
 
 ### Fixed

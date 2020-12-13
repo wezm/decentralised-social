@@ -123,30 +123,29 @@ The `/api/v1/pleroma/admin/*` path is backwards compatible with `/api/pleroma/ad
 
 ### List tags
 
-- Params: None
-
-- Response:
+* Params: None
+* Response:
 
 ``` json
 ["verify", "mrf_tag:media-force-nsfw"]
 
 ```
 
-## `PUT /api/v1/pleroma/admin/users/tag`
+## `PATCH /api/v1/pleroma/admin/users/tag`
 
 ### Tag a list of users
 
-- Params:
-  - `nicknames` (array)
-  - `tags` (array)
+* Params:
+  * `nicknames` (array)
+  * `tags` (array)
 
 ## `DELETE /api/v1/pleroma/admin/users/tag`
 
 ### Untag a list of users
 
-- Params:
-  - `nicknames` (array)
-  - `tags` (array)
+* Params:
+  * `nicknames` (array)
+  * `tags` (array)
 
 ## `GET /api/v1/pleroma/admin/users/:nickname/permission_group`
 
