@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Admin Emails: The ap id is used as the user link in emails now.
 - Search: When using Postgres 11+, Pleroma will use the `websearch_to_tsvector` function to parse search queries.
 - Emoji: Support the full Unicode 13.1 set of Emoji for reactions, plus regional indicators.
-- **Breaking** Besides only the instance, entries for SimplePolicy and QuarantinedInstances now contain a reason as well.
+- **Breaking** Besides only the instance, entries for simple_policy, transparency_exclusions and quarantined_instances now contain a reason as well.
 
 ### Added
 
