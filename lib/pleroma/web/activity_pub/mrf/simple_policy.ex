@@ -273,73 +273,73 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
       label: "MRF Simple",
       description: "Simple ingress policies",
       children: [
-      %{
-        key: :media_removal,
-        type: {:list, :tuple},
-        description:
-          "List of instances to strip media attachments from and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :media_nsfw,
-        label: "Media NSFW",
-        type: {:list, :tuple},
-        description:
-          "List of instances to tag all media as NSFW (sensitive) from and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :federated_timeline_removal,
-        type: {:list, :tuple},
-        description:
-          "List of instances to remove from the Federated Timeline (aka The Whole Known Network) and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :reject,
-        type: {:list, :tuple},
-        description:
-          "List of instances to reject activities (except deletes) from and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :accept,
-        type: {:list, :tuple},
-        description:
-          "List of instances to only accept activities (except deletes) from and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :followers_only,
-        type: {:list, :tuple},
-        description:
-          "Force posts from the given instances to be visible by followers only and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :report_removal,
-        type: {:list, :tuple},
-        description: "List of instances to reject reports from and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :avatar_removal,
-        type: {:list, :tuple},
-        description: "List of instances to strip avatars from and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :banner_removal,
-        type: {:list, :tuple},
-        description: "List of instances to strip banners from and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      },
-      %{
-        key: :reject_deletes,
-        type: {:list, :tuple},
-        description: "List of instances to reject deletions from and the reason for doing so",
-        suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
-      }
+        %{
+          key: :media_removal,
+          type: {:list, :tuple},
+          description:
+            "List of instances to strip media attachments from and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :media_nsfw,
+          label: "Media NSFW",
+          type: {:list, :tuple},
+          description:
+            "List of instances to tag all media as NSFW (sensitive) from and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :federated_timeline_removal,
+          type: {:list, :tuple},
+          description:
+            "List of instances to remove from the Federated Timeline (aka The Whole Known Network) and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :reject,
+          type: {:list, :tuple},
+          description:
+            "List of instances to reject activities (except deletes) from and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :accept,
+          type: {:list, :tuple},
+          description:
+            "List of instances to only accept activities (except deletes) from and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :followers_only,
+          type: {:list, :tuple},
+          description:
+            "Force posts from the given instances to be visible by followers only and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :report_removal,
+          type: {:list, :tuple},
+          description: "List of instances to reject reports from and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :avatar_removal,
+          type: {:list, :tuple},
+          description: "List of instances to strip avatars from and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :banner_removal,
+          type: {:list, :tuple},
+          description: "List of instances to strip banners from and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        },
+        %{
+          key: :reject_deletes,
+          type: {:list, :tuple},
+          description: "List of instances to reject deletions from and the reason for doing so",
+          suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
+        }
       ]
     }
   end

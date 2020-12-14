@@ -282,7 +282,7 @@ defmodule Pleroma.Web.ActivityPub.PublisherTest do
 
       actor = insert(:user, follower_address: follower.ap_id)
 
-      {:ok, _follower_one} = Pleroma.User.follow(follower, actor)
+      {:ok, follower, actor} = Pleroma.User.follow(follower, actor)
       actor = refresh_record(actor)
 
       note_activity =
@@ -319,7 +319,7 @@ defmodule Pleroma.Web.ActivityPub.PublisherTest do
 
       actor = insert(:user, follower_address: follower.ap_id)
 
-      {:ok, _follower_one} = Pleroma.User.follow(follower, actor)
+      {:ok, follower, actor} = Pleroma.User.follow(follower, actor)
       actor = refresh_record(actor)
 
       note_activity =
