@@ -119,7 +119,7 @@ The `/api/v1/pleroma/admin/*` path is backwards compatible with `/api/pleroma/ad
 }
 ```
 
-## `GET /api/v1/pleroma/admin/users/tag`
+## `GET /api/v1/pleroma/admin/users/tags`
 
 ### List tags
 
