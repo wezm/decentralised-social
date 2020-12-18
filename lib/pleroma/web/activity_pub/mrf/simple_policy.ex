@@ -253,6 +253,10 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
       end)
       |> Enum.into(%{})
 
+    # This is for backwards compatibility. We originally didn't sent
+    # extra info like a reason why an instance was rejected/quarantined/etc.
+    # Because we didn't want to break backwards compatibility it was decided
+    # to add an extra "info" key.
     mrf_simple_info =
       mrf_simple_excluded
       |> Enum.map(fn {k, v} -> {k, Enum.reject(v, fn {_, reason} -> reason == "" end)} end)
@@ -276,6 +280,8 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
         %{
           key: :media_removal,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description:
             "List of instances to strip media attachments from and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
@@ -284,6 +290,8 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
           key: :media_nsfw,
           label: "Media NSFW",
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description:
             "List of instances to tag all media as NSFW (sensitive) from and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
@@ -291,6 +299,8 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
         %{
           key: :federated_timeline_removal,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description:
             "List of instances to remove from the Federated Timeline (aka The Whole Known Network) and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
@@ -298,6 +308,8 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
         %{
           key: :reject,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description:
             "List of instances to reject activities (except deletes) from and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
@@ -305,6 +317,8 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
         %{
           key: :accept,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description:
             "List of instances to only accept activities (except deletes) from and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
@@ -312,6 +326,8 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
         %{
           key: :followers_only,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description:
             "Force posts from the given instances to be visible by followers only and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
@@ -319,24 +335,32 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
         %{
           key: :report_removal,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description: "List of instances to reject reports from and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
         },
         %{
           key: :avatar_removal,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description: "List of instances to strip avatars from and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
         },
         %{
           key: :banner_removal,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description: "List of instances to strip banners from and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
         },
         %{
           key: :reject_deletes,
           type: {:list, :tuple},
+          keyPlaceholder: "instance",
+          valuePlaceholder: "reason",
           description: "List of instances to reject deletions from and the reason for doing so",
           suggestions: [{"example.com", "Some reason"}, {"*.example.com", "Another reason"}]
         }
