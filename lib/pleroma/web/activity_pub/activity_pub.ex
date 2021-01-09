@@ -32,6 +32,9 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
   require Logger
   require Pleroma.Constants
 
+  @behaviour Pleroma.Web.ActivityPub.ActivityPub.Persisting
+  @behaviour Pleroma.Web.ActivityPub.ActivityPub.Streaming
+
   defp get_recipients(%{"type" => "Create"} = data) do
     to = Map.get(data, "to", [])
     cc = Map.get(data, "cc", [])
@@ -85,13 +88,14 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
   defp increase_replies_count_if_reply(_create_data), do: :noop
 
   @object_types ~w[ChatMessage Question Answer Audio Video Event Article]
-  @spec persist(map(), keyword()) :: {:ok, Activity.t() | Object.t()}
+  @impl true
   def persist(%{"type" => type} = object, meta) when type in @object_types do
     with {:ok, object} <- Object.create(object) do
       {:ok, object, meta}
     end
   end
 
+  @impl true
   def persist(object, meta) do
     with local <- Keyword.fetch!(meta, :local),
          {recipients, _, _} <- get_recipients(object),
@@ -221,6 +225,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     Streamer.stream("participation", participations)
   end
 
+  @impl true
   def stream_out_participations(%Object{data: %{"context" => context}}, user) do
     with %Conversation{} = conversation <- Conversation.get_for_ap_id(context) do
       conversation = Repo.preload(conversation, :participations)
@@ -237,8 +242,10 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  @impl true
   def stream_out_participations(_, _), do: :noop
 
+  @impl true
   def stream_out(%Activity{data: %{"type" => data_type}} = activity)
       when data_type in ["Create", "Announce", "Delete"] do
     activity
@@ -246,6 +253,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     |> Streamer.stream(activity)
   end
 
+  @impl true
   def stream_out(_activity) do
     :noop
   end
@@ -600,12 +608,14 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
         |> Map.put(:muting_user, reading_user)
       end
 
+    pagination_type = Map.get(params, :pagination_type) || :keyset
+
     %{
       godmode: params[:godmode],
       reading_user: reading_user
     }
     |> user_activities_recipients()
-    |> fetch_activities(params)
+    |> fetch_activities(params, pagination_type)
     |> Enum.reverse()
   end
 

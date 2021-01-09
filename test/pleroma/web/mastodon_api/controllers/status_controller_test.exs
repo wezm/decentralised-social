@@ -67,10 +67,6 @@ defmodule Pleroma.Web.MastodonAPI.StatusControllerTest do
           "sensitive" => "0"
         })
 
-      {:ok, ttl} = Cachex.ttl(:idempotency_cache, idempotency_key)
-      # Six hours
-      assert ttl > :timer.seconds(6 * 60 * 60 - 1)
-
       assert %{"content" => "cofe", "id" => id, "spoiler_text" => "2hu", "sensitive" => false} =
                json_response_and_validate_schema(conn_one, 200)
 
@@ -804,7 +800,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusControllerTest do
     test "when you created it" do
       %{user: author, conn: conn} = oauth_access(["write:statuses"])
       activity = insert(:note_activity, user: author)
-      object = Object.normalize(activity)
+      object = Object.normalize(activity, fetch: false)
 
       content = object.data["content"]
       source = object.data["source"]
@@ -1378,7 +1374,9 @@ defmodule Pleroma.Web.MastodonAPI.StatusControllerTest do
 
     activity = Activity.get_by_id_with_object(id)
 
-    assert Object.normalize(activity).data["inReplyTo"] == Object.normalize(replied_to).data["id"]
+    assert Object.normalize(activity, fetch: false).data["inReplyTo"] ==
+             Object.normalize(replied_to, fetch: false).data["id"]
+
     assert Activity.get_in_reply_to_activity(activity).id == replied_to.id
 
     # Reblog from the third user

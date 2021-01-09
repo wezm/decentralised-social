@@ -61,7 +61,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
     {:ok, activity} = CommonAPI.post(user, %{status: "yo"})
 
     activity
-    |> Object.normalize(false)
+    |> Object.normalize(fetch: false)
     |> Object.update_data(%{"reactions" => %{"☕" => [user.ap_id], "x" => 1}})
 
     activity = Activity.get_by_id(activity.id)
@@ -160,7 +160,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
     {:ok, activity} = CommonAPI.post(user, %{status: "Hey @shp!", visibility: "direct"})
 
     Repo.delete(user)
-    Cachex.clear(:user_cache)
+    User.invalidate_cache(user)
 
     finger_url =
       "https://localhost/.well-known/webfinger?resource=acct:#{user.nickname}@localhost"
@@ -194,7 +194,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
       |> Ecto.Changeset.change(%{ap_id: "#{user.ap_id}/extension/#{user.nickname}"})
       |> Repo.update()
 
-    Cachex.clear(:user_cache)
+    User.invalidate_cache(user)
 
     result = StatusView.render("show.json", activity: activity)
 
@@ -204,7 +204,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
 
   test "a note with null content" do
     note = insert(:note_activity)
-    note_object = Object.normalize(note)
+    note_object = Object.normalize(note, fetch: false)
 
     data =
       note_object.data
@@ -223,7 +223,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
 
   test "a note activity" do
     note = insert(:note_activity)
-    object_data = Object.normalize(note).data
+    object_data = Object.normalize(note, fetch: false).data
     user = User.get_cached_by_ap_id(note.data["actor"])
 
     convo_id = Utils.context_to_conversation_id(object_data["context"])

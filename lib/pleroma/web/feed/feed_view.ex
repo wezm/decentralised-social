@@ -23,7 +23,7 @@ defmodule Pleroma.Web.Feed.FeedView do
   def pub_date(%DateTime{} = date), do: Timex.format!(date, "{RFC822}")
 
   def prepare_activity(activity, opts \\ []) do
-    object = Object.normalize(activity)
+    object = Object.normalize(activity, fetch: false)
 
     actor =
       if opts[:actor] do
@@ -51,7 +51,7 @@ defmodule Pleroma.Web.Feed.FeedView do
   def feed_logo do
     case Pleroma.Config.get([:feed, :logo]) do
       nil ->
-        "#{Pleroma.Web.base_url()}/static/logo.png"
+        "#{Pleroma.Web.base_url()}/static/logo.svg"
 
       logo ->
         "#{Pleroma.Web.base_url()}#{logo}"

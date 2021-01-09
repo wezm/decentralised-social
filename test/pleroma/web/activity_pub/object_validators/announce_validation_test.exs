@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidationTest do
-  use Pleroma.DataCase
+  use Pleroma.DataCase, async: true
 
   alias Pleroma.Object
   alias Pleroma.Web.ActivityPub.Builder
@@ -18,7 +18,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidationTest do
       announcer = insert(:user)
       {:ok, post_activity} = CommonAPI.post(user, %{status: "uguu"})
 
-      object = Object.normalize(post_activity, false)
+      object = Object.normalize(post_activity, fetch: false)
       {:ok, valid_announce, []} = Builder.announce(announcer, object)
 
       %{
@@ -81,7 +81,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidationTest do
       {:ok, post_activity} =
         CommonAPI.post(user, %{status: "a secret post", visibility: "private"})
 
-      object = Object.normalize(post_activity, false)
+      object = Object.normalize(post_activity, fetch: false)
 
       # Another user can't announce it
       {:ok, announce, []} = Builder.announce(announcer, object, public: false)

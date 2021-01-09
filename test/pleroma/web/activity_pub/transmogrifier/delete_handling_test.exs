@@ -40,7 +40,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier.DeleteHandlingTest do
     assert actor == deleting_user.ap_id
 
     # Objects are replaced by a tombstone object.
-    object = Object.normalize(activity.data["object"])
+    object = Object.normalize(activity.data["object"], fetch: false)
     assert object.data["type"] == "Tombstone"
   end
 
@@ -48,9 +48,10 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier.DeleteHandlingTest do
     activity = insert(:note_activity)
 
     {:ok, object} =
-      Object.normalize(activity.data["object"])
+      Object.normalize(activity.data["object"], fetch: false)
       |> Repo.delete()
 
+    # TODO: mock cachex
     Cachex.del(:object_cache, "object:#{object.data["id"]}")
 
     deleting_user = insert(:user)

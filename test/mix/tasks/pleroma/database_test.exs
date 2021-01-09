@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Mix.Tasks.Pleroma.DatabaseTest do
-  use Pleroma.DataCase
+  use Pleroma.DataCase, async: true
   use Oban.Testing, repo: Pleroma.Repo
 
   alias Pleroma.Activity
@@ -87,7 +87,8 @@ defmodule Mix.Tasks.Pleroma.DatabaseTest do
 
       assert user.follower_count == 3
 
-      assert :ok == Mix.Tasks.Pleroma.Database.run(["update_users_following_followers_counts"])
+      assert {:ok, :ok} ==
+               Mix.Tasks.Pleroma.Database.run(["update_users_following_followers_counts"])
 
       user = User.get_by_id(user.id)
 
