@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Breaking:** Changed `mix pleroma.user toggle_confirmed` to `mix pleroma.user confirm`
 - Search: When using Postgres 11+, Pleroma will use the `websearch_to_tsvector` function to parse search queries.
 - Emoji: Support the full Unicode 13.1 set of Emoji for reactions, plus regional indicators.
-- **Breaking** Besides only the instance, entries for simple_policy, transparency_exclusions and
+- **Breaking** Entries for simple_policy, transparency_exclusions and quarantined_instances now list both the instance and a reason.
 - Admin API: Reports now ordered by newest
 
 ### Added
