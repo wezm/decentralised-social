@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.Plugs.UploadedMedia do
@@ -62,7 +62,7 @@ defmodule Pleroma.Web.Plugs.UploadedMedia do
   def call(conn, _opts), do: conn
 
   defp media_is_banned(%{request_path: path} = _conn, {:static_dir, _}) do
-    MediaProxy.in_banned_urls(Pleroma.Web.base_url() <> path)
+    MediaProxy.in_banned_urls(Pleroma.Upload.base_url() <> path)
   end
 
   defp media_is_banned(_, {:url, url}), do: MediaProxy.in_banned_urls(url)

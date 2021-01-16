@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Pleroma.Web.PleromaAPI.ChatControllerTest do
   use Pleroma.Web.ConnCase
@@ -211,12 +211,12 @@ defmodule Pleroma.Web.PleromaAPI.ChatControllerTest do
 
       assert String.match?(
                next,
-               ~r(#{api_endpoint}.*/messages\?id=.*&limit=\d+&max_id=.*; rel=\"next\"$)
+               ~r(#{api_endpoint}.*/messages\?limit=\d+&max_id=.*; rel=\"next\"$)
              )
 
       assert String.match?(
                prev,
-               ~r(#{api_endpoint}.*/messages\?id=.*&limit=\d+&min_id=.*; rel=\"prev\"$)
+               ~r(#{api_endpoint}.*/messages\?limit=\d+&min_id=.*; rel=\"prev\"$)
              )
 
       assert length(result) == 20
@@ -229,12 +229,12 @@ defmodule Pleroma.Web.PleromaAPI.ChatControllerTest do
 
       assert String.match?(
                next,
-               ~r(#{api_endpoint}.*/messages\?id=.*&limit=\d+&max_id=.*; rel=\"next\"$)
+               ~r(#{api_endpoint}.*/messages\?limit=\d+&max_id=.*; rel=\"next\"$)
              )
 
       assert String.match?(
                prev,
-               ~r(#{api_endpoint}.*/messages\?id=.*&limit=\d+&max_id=.*&min_id=.*; rel=\"prev\"$)
+               ~r(#{api_endpoint}.*/messages\?limit=\d+&max_id=.*&min_id=.*; rel=\"prev\"$)
              )
 
       assert length(result) == 10
