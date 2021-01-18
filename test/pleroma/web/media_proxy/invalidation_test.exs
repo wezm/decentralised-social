@@ -1,10 +1,9 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MediaProxy.InvalidationTest do
-  use ExUnit.Case
-  use Pleroma.Tests.Helpers
+  use Pleroma.DataCase
 
   alias Pleroma.Config
   alias Pleroma.Web.MediaProxy.Invalidation
@@ -14,10 +13,6 @@ defmodule Pleroma.Web.MediaProxy.InvalidationTest do
   import Tesla.Mock
 
   setup do: clear_config([:media_proxy])
-
-  setup do
-    on_exit(fn -> Cachex.clear(:banned_urls_cache) end)
-  end
 
   describe "Invalidation.Http" do
     test "perform request to clear cache" do

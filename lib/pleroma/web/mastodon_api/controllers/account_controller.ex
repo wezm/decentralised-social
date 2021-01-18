@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.AccountController do
@@ -25,7 +25,6 @@ defmodule Pleroma.Web.MastodonAPI.AccountController do
   alias Pleroma.Web.MastodonAPI.MastodonAPIController
   alias Pleroma.Web.MastodonAPI.StatusView
   alias Pleroma.Web.OAuth.OAuthController
-  alias Pleroma.Web.OAuth.OAuthView
   alias Pleroma.Web.Plugs.EnsurePublicOrAuthenticatedPlug
   alias Pleroma.Web.Plugs.OAuthScopesPlug
   alias Pleroma.Web.Plugs.RateLimiter
@@ -103,7 +102,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountController do
          {:ok, user} <- TwitterAPI.register_user(params),
          {_, {:ok, token}} <-
            {:login, OAuthController.login(user, app, app.scopes)} do
-      json(conn, OAuthView.render("token.json", %{user: user, token: token}))
+      OAuthController.after_token_exchange(conn, %{user: user, token: token})
     else
       {:login, {:account_status, :confirmation_pending}} ->
         json_response(conn, :ok, %{
@@ -185,6 +184,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountController do
         :show_role,
         :skip_thread_containment,
         :allow_following_move,
+        :also_known_as,
         :accepts_chat_messages
       ]
       |> Enum.reduce(%{}, fn key, acc ->
@@ -208,6 +208,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountController do
         if bot, do: {:ok, "Service"}, else: {:ok, "Person"}
       end)
       |> Maps.put_if_present(:actor_type, params[:actor_type])
+      |> Maps.put_if_present(:also_known_as, params[:also_known_as])
       # Note: param name is indeed :locked (not an error)
       |> Maps.put_if_present(:is_locked, params[:locked])
       # Note: param name is indeed :discoverable (not an error)

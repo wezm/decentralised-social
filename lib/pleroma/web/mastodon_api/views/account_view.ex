@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.AccountView do
@@ -187,18 +187,14 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
     header_static = User.banner_url(user) |> MediaProxy.preview_url(static: true)
 
     following_count =
-      if !user.hide_follows_count or !user.hide_follows or opts[:for] == user do
-        user.following_count || 0
-      else
-        0
-      end
+      if !user.hide_follows_count or !user.hide_follows or opts[:for] == user,
+        do: user.following_count,
+        else: 0
 
     followers_count =
-      if !user.hide_followers_count or !user.hide_followers or opts[:for] == user do
-        user.follower_count || 0
-      else
-        0
-      end
+      if !user.hide_followers_count or !user.hide_followers or opts[:for] == user,
+        do: user.follower_count,
+        else: 0
 
     bot = user.actor_type == "Service"
 
@@ -269,6 +265,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
       # Pleroma extension
       pleroma: %{
         ap_id: user.ap_id,
+        also_known_as: user.also_known_as,
         confirmation_pending: user.confirmation_pending,
         tags: user.tags,
         hide_followers_count: user.hide_followers_count,

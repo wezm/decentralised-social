@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.AdminAPI.MediaProxyCacheControllerTest do
@@ -11,10 +11,6 @@ defmodule Pleroma.Web.AdminAPI.MediaProxyCacheControllerTest do
   alias Pleroma.Web.MediaProxy
 
   setup do: clear_config([:media_proxy])
-
-  setup do
-    on_exit(fn -> Cachex.clear(:banned_urls_cache) end)
-  end
 
   setup do
     admin = insert(:user, is_admin: true)

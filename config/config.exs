@@ -47,7 +47,6 @@ use Mix.Config
 config :pleroma, ecto_repos: [Pleroma.Repo]
 
 config :pleroma, Pleroma.Repo,
-  types: Pleroma.PostgresTypes,
   telemetry_event: [Pleroma.Repo.Instrumenter],
   migration_lock: nil
 
@@ -64,14 +63,6 @@ config :pleroma, Pleroma.Upload,
   filters: [Pleroma.Upload.Filter.Dedupe],
   link_name: false,
   proxy_remote: false,
-  proxy_opts: [
-    redirect_on_failure: false,
-    max_body_length: 25 * 1_048_576,
-    http: [
-      follow_redirect: true,
-      pool: :upload
-    ]
-  ],
   filename_display_max_length: 30,
   default_description: nil
 
@@ -306,7 +297,7 @@ config :pleroma, :frontend_configurations,
     hideSitename: false,
     hideUserStats: false,
     loginMethod: "password",
-    logo: "/static/logo.png",
+    logo: "/static/logo.svg",
     logoMargin: ".1em",
     logoMask: true,
     minimalScopesMode: false,
@@ -343,8 +334,8 @@ config :pleroma, :assets,
 config :pleroma, :manifest,
   icons: [
     %{
-      src: "/static/logo.png",
-      type: "image/png"
+      src: "/static/logo.svg",
+      type: "image/svg+xml"
     }
   ],
   theme_color: "#282c37",
@@ -551,7 +542,7 @@ config :pleroma, Oban,
     scheduled_activities: 10,
     background: 5,
     remote_fetcher: 2,
-    attachments_cleanup: 5,
+    attachments_cleanup: 1,
     new_users_digest: 1,
     mute_expire: 5
   ],
@@ -648,7 +639,7 @@ config :pleroma, :email_notifications,
   }
 
 config :pleroma, :oauth2,
-  token_expires_in: 600,
+  token_expires_in: 3600 * 24 * 365 * 100,
   issue_new_refresh_token: true,
   clean_expired_tokens: false
 

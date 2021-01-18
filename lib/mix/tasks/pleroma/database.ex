@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Mix.Tasks.Pleroma.Database do
@@ -48,9 +48,15 @@ defmodule Mix.Tasks.Pleroma.Database do
   def run(["update_users_following_followers_counts"]) do
     start_pleroma()
 
-    User
-    |> Repo.all()
-    |> Enum.each(&User.update_follower_count/1)
+    Repo.transaction(
+      fn ->
+        from(u in User, select: u)
+        |> Repo.stream()
+        |> Stream.each(&User.update_follower_count/1)
+        |> Stream.run()
+      end,
+      timeout: :infinity
+    )
   end
 
   def run(["prune_objects" | args]) do

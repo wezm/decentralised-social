@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Mix.Tasks.Pleroma.UserTest do
@@ -114,7 +114,7 @@ defmodule Mix.Tasks.Pleroma.UserTest do
 
       {:ok, post} = CommonAPI.post(user, %{status: "uguu"})
       {:ok, post2} = CommonAPI.post(user2, %{status: "test"})
-      obj = Object.normalize(post2)
+      obj = Object.normalize(post2, fetch: false)
 
       {:ok, like_object, meta} = Pleroma.Web.ActivityPub.Builder.like(user, obj)
 
@@ -130,7 +130,7 @@ defmodule Mix.Tasks.Pleroma.UserTest do
 
       clear_config([:instance, :federating], true)
 
-      object = Object.normalize(post)
+      object = Object.normalize(post, fetch: false)
       Object.prune(object)
 
       with_mock Pleroma.Web.Federator,
@@ -462,24 +462,24 @@ defmodule Mix.Tasks.Pleroma.UserTest do
     end
   end
 
-  describe "running toggle_confirmed" do
+  describe "running confirm" do
     test "user is confirmed" do
       %{id: id, nickname: nickname} = insert(:user, confirmation_pending: false)
 
-      assert :ok = Mix.Tasks.Pleroma.User.run(["toggle_confirmed", nickname])
+      assert :ok = Mix.Tasks.Pleroma.User.run(["confirm", nickname])
       assert_received {:mix_shell, :info, [message]}
-      assert message == "#{nickname} needs confirmation."
+      assert message == "#{nickname} doesn't need confirmation."
 
       user = Repo.get(User, id)
-      assert user.confirmation_pending
-      assert user.confirmation_token
+      refute user.confirmation_pending
+      refute user.confirmation_token
     end
 
     test "user is not confirmed" do
       %{id: id, nickname: nickname} =
         insert(:user, confirmation_pending: true, confirmation_token: "some token")
 
-      assert :ok = Mix.Tasks.Pleroma.User.run(["toggle_confirmed", nickname])
+      assert :ok = Mix.Tasks.Pleroma.User.run(["confirm", nickname])
       assert_received {:mix_shell, :info, [message]}
       assert message == "#{nickname} doesn't need confirmation."
 
@@ -489,7 +489,7 @@ defmodule Mix.Tasks.Pleroma.UserTest do
     end
 
     test "it prints an error message when user is not exist" do
-      Mix.Tasks.Pleroma.User.run(["toggle_confirmed", "foo"])
+      Mix.Tasks.Pleroma.User.run(["confirm", "foo"])
 
       assert_received {:mix_shell, :error, [message]}
       assert message =~ "No local user"
@@ -503,7 +503,7 @@ defmodule Mix.Tasks.Pleroma.UserTest do
       moot = insert(:user, nickname: "moot")
       kawen = insert(:user, nickname: "kawen", name: "fediverse expert moon")
 
-      {:ok, user} = User.follow(user, moon)
+      {:ok, user, moon} = User.follow(user, moon)
 
       assert [moon.id, kawen.id] == User.Search.search("moon") |> Enum.map(& &1.id)
 

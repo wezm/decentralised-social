@@ -22,7 +22,7 @@ defmodule Pleroma.Mixfile do
       docs: [
         source_url_pattern:
           "https://git.pleroma.social/pleroma/pleroma/blob/develop/%{path}#L%{line}",
-        logo: "priv/static/static/logo.png",
+        logo: "priv/static/images/logo.png",
         extras: ["README.md", "CHANGELOG.md"] ++ Path.wildcard("docs/**/*.md"),
         groups_for_extras: [
           "Installation manuals": Path.wildcard("docs/installation/*.md"),
@@ -125,7 +125,6 @@ defmodule Pleroma.Mixfile do
       {:postgrex, ">= 0.15.5"},
       {:oban, "~> 2.1.0"},
       {:gettext, "~> 0.18"},
-      {:pbkdf2_elixir, "~> 1.2"},
       {:bcrypt_elixir, "~> 2.2"},
       {:trailing_format_plug, "~> 0.0.7"},
       {:fast_sanitize, "~> 0.2.0"},
@@ -147,8 +146,8 @@ defmodule Pleroma.Mixfile do
       {:earmark, "1.4.3"},
       {:bbcode_pleroma, "~> 0.2.0"},
       {:crypt,
-       git: "https://github.com/msantos/crypt.git",
-       ref: "f63a705f92c26955977ee62a313012e309a4d77a"},
+       git: "https://git.pleroma.social/pleroma/elixir-libraries/crypt.git",
+       ref: "cf2aa3f11632e8b0634810a15b3e612c7526f6a3"},
       {:cors_plug, "~> 2.0"},
       {:web_push_encryption, "~> 0.3"},
       {:swoosh, "~> 1.0"},
@@ -158,7 +157,7 @@ defmodule Pleroma.Mixfile do
       {:floki, "~> 0.27"},
       {:timex, "~> 3.6"},
       {:ueberauth, "~> 0.4"},
-      {:linkify, "~> 0.4.0"},
+      {:linkify, "~> 0.4.1"},
       {:http_signatures, "~> 0.1.0"},
       {:telemetry, "~> 0.3"},
       {:poolboy, "~> 1.5"},
@@ -194,7 +193,8 @@ defmodule Pleroma.Mixfile do
        ref: "e0f16822d578866e186a0974d65ad58cddc1e2ab"},
       {:restarter, path: "./restarter"},
       {:majic,
-       git: "https://git.pleroma.social/pleroma/elixir-libraries/majic.git", branch: "develop"},
+       git: "https://git.pleroma.social/pleroma/elixir-libraries/majic.git",
+       ref: "4c692e544b28d1f5e543fb8a44be090f8cd96f80"},
       {:open_api_spex,
        git: "https://git.pleroma.social/pleroma/elixir-libraries/open_api_spex.git",
        ref: "f296ac0924ba3cf79c7a588c4c252889df4c2edd"},
@@ -206,8 +206,11 @@ defmodule Pleroma.Mixfile do
       {:mock, "~> 0.3.5", only: :test},
       # temporary downgrade for excoveralls, hackney until hackney max_connections bug will be fixed
       {:excoveralls, "0.12.3", only: :test},
-      {:hackney, "1.15.2", override: true},
-      {:mox, "~> 0.5", only: :test},
+      {:hackney,
+       git: "https://git.pleroma.social/pleroma/elixir-libraries/hackney.git",
+       ref: "7d7119f0651515d6d7669c78393fd90950a3ec6e",
+       override: true},
+      {:mox, "~> 1.0", only: :test},
       {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git", only: :test}
     ] ++ oauth_deps()
   end

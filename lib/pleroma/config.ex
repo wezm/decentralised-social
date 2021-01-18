@@ -1,16 +1,20 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Config do
+  @behaviour Pleroma.Config.Getting
   defmodule Error do
     defexception [:message]
   end
 
+  @impl true
   def get(key), do: get(key, nil)
 
+  @impl true
   def get([key], default), do: get(key, default)
 
+  @impl true
   def get([_ | _] = path, default) do
     case fetch(path) do
       {:ok, value} -> value
@@ -18,6 +22,7 @@ defmodule Pleroma.Config do
     end
   end
 
+  @impl true
   def get(key, default) do
     Application.get_env(:pleroma, key, default)
   end

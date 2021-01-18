@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web do
@@ -20,6 +20,7 @@ defmodule Pleroma.Web do
   below.
   """
 
+  alias Pleroma.Helpers.AuthHelper
   alias Pleroma.Web.Plugs.EnsureAuthenticatedPlug
   alias Pleroma.Web.Plugs.EnsurePublicOrAuthenticatedPlug
   alias Pleroma.Web.Plugs.ExpectAuthenticatedCheckPlug
@@ -75,7 +76,7 @@ defmodule Pleroma.Web do
       defp maybe_drop_authentication_if_oauth_check_ignored(conn) do
         if PlugHelper.plug_called?(conn, ExpectPublicOrAuthenticatedCheckPlug) and
              not PlugHelper.plug_called_or_skipped?(conn, OAuthScopesPlug) do
-          OAuthScopesPlug.drop_auth_info(conn)
+          AuthHelper.drop_auth_info(conn)
         else
           conn
         end

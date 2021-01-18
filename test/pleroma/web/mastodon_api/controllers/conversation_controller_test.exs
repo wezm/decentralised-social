@@ -1,9 +1,9 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.ConversationControllerTest do
-  use Pleroma.Web.ConnCase
+  use Pleroma.Web.ConnCase, async: true
 
   alias Pleroma.Conversation.Participation
   alias Pleroma.User
@@ -18,7 +18,7 @@ defmodule Pleroma.Web.MastodonAPI.ConversationControllerTest do
       user_two = insert(:user)
       user_three = insert(:user)
 
-      {:ok, user_two} = User.follow(user_two, user_one)
+      {:ok, user_two, user_one} = User.follow(user_two, user_one)
 
       {:ok, %{user: user_one, user_two: user_two, user_three: user_three, conn: conn}}
     end

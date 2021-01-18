@@ -1,9 +1,9 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ActivityPub.Transmogrifier.AcceptHandlingTest do
-  use Pleroma.DataCase
+  use Pleroma.DataCase, async: true
 
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.Transmogrifier
@@ -15,7 +15,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier.AcceptHandlingTest do
     follower = insert(:user)
     followed = insert(:user)
 
-    {:ok, follower} = User.follow(follower, followed)
+    {:ok, follower, followed} = User.follow(follower, followed)
     assert User.following?(follower, followed) == true
 
     {:ok, _, _, follow_activity} = CommonAPI.follow(follower, followed)

@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Tests.Helpers do
@@ -54,6 +54,14 @@ defmodule Pleroma.Tests.Helpers do
           clear_config: 1,
           clear_config: 2
         ]
+
+      def time_travel(entity, seconds) do
+        new_time = NaiveDateTime.add(entity.inserted_at, seconds)
+
+        entity
+        |> Ecto.Changeset.change(%{inserted_at: new_time, updated_at: new_time})
+        |> Pleroma.Repo.update()
+      end
 
       def to_datetime(%NaiveDateTime{} = naive_datetime) do
         naive_datetime

@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Mix.Tasks.Pleroma.User do
@@ -345,11 +345,11 @@ defmodule Mix.Tasks.Pleroma.User do
     end
   end
 
-  def run(["toggle_confirmed", nickname]) do
+  def run(["confirm", nickname]) do
     start_pleroma()
 
     with %User{} = user <- User.get_cached_by_nickname(nickname) do
-      {:ok, user} = User.toggle_confirmation(user)
+      {:ok, user} = User.confirm(user)
 
       message = if user.confirmation_pending, do: "needs", else: "doesn't need"
 

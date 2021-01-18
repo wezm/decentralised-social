@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Instances.Instance do
@@ -77,7 +77,7 @@ defmodule Pleroma.Instances.Instance do
     )
   end
 
-  def reachable?(_), do: true
+  def reachable?(url_or_host) when is_binary(url_or_host), do: true
 
   def set_reachable(url_or_host) when is_binary(url_or_host) do
     with host <- host(url_or_host),
@@ -166,7 +166,8 @@ defmodule Pleroma.Instances.Instance do
 
   defp scrape_favicon(%URI{} = instance_uri) do
     try do
-      with {:ok, %Tesla.Env{body: html}} <-
+      with {_, true} <- {:reachable, reachable?(instance_uri.host)},
+           {:ok, %Tesla.Env{body: html}} <-
              Pleroma.HTTP.get(to_string(instance_uri), [{"accept", "text/html"}], pool: :media),
            {_, [favicon_rel | _]} when is_binary(favicon_rel) <-
              {:parse,
@@ -175,7 +176,15 @@ defmodule Pleroma.Instances.Instance do
              {:merge, URI.merge(instance_uri, favicon_rel) |> to_string()} do
         favicon
       else
-        _ -> nil
+        {:reachable, false} ->
+          Logger.debug(
+            "Instance.scrape_favicon(\"#{to_string(instance_uri)}\") ignored unreachable host"
+          )
+
+          nil
+
+        _ ->
+          nil
       end
     rescue
       e ->
