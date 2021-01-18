@@ -36,34 +36,17 @@ defmodule Pleroma.Web.MastodonAPI.MediaController do
 
   def create(_conn, _data), do: {:error, :bad_request}
 
-  def _create(%{assigns: %{user: user}, body_params: %{file: file} = data} = conn, _) do
-    with {:ok, object} <-
-           ActivityPub.upload(
-             file,
-             actor: User.ap_id(user),
-             description: Map.get(data, :description)
-           ) do
-      attachment_data = Map.put(object.data, "id", object.id)
-
-      render(conn, "attachment.json", %{attachment: attachment_data})
-    end
-  end
-
-  def _create(_conn, _data), do: {:error, :bad_request}
-
   @doc "POST /api/v2/media"
   def create2(%{assigns: %{user: user}, body_params: %{file: file} = data} = conn, _) do
-    with {:ok, object} <-
+    with {:ok, media} <-
            ActivityPub.upload(
              file,
-             actor: User.ap_id(user),
+             user: user,
              description: Map.get(data, :description)
            ) do
-      attachment_data = Map.put(object.data, "id", object.id)
-
       conn
       |> put_status(202)
-      |> render("attachment.json", %{attachment: attachment_data})
+      |> render("media.json", %{media: media})
     end
   end
 

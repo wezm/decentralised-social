@@ -10,6 +10,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
   """
 
   alias Pleroma.Emoji
+  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.Relay
@@ -137,6 +138,9 @@ defmodule Pleroma.Web.ActivityPub.Builder do
     }
 
     case opts[:attachment] do
+      %Media{} = media ->
+        {:ok, Map.put(basic, "attachment", Media.to_object_form(media)), []}
+
       %Object{data: attachment_data} ->
         {
           :ok,

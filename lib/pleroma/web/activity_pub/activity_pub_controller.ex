@@ -7,6 +7,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
 
   alias Pleroma.Activity
   alias Pleroma.Delivery
+  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.Object.Fetcher
   alias Pleroma.User
@@ -537,17 +538,17 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   end
 
   def upload_media(%{assigns: %{user: %User{} = user}} = conn, %{"file" => file} = data) do
-    with {:ok, object} <-
+    with {:ok, media} <-
            ActivityPub.upload(
              file,
-             actor: User.ap_id(user),
+             user: user,
              description: Map.get(data, "description")
            ) do
-      Logger.debug(inspect(object))
+      Logger.debug(inspect(media))
 
       conn
       |> put_status(:created)
-      |> json(object.data)
+      |> json(Media.to_object_form(media))
     end
   end
 end

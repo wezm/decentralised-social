@@ -119,7 +119,7 @@ defmodule Pleroma.Web.CommonAPITest do
         filename: "an_image.jpg"
       }
 
-      {:ok, upload} = ActivityPub.upload(file, actor: author.ap_id)
+      {:ok, upload} = ActivityPub.upload(file, user: author)
 
       with_mocks([
         {

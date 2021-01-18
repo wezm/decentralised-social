@@ -20,6 +20,8 @@ defmodule Pleroma.Media do
     field(:blurhash, :string)
     field(:meta, :map)
 
+    field(:removable, :boolean, virtual: true, default: false)
+
     belongs_to(:object, Pleroma.Object)
     belongs_to(:user, Pleroma.User, type: FlakeId.Ecto.CompatType)
 
@@ -27,7 +29,7 @@ defmodule Pleroma.Media do
   end
 
   def create_from_object_data(%{"url" => [url]} = data, %{user: user} = opts) do
-    object_id = get_in(opts, [:object, "id"])
+    object_id = get_in(opts, [:object, "id"]) || Map.get(opts, :object_id)
 
     %Media{}
     |> changeset(%{
@@ -48,7 +50,7 @@ defmodule Pleroma.Media do
 
   @spec authorize_access(Media.t(), User.t()) :: :ok | {:error, :forbidden}
   def authorize_access(%Media{user_id: user_id}, %User{id: user_id}), do: :ok
-  def authorize_access(%Media{user_id: user_id}, %User{id: user_id}), do: {:error, :forbidden}
+  def authorize_access(_media, _user), do: {:error, :forbidden}
 
   def update(%Media{} = media, attrs \\ %{}) do
     media

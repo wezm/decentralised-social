@@ -10,6 +10,7 @@ defmodule Pleroma.Object do
 
   alias Pleroma.Activity
   alias Pleroma.Config
+  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.Object.Fetcher
   alias Pleroma.ObjectTombstone
@@ -51,6 +52,7 @@ defmodule Pleroma.Object do
   def create(data) do
     Object.change(%Object{}, %{data: data})
     |> Repo.insert()
+    |> maybe_handle_attachments()
   end
 
   def change(struct, params \\ %{}) do
@@ -349,4 +351,33 @@ defmodule Pleroma.Object do
 
   def self_replies(object, opts \\ []),
     do: replies(object, Keyword.put(opts, :self_only, true))
+
+  defp maybe_handle_attachments(
+         {:ok,
+          %Object{id: object_id, data: %{"attachment" => [_ | _] = attachments} = data} = object} =
+           result
+       ) do
+    Enum.each(attachments, fn attachment ->
+      case attachment["id"] do
+        # New media incoming
+        nil ->
+          Media.create_from_object_data(attachment, %{
+            user: User.get_by_ap_id(data["actor"]),
+            object_id: object_id
+          })
+
+        # Media pre-uploaded for a post
+        media_id ->
+          media_id
+          |> Media.get_by_id()
+          |> Media.update(%{object_id: object_id})
+      end
+
+      object
+    end)
+
+    result
+  end
+
+  defp maybe_handle_attachments(result), do: result
 end

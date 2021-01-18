@@ -24,8 +24,8 @@ defmodule Pleroma.Web.PleromaAPI.MascotController do
   @doc "PUT /api/v1/pleroma/mascot"
   def update(%{assigns: %{user: user}, body_params: %{file: file}} = conn, _) do
     with {:content_type, "image" <> _} <- {:content_type, file.content_type},
-         {:ok, object} <- ActivityPub.upload(file, actor: User.ap_id(user)) do
-      attachment = render_attachment(object)
+         {:ok, media} <- ActivityPub.upload(file, user: user) do
+      attachment = Pleroma.Web.MastodonAPI.StatusView.render("media.json", %{media: media})
       {:ok, _user} = User.mascot_update(user, attachment)
 
       json(conn, attachment)
@@ -33,10 +33,5 @@ defmodule Pleroma.Web.PleromaAPI.MascotController do
       {:content_type, _} ->
         render_error(conn, :unsupported_media_type, "mascots can only be images")
     end
-  end
-
-  defp render_attachment(object) do
-    attachment_data = Map.put(object.data, "id", object.id)
-    Pleroma.Web.MastodonAPI.StatusView.render("attachment.json", %{attachment: attachment_data})
   end
 end

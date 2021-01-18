@@ -27,11 +27,11 @@ defmodule Pleroma.Web.MastodonAPI.ScheduledActivityViewTest do
       filename: "an_image.jpg"
     }
 
-    {:ok, upload} = ActivityPub.upload(file, actor: user.ap_id)
+    {:ok, media} = ActivityPub.upload(file, user: user)
 
     attrs = %{
       params: %{
-        "media_ids" => [upload.id],
+        "media_ids" => [media.id],
         "status" => "hi",
         "sensitive" => true,
         "spoiler_text" => "spoiler",
@@ -47,12 +47,12 @@ defmodule Pleroma.Web.MastodonAPI.ScheduledActivityViewTest do
     expected = %{
       id: to_string(scheduled_activity.id),
       media_attachments:
-        %{media_ids: [upload.id]}
+        %{media_ids: [media.id]}
         |> Utils.attachments_from_ids()
         |> Enum.map(&StatusView.render("attachment.json", %{attachment: &1})),
       params: %{
         in_reply_to_id: to_string(activity.id),
-        media_ids: [upload.id],
+        media_ids: [media.id],
         poll: nil,
         scheduled_at: nil,
         sensitive: true,

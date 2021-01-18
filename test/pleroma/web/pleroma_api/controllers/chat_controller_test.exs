@@ -112,7 +112,7 @@ defmodule Pleroma.Web.PleromaAPI.ChatControllerTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, upload} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, upload} = ActivityPub.upload(file, user: user)
 
       other_user = insert(:user)
 

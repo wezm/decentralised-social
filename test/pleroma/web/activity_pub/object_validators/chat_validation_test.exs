@@ -4,6 +4,8 @@
 
 defmodule Pleroma.Web.ActivityPub.ObjectValidators.ChatValidationTest do
   use Pleroma.DataCase
+
+  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.ActivityPub.Builder
@@ -82,11 +84,11 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.ChatValidationTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, attachment} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, media} = ActivityPub.upload(file, user: user)
 
       valid_chat_message =
         valid_chat_message
-        |> Map.put("attachment", attachment.data)
+        |> Map.put("attachment", Media.to_object_form(media))
 
       assert {:ok, object, _meta} = ObjectValidator.validate(valid_chat_message, [])
 
@@ -103,11 +105,11 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.ChatValidationTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, attachment} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, media} = ActivityPub.upload(file, user: user)
 
       valid_chat_message =
         valid_chat_message
-        |> Map.put("attachment", [attachment.data])
+        |> Map.put("attachment", [Media.to_object_form(media)])
 
       assert {:ok, object, _meta} = ObjectValidator.validate(valid_chat_message, [])
 
@@ -124,11 +126,11 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.ChatValidationTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, attachment} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, media} = ActivityPub.upload(file, user: user)
 
       valid_chat_message =
         valid_chat_message
-        |> Map.put("attachment", attachment.data)
+        |> Map.put("attachment", Media.to_object_form(media))
         |> Map.delete("content")
 
       assert {:ok, object, _meta} = ObjectValidator.validate(valid_chat_message, [])

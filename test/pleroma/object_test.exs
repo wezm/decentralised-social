@@ -5,10 +5,13 @@
 defmodule Pleroma.ObjectTest do
   use Pleroma.DataCase
   use Oban.Testing, repo: Pleroma.Repo
+
   import ExUnit.CaptureLog
   import Pleroma.Factory
   import Tesla.Mock
+
   alias Pleroma.Activity
+  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.Repo
   alias Pleroma.Tests.ObanHelpers
@@ -89,11 +92,11 @@ defmodule Pleroma.ObjectTest do
 
       user = insert(:user)
 
-      {:ok, %Object{} = attachment} =
-        Pleroma.Web.ActivityPub.ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, %Media{} = media} = Pleroma.Web.ActivityPub.ActivityPub.upload(file, user: user)
 
       %{data: %{"attachment" => [%{"url" => [%{"href" => href}]}]}} =
-        note = insert(:note, %{user: user, data: %{"attachment" => [attachment.data]}})
+        note =
+        insert(:note, %{user: user, data: %{"attachment" => [Media.to_object_form(media)]}})
 
       uploads_dir = Pleroma.Config.get!([Pleroma.Uploaders.Local, :uploads])
 
@@ -106,7 +109,7 @@ defmodule Pleroma.ObjectTest do
       ObanHelpers.perform(all_enqueued(worker: Pleroma.Workers.AttachmentsCleanupWorker))
 
       assert Object.get_by_id(note.id).data["deleted"]
-      refute Object.get_by_id(attachment.id) == nil
+      refute Media.get_by_id(media.id) == nil
 
       assert {:ok, ["an_image.jpg"]} == File.ls("#{uploads_dir}/#{path}")
     end
@@ -123,11 +126,11 @@ defmodule Pleroma.ObjectTest do
 
       user = insert(:user)
 
-      {:ok, %Object{} = attachment} =
-        Pleroma.Web.ActivityPub.ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, %Media{} = media} = Pleroma.Web.ActivityPub.ActivityPub.upload(file, user: user)
 
       %{data: %{"attachment" => [%{"url" => [%{"href" => href}]}]}} =
-        note = insert(:note, %{user: user, data: %{"attachment" => [attachment.data]}})
+        note =
+        insert(:note, %{user: user, data: %{"attachment" => [Media.to_object_form(media)]}})
 
       uploads_dir = Pleroma.Config.get!([Pleroma.Uploaders.Local, :uploads])
 
@@ -140,7 +143,7 @@ defmodule Pleroma.ObjectTest do
       ObanHelpers.perform(all_enqueued(worker: Pleroma.Workers.AttachmentsCleanupWorker))
 
       assert Object.get_by_id(note.id).data["deleted"]
-      assert Object.get_by_id(attachment.id) == nil
+      assert Media.get_by_id(media.id) == nil
 
       assert {:ok, []} == File.ls("#{uploads_dir}/#{path}")
     end
@@ -162,11 +165,11 @@ defmodule Pleroma.ObjectTest do
 
       user = insert(:user)
 
-      {:ok, %Object{} = attachment} =
-        Pleroma.Web.ActivityPub.ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, %Media{} = media} = Pleroma.Web.ActivityPub.ActivityPub.upload(file, user: user)
 
       %{data: %{"attachment" => [%{"url" => [%{"href" => href}]}]}} =
-        note = insert(:note, %{user: user, data: %{"attachment" => [attachment.data]}})
+        note =
+        insert(:note, %{user: user, data: %{"attachment" => [Media.to_object_form(media)]}})
 
       filename = Path.basename(href)
 
@@ -178,7 +181,7 @@ defmodule Pleroma.ObjectTest do
       ObanHelpers.perform(all_enqueued(worker: Pleroma.Workers.AttachmentsCleanupWorker))
 
       assert Object.get_by_id(note.id).data["deleted"]
-      assert Object.get_by_id(attachment.id) == nil
+      assert Media.get_by_id(media.id) == nil
       assert {:ok, files} = File.ls(uploads_dir)
       refute filename in files
     end
@@ -195,13 +198,13 @@ defmodule Pleroma.ObjectTest do
 
       user = insert(:user)
 
-      {:ok, %Object{} = attachment} =
-        Pleroma.Web.ActivityPub.ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, %Media{} = media} = Pleroma.Web.ActivityPub.ActivityPub.upload(file, user: user)
 
       {:ok, %Object{}} = Object.create(%{url: "https://google.com", actor: user.ap_id})
 
       %{data: %{"attachment" => [%{"url" => [%{"href" => href}]}]}} =
-        note = insert(:note, %{user: user, data: %{"attachment" => [attachment.data]}})
+        note =
+        insert(:note, %{user: user, data: %{"attachment" => [Media.to_object_form(media)]}})
 
       uploads_dir = Pleroma.Config.get!([Pleroma.Uploaders.Local, :uploads])
 
@@ -214,7 +217,7 @@ defmodule Pleroma.ObjectTest do
       ObanHelpers.perform(all_enqueued(worker: Pleroma.Workers.AttachmentsCleanupWorker))
 
       assert Object.get_by_id(note.id).data["deleted"]
-      assert Object.get_by_id(attachment.id) == nil
+      assert Media.get_by_id(media.id) == nil
 
       assert {:ok, []} == File.ls("#{uploads_dir}/#{path}")
     end
@@ -232,11 +235,11 @@ defmodule Pleroma.ObjectTest do
 
       user = insert(:user)
 
-      {:ok, %Object{} = attachment} =
-        Pleroma.Web.ActivityPub.ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, %Media{} = media} = Pleroma.Web.ActivityPub.ActivityPub.upload(file, user: user)
 
       %{data: %{"attachment" => [%{"url" => [%{"href" => href}]}]}} =
-        note = insert(:note, %{user: user, data: %{"attachment" => [attachment.data]}})
+        note =
+        insert(:note, %{user: user, data: %{"attachment" => [Media.to_object_form(media)]}})
 
       uploads_dir = Pleroma.Config.get!([Pleroma.Uploaders.Local, :uploads])
 
@@ -249,7 +252,7 @@ defmodule Pleroma.ObjectTest do
       ObanHelpers.perform(all_enqueued(worker: Pleroma.Workers.AttachmentsCleanupWorker))
 
       assert Object.get_by_id(note.id).data["deleted"]
-      assert Object.get_by_id(attachment.id) == nil
+      assert Media.get_by_id(media.id) == nil
 
       assert {:ok, []} == File.ls("#{uploads_dir}/#{path}")
     end

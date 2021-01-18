@@ -9,6 +9,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
   alias Pleroma.Activity
   alias Pleroma.Builders.ActivityBuilder
   alias Pleroma.Config
+  alias Pleroma.Media
   alias Pleroma.Notification
   alias Pleroma.Object
   alias Pleroma.User
@@ -1068,42 +1069,47 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
         filename: "an_image.jpg"
       }
 
-      %{test_file: test_file}
+      user = insert(:user)
+
+      %{test_file: test_file, user: user}
     end
 
-    test "sets a description if given", %{test_file: file} do
-      {:ok, %Object{} = object} = ActivityPub.upload(file, description: "a cool file")
-      assert object.data["name"] == "a cool file"
+    test "sets a description if given", %{test_file: file, user: user} do
+      {:ok, %Media{} = media} = ActivityPub.upload(file, description: "a cool file", user: user)
+      assert media.name == "a cool file"
     end
 
-    test "it sets the default description depending on the configuration", %{test_file: file} do
+    test "it sets the default description depending on the configuration", %{
+      test_file: file,
+      user: user
+    } do
       clear_config([Pleroma.Upload, :default_description])
 
       Pleroma.Config.put([Pleroma.Upload, :default_description], nil)
-      {:ok, %Object{} = object} = ActivityPub.upload(file)
-      assert object.data["name"] == ""
+      {:ok, %Media{} = media} = ActivityPub.upload(file, user: user)
+      assert media.name == nil
 
       Pleroma.Config.put([Pleroma.Upload, :default_description], :filename)
-      {:ok, %Object{} = object} = ActivityPub.upload(file)
-      assert object.data["name"] == "an_image.jpg"
+      {:ok, %Media{} = media} = ActivityPub.upload(file, user: user)
+      assert media.name == "an_image.jpg"
 
       Pleroma.Config.put([Pleroma.Upload, :default_description], "unnamed attachment")
-      {:ok, %Object{} = object} = ActivityPub.upload(file)
-      assert object.data["name"] == "unnamed attachment"
+      {:ok, %Media{} = media} = ActivityPub.upload(file, user: user)
+      assert media.name == "unnamed attachment"
     end
 
-    test "copies the file to the configured folder", %{test_file: file} do
+    test "copies the file to the configured folder", %{test_file: file, user: user} do
       clear_config([Pleroma.Upload, :default_description], :filename)
-      {:ok, %Object{} = object} = ActivityPub.upload(file)
-      assert object.data["name"] == "an_image.jpg"
+      {:ok, %Media{} = media} = ActivityPub.upload(file, user: user)
+      assert media.name == "an_image.jpg"
     end
 
-    test "works with base64 encoded images" do
+    test "works with base64 encoded images", %{user: user} do
       file = %{
         img: data_uri()
       }
 
-      {:ok, %Object{}} = ActivityPub.upload(file)
+      {:ok, %Media{}} = ActivityPub.upload(file, user: user)
     end
   end
 

@@ -242,7 +242,7 @@ defmodule Pleroma.Web.Push.ImplTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, upload} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, upload} = ActivityPub.upload(file, user: user)
 
       {:ok, chat} = CommonAPI.post_chat_message(user, recipient, nil, media_id: upload.id)
       object = Object.normalize(chat, fetch: false)

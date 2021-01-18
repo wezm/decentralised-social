@@ -168,7 +168,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusControllerTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, upload} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, upload} = ActivityPub.upload(file, user: user)
 
       conn =
         conn
@@ -409,7 +409,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusControllerTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, upload} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, upload} = ActivityPub.upload(file, user: user)
 
       conn =
         conn

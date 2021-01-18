@@ -63,10 +63,10 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AttachmentValidatorTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, attachment} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, attachment} = ActivityPub.upload(file, user: user)
 
       {:ok, attachment} =
-        attachment.data
+        attachment
         |> AttachmentValidator.cast_and_validate()
         |> Ecto.Changeset.apply_action(:insert)
 

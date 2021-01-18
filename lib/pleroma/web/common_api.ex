@@ -6,6 +6,7 @@ defmodule Pleroma.Web.CommonAPI do
   alias Pleroma.Activity
   alias Pleroma.Conversation.Participation
   alias Pleroma.Formatter
+  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.ThreadMute
   alias Pleroma.User
@@ -31,7 +32,7 @@ defmodule Pleroma.Web.CommonAPI do
   end
 
   def post_chat_message(%User{} = user, %User{} = recipient, content, opts \\ []) do
-    with maybe_attachment <- opts[:media_id] && Object.get_by_id(opts[:media_id]),
+    with maybe_attachment <- opts[:media_id] && Media.get_by_id(opts[:media_id]),
          :ok <- validate_chat_content_length(content, !!maybe_attachment),
          {_, {:ok, chat_message_data, _meta}} <-
            {:build_object,

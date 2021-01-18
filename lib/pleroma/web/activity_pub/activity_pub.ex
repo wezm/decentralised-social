@@ -123,7 +123,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
          {:fake, false, map, recipients} <- {:fake, fake, map, recipients},
          {:containment, :ok} <- {:containment, Containment.contain_child(map)},
          {:ok, map, object} <- insert_full_object(map),
-         :ok <- maybe_update_media(object),
          {:ok, activity} <- insert_activity_with_expiration(map, local, recipients) do
       # Splice in the child object if we have one.
       activity = Maps.put_if_present(activity, :object, object)
@@ -164,18 +163,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       {:reject, _} = e ->
         {:error, e}
     end
-  end
-
-  defp maybe_update_media(%Object{data: %{"attachment" => []}}), do: :ok
-
-  defp maybe_update_media(%Object{data: %{"id" => id, "attachment" => attachments}}) do
-    Enum.each(attachments, fn data ->
-      with %{"id" => media_id} <- data do
-        media_id
-        |> Pleroma.Media.get_by_id()
-        |> Pleroma.Media.update(%{object_id: id})
-      end
-    end)
   end
 
   defp insert_activity_with_expiration(data, local, recipients) do
@@ -1214,8 +1201,8 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
   @spec upload(Upload.source(), keyword()) :: {:ok, Object.t()} | {:error, any()}
   def upload(file, opts \\ []) do
     with {:ok, data} <- Upload.store(file, opts),
-         %User{} <- opts[:user] do
-      Pleroma.Media.create_from_object_data(data, %{user: opts[:user]})
+         %User{} = user <- opts[:user] do
+      Pleroma.Media.create_from_object_data(data, %{user: user})
     end
   end
 

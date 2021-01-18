@@ -385,11 +385,11 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
         filename: "an_image.jpg"
       }
 
-      {:ok, %{id: media_id}} = ActivityPub.upload(file, actor: user.ap_id)
+      {:ok, %{id: media_id}} = ActivityPub.upload(file, user: user)
 
       {:ok, %{id: image_post_id}} = CommonAPI.post(user, %{status: "cofe", media_ids: [media_id]})
 
-      {:ok, %{id: media_id}} = ActivityPub.upload(file, actor: other_user.ap_id)
+      {:ok, %{id: media_id}} = ActivityPub.upload(file, user: other_user)
 
       {:ok, %{id: other_image_post_id}} =
         CommonAPI.post(other_user, %{status: "cofe2", media_ids: [media_id]})

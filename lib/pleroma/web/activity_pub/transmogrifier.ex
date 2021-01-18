@@ -9,7 +9,6 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   alias Pleroma.Activity
   alias Pleroma.EctoType.ActivityPub.ObjectValidators
   alias Pleroma.Maps
-  alias Pleroma.Media
   alias Pleroma.Object
   alias Pleroma.Object.Containment
   alias Pleroma.Repo
@@ -37,7 +36,6 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     |> fix_actor()
     |> fix_url()
     |> fix_attachments()
-    |> fix_media()
     |> fix_context()
     |> fix_in_reply_to(options)
     |> fix_emoji()
@@ -271,17 +269,6 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   end
 
   def fix_attachments(object), do: object
-
-  def fix_media(%{"attachment" => [_ | _] = attachments} = object) do
-    Enum.each(
-      attachments,
-      &Media.create_from_object_data(&1, %{user: User.get_by_ap_id(object.actor), object: object})
-    )
-
-    object
-  end
-
-  def fix_media(object), do: object
 
   def fix_url(%{"url" => url} = object) when is_map(url) do
     Map.put(object, "url", url["href"])
