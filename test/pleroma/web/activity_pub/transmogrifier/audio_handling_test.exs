@@ -65,21 +65,24 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier.AudioHandlingTest do
 
     assert object.data["url"] == "https://channels.tests.funkwhale.audio/library/tracks/74"
 
-    assert object.data["attachment"] == [
-             %{
-               "mediaType" => "audio/ogg",
-               "type" => "Link",
-               "name" => nil,
-               "blurhash" => nil,
-               "url" => [
-                 %{
-                   "href" =>
-                     "https://channels.tests.funkwhale.audio/api/v1/listen/3901e5d8-0445-49d5-9711-e096cf32e515/?upload=42342395-0208-4fee-a38d-259a6dae0871&download=false",
-                   "mediaType" => "audio/ogg",
-                   "type" => "Link"
-                 }
-               ]
-             }
-           ]
+    assert match?(
+             [
+               %{
+                 "mediaType" => "audio/ogg",
+                 "type" => "Link",
+                 "name" => nil,
+                 "blurhash" => nil,
+                 "url" => [
+                   %{
+                     "href" =>
+                       "https://channels.tests.funkwhale.audio/api/v1/listen/3901e5d8-0445-49d5-9711-e096cf32e515/?upload=42342395-0208-4fee-a38d-259a6dae0871&download=false",
+                     "mediaType" => "audio/ogg",
+                     "type" => "Link"
+                   }
+                 ]
+               }
+             ],
+             object.data["attachment"]
+           )
   end
 end

@@ -272,12 +272,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     end
   end
 
-  def inbox(conn, params) do
-    IO.inspect(%{conn: conn, params: params})
-    inbox2(conn, params)
-  end
-
-  def inbox2(%{assigns: %{valid_signature: true}} = conn, %{"nickname" => nickname} = params) do
+  def inbox(%{assigns: %{valid_signature: true}} = conn, %{"nickname" => nickname} = params) do
     with %User{} = recipient <- User.get_cached_by_nickname(nickname),
          {:ok, %User{} = actor} <- User.get_or_fetch_by_ap_id(params["actor"]),
          true <- Utils.recipient_in_message(recipient, actor, params),
@@ -287,13 +282,13 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     end
   end
 
-  def inbox2(%{assigns: %{valid_signature: true}} = conn, params) do
+  def inbox(%{assigns: %{valid_signature: true}} = conn, params) do
     Federator.incoming_ap_doc(params)
     json(conn, "ok")
   end
 
   # POST /relay/inbox -or- POST /internal/fetch/inbox
-  def inbox2(conn, params) do
+  def inbox(conn, params) do
     if params["type"] == "Create" && FederatingPlug.federating?() do
       post_inbox_relayed_create(conn, params)
     else

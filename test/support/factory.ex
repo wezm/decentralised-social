@@ -458,4 +458,13 @@ defmodule Pleroma.Factory do
       phrase: "cofe"
     }
   end
+
+  def media_factory do
+    %Pleroma.Media{
+      href: "https://pleroma.social/images/pleroma_tan_2.1_cofe.png",
+      type: "Link",
+      media_type: "image/png",
+      actor: build(:user).ap_id
+    }
+  end
 end

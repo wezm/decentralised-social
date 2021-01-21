@@ -1202,7 +1202,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
   def upload(file, opts \\ []) do
     with {:ok, data} <- Upload.store(file, opts),
          %User{} = user <- opts[:user] do
-      Pleroma.Media.create_from_object_data(data, %{user: user})
+      Pleroma.Media.create_from_object_data(data, %{actor: user.ap_id})
     end
   end
 

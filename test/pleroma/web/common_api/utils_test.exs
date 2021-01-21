@@ -511,31 +511,76 @@ defmodule Pleroma.Web.CommonAPI.UtilsTest do
     end
 
     test "returns list attachments with desc" do
-      object = insert(:note)
-      desc = Jason.encode!(%{object.id => "test-desc"})
+      media = insert(:media)
+      desc = Jason.encode!(%{media.id => "test-desc"})
 
-      assert Utils.attachments_from_ids_descs(["#{object.id}", "34"], desc) == [
-               Map.merge(object.data, %{"name" => "test-desc"})
-             ]
+      assert match?(
+               [
+                 %{
+                   "mediaType" => "image/png",
+                   "name" => "test-desc",
+                   "type" => "Document",
+                   "url" => [
+                     %{
+                       "href" => "https://pleroma.social/images/pleroma_tan_2.1_cofe.png",
+                       "mediaType" => "image/png",
+                       "type" => "Link"
+                     }
+                   ]
+                 }
+               ],
+               Utils.attachments_from_ids_descs(["#{media.id}", "34"], desc)
+             )
     end
   end
 
   describe "attachments_from_ids/1" do
     test "returns attachments with descs" do
-      object = insert(:note)
-      desc = Jason.encode!(%{object.id => "test-desc"})
+      media = insert(:media)
+      desc = Jason.encode!(%{media.id => "test-desc"})
 
-      assert Utils.attachments_from_ids(%{
-               media_ids: ["#{object.id}"],
-               descriptions: desc
-             }) == [
-               Map.merge(object.data, %{"name" => "test-desc"})
-             ]
+      assert match?(
+               [
+                 %{
+                   "mediaType" => "image/png",
+                   "name" => "test-desc",
+                   "type" => "Document",
+                   "url" => [
+                     %{
+                       "href" => "https://pleroma.social/images/pleroma_tan_2.1_cofe.png",
+                       "mediaType" => "image/png",
+                       "type" => "Link"
+                     }
+                   ]
+                 }
+               ],
+               Utils.attachments_from_ids(%{
+                 media_ids: ["#{media.id}"],
+                 descriptions: desc
+               })
+             )
     end
 
     test "returns attachments without descs" do
-      object = insert(:note)
-      assert Utils.attachments_from_ids(%{media_ids: ["#{object.id}"]}) == [object.data]
+      media = insert(:media)
+
+      assert match?(
+               [
+                 %{
+                   "mediaType" => "image/png",
+                   "name" => nil,
+                   "type" => "Document",
+                   "url" => [
+                     %{
+                       "href" => "https://pleroma.social/images/pleroma_tan_2.1_cofe.png",
+                       "mediaType" => "image/png",
+                       "type" => "Link"
+                     }
+                   ]
+                 }
+               ],
+               Utils.attachments_from_ids(%{media_ids: ["#{media.id}"]})
+             )
     end
 
     test "returns [] when not pass media_ids" do

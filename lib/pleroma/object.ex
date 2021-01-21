@@ -52,7 +52,7 @@ defmodule Pleroma.Object do
   def create(data) do
     Object.change(%Object{}, %{data: data})
     |> Repo.insert()
-    |> maybe_handle_attachments()
+    |> maybe_set_media_object_id()
   end
 
   def change(struct, params \\ %{}) do
@@ -60,6 +60,7 @@ defmodule Pleroma.Object do
     |> cast(params, [:data])
     |> validate_required([:data])
     |> unique_constraint(:ap_id, name: :objects_unique_apid_index)
+    |> maybe_create_media()
   end
 
   def get_by_id(nil), do: nil
@@ -352,32 +353,45 @@ defmodule Pleroma.Object do
   def self_replies(object, opts \\ []),
     do: replies(object, Keyword.put(opts, :self_only, true))
 
-  defp maybe_handle_attachments(
-         {:ok,
-          %Object{id: object_id, data: %{"attachment" => [_ | _] = attachments} = data} = object} =
-           result
+  defp maybe_create_media(
+         %{
+           valid?: true,
+           changes: %{data: %{"actor" => actor, "attachment" => [_ | _] = attachments}}
+         } = changeset
        ) do
-    Enum.each(attachments, fn attachment ->
-      case attachment["id"] do
-        # New media incoming
-        nil ->
-          Media.create_from_object_data(attachment, %{
-            user: User.get_by_ap_id(data["actor"]),
-            object_id: object_id
-          })
+    new_attachments =
+      Enum.map(attachments, fn attachment ->
+        if is_nil(attachment["id"]) do
+          {:ok, media} = Media.create_from_object_data(attachment, %{actor: actor})
 
-        # Media pre-uploaded for a post
-        media_id ->
-          media_id
-          |> Media.get_by_id()
-          |> Media.update(%{object_id: object_id})
-      end
+          Map.put(attachment, "id", media.id)
+        else
+          attachment
+        end
+      end)
 
-      object
+    %{
+      changeset
+      | changes: %{
+          changeset.changes
+          | data: %{changeset.changes.data | "attachment" => new_attachments}
+        }
+    }
+  end
+
+  defp maybe_create_media(changeset), do: changeset
+
+  defp maybe_set_media_object_id(
+         {:ok, %Object{id: object_id, data: %{"attachment" => [_ | _] = attachments}}} = result
+       ) do
+    Enum.each(attachments, fn %{"id" => media_id} ->
+      media_id
+      |> Media.get_by_id()
+      |> Media.update(%{object_id: object_id})
     end)
 
     result
   end
 
-  defp maybe_handle_attachments(result), do: result
+  defp maybe_set_media_object_id(result), do: result
 end

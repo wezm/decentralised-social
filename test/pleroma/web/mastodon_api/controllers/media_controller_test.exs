@@ -38,7 +38,7 @@ defmodule Pleroma.Web.MastodonAPI.MediaControllerTest do
       assert media["id"]
 
       media = Media.get_by_id(media["id"])
-      assert media.user_id == conn.assigns[:user].id
+      assert media.actor == conn.assigns[:user].ap_id
     end
 
     test "/api/v2/media", %{conn: conn, user: user, image: image} do
@@ -64,7 +64,7 @@ defmodule Pleroma.Web.MastodonAPI.MediaControllerTest do
       assert media["id"]
 
       media = Media.get_by_id(media["id"])
-      assert media.user_id == user.id
+      assert media.actor == user.ap_id
     end
   end
 
@@ -134,7 +134,7 @@ defmodule Pleroma.Web.MastodonAPI.MediaControllerTest do
     test "it returns 403 if media object requested by non-owner", %{media: media, user: user} do
       %{conn: conn, user: other_user} = oauth_access(["read:media"])
 
-      assert media.user_id == user.id
+      assert media.actor == user.ap_id
       refute user.id == other_user.id
 
       conn

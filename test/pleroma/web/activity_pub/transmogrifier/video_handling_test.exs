@@ -49,22 +49,25 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier.VideoHandlingTest do
     assert object.data["url"] ==
              "https://peertube.moe/videos/watch/df5f464b-be8d-46fb-ad81-2d4c2d1630e3"
 
-    assert object.data["attachment"] == [
-             %{
-               "type" => "Link",
-               "mediaType" => "video/mp4",
-               "name" => nil,
-               "blurhash" => nil,
-               "url" => [
-                 %{
-                   "href" =>
-                     "https://peertube.moe/static/webseed/df5f464b-be8d-46fb-ad81-2d4c2d1630e3-480.mp4",
-                   "mediaType" => "video/mp4",
-                   "type" => "Link"
-                 }
-               ]
-             }
-           ]
+    assert match?(
+             [
+               %{
+                 "type" => "Link",
+                 "mediaType" => "video/mp4",
+                 "name" => nil,
+                 "blurhash" => nil,
+                 "url" => [
+                   %{
+                     "href" =>
+                       "https://peertube.moe/static/webseed/df5f464b-be8d-46fb-ad81-2d4c2d1630e3-480.mp4",
+                     "mediaType" => "video/mp4",
+                     "type" => "Link"
+                   }
+                 ]
+               }
+             ],
+             object.data["attachment"]
+           )
 
     data = File.read!("test/fixtures/tesla_mock/framatube.org-video.json") |> Jason.decode!()
 
@@ -72,22 +75,25 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier.VideoHandlingTest do
 
     assert object = Object.normalize(activity, fetch: false)
 
-    assert object.data["attachment"] == [
-             %{
-               "type" => "Link",
-               "mediaType" => "video/mp4",
-               "name" => nil,
-               "blurhash" => nil,
-               "url" => [
-                 %{
-                   "href" =>
-                     "https://framatube.org/static/webseed/6050732a-8a7a-43d4-a6cd-809525a1d206-1080.mp4",
-                   "mediaType" => "video/mp4",
-                   "type" => "Link"
-                 }
-               ]
-             }
-           ]
+    assert match?(
+             [
+               %{
+                 "type" => "Link",
+                 "mediaType" => "video/mp4",
+                 "name" => nil,
+                 "blurhash" => nil,
+                 "url" => [
+                   %{
+                     "href" =>
+                       "https://framatube.org/static/webseed/6050732a-8a7a-43d4-a6cd-809525a1d206-1080.mp4",
+                     "mediaType" => "video/mp4",
+                     "type" => "Link"
+                   }
+                 ]
+               }
+             ],
+             object.data["attachment"]
+           )
 
     assert object.data["url"] ==
              "https://framatube.org/videos/watch/6050732a-8a7a-43d4-a6cd-809525a1d206"
