@@ -57,8 +57,8 @@ defmodule Pleroma.Activity.Search do
     from([a, o] in q,
       where:
         fragment(
-          "to_tsvector('english', ?->>'content') @@ plainto_tsquery('english', ?)",
-          o.data,
+          "? @@ plainto_tsquery('english', ?)",
+          a.fts_content,
           ^search_query
         )
     )
