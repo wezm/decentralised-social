@@ -34,7 +34,7 @@ defmodule Pleroma.Media do
     %Media{}
     |> changeset(%{
       href: url["href"],
-      type: url["type"],
+      type: data["type"],
       media_type: url["mediaType"],
       name: data["name"],
       blurhash: nil,
