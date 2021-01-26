@@ -13,7 +13,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.DnsRblPolicy do
 
     # :nameserver is the RBL server we want to query
     rblhost = rblconfig[:nameserver]
- 
+
     # We have to query the nameserver's by IP, so look it up if an IP address wasn't
     # provided in the config.
     # You may want this to be a hostname with round-robin A records for basic load
@@ -34,7 +34,11 @@ defmodule Pleroma.Web.ActivityPub.MRF.DnsRblPolicy do
     rblzone = rblconfig[:zone] || rblhost
 
     # concatenate the host we're checking with the zone, e.g., "pleroma.host" <> . <> "bl.pleroma.com" <> .
-    query = (actor_host <> "." <> rblzone <> ".") |> String.to_charlist()
+    # trim off duplicate trailing period in case it was supplied in the config.
+    query =
+      (actor_host <> "." <> rblzone <> ".")
+      |> String.replace_suffix("..", ".")
+      |> String.to_charlist()
 
     # Timeout of 1s, retry 1
     # We will only be using UDP for queries, so I think if the DNSRBL server is > 500ms away it won't work
