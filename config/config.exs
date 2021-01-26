@@ -402,7 +402,7 @@ config :pleroma, :mrf_vocabulary,
 config :pleroma, :mrf_dnsrbl,
   nameserver: "bl.pleroma.com",
   port: 53,
-  zone: nil
+  rblzone: nil
 
 # threshold of 7 days
 config :pleroma, :mrf_object_age,

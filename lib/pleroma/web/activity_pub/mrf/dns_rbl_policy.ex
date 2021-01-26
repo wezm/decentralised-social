@@ -31,7 +31,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.DnsRblPolicy do
     # -- irrespective of the actual hostname/IP used to reach it -- we need to know this as all queries
     # are nested under the zone. e.g., if you're checking the status of pleroma.host you are querying for:
     # dig @nameserverip pleroma.host.bl.pleroma.com. in A
-    rblzone = rblconfig[:zone] || rblhost
+    rblzone = rblconfig[:rblzone] || rblhost
 
     # concatenate the host we're checking with the zone, e.g., "pleroma.host" <> . <> "bl.pleroma.com" <> .
     # trim off duplicate trailing period in case it was supplied in the config.
@@ -98,7 +98,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.DnsRblPolicy do
           suggestions: ["53"]
         },
         %{
-          key: :zone,
+          key: :rblzone,
           type: {:string},
           description:
             "Zone for querying, if unable to detect because nameserver is an IP address",
