@@ -21,7 +21,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.DnsRblPolicy do
     {:ok, rblnsip} =
       case rblhost |> String.to_charlist() |> :inet_parse.address() do
         {:ok, _} -> rblhost |> String.to_charlist() |> :inet_parse.address()
-        _ -> {:ok, rblhost |> :inet_res.lookup(:in, :a) |> Enum.random()}
+        _ -> {:ok, rblhost |> String.to_charlist() |> :inet_res.lookup(:in, :a) |> Enum.random()}
       end
 
     rblport = rblconfig[:port]
