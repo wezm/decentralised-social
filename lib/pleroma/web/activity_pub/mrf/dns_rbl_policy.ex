@@ -28,9 +28,12 @@ defmodule Pleroma.Web.ActivityPub.MRF.DnsRblPolicy do
 
     # If the provided nameserver was an IP, we also need to know the zone because we can't
     # derive it from the hostname. If the DNSRBL server software is configured to use "bl.pleroma.com"
-    # -- irrespective of the actual hostname/IP used to reach it -- we need to know this as all queries
-    # are nested under the zone. e.g., if you're checking the status of pleroma.host you are querying for:
+    # -- irrespective of the actual hostname/IP used to reach it --
+    # we need the configured zone as queries are nested under the zone. e.g., if you're checking the
+    # status of pleroma.host you are querying for:
+    #
     # dig @nameserverip pleroma.host.bl.pleroma.com. in A
+    #
     rblzone = rblconfig[:rblzone] || rblhost
 
     # concatenate the host we're checking with the zone, e.g., "pleroma.host" <> . <> "bl.pleroma.com" <> .
@@ -41,9 +44,9 @@ defmodule Pleroma.Web.ActivityPub.MRF.DnsRblPolicy do
       |> String.to_charlist()
 
     # Timeout of 1s, retry 1
-    # We will only be using UDP for queries, so I think if the DNSRBL server is > 500ms away it won't work
-    # with these values, but you also wouldn't want it to be so far away or it will slow things down.
-    # I think we should probably try to cache entries in cachex too, maybe 300s TTL ?
+    # We will only be using UDP for queries, so if the DNSRBL server is > 500ms away it
+    # may not work. However you wouldn't want it to be this far away or it will slow things
+    # down. I think we should probably try to cache entries in cachex too, maybe 300s TTL ?
     rbl_response =
       :inet_res.lookup(query, :in, :a, nameservers: [{rblnsip, rblport}], timeout: 1000, retry: 1)
 
