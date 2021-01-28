@@ -72,6 +72,8 @@ defmodule Pleroma.Migrators.MediaTableMigrator do
 
   @impl true
   def handle_info(:process_attachments, state) do
+    State.clear()
+
     data_migration = data_migration()
 
     persistent_data = Map.take(data_migration.data, ["max_processed_id"])
