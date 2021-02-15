@@ -6,8 +6,6 @@ defmodule Pleroma.Upload.Filter.Heif do
   @behaviour Pleroma.Upload.Filter
   alias Pleroma.Upload
 
-  require Logger
-
   @type conversion :: action :: String.t() | {action :: String.t(), opts :: String.t()}
   @type conversions :: conversion() | [conversion()]
 
@@ -24,18 +22,26 @@ defmodule Pleroma.Upload.Filter.Heif do
       {:ok, :filtered, %Upload{upload | name: name, path: path, content_type: "image/jpeg"}}
     rescue
       e in ErlangError ->
-        {:error, "mogrify command not found: #{inspect(e)}"}
+        {:error, "mogrify error: #{inspect(e)}"}
     end
   end
 
   def filter(_), do: {:ok, :noop}
 
   def convert(tempfile) do
-    tempfile
-    |> Mogrify.open()
-    |> Mogrify.format("jpeg")
-    |> Mogrify.save(in_place: true)
-    |> Mogrify.verbose()
-    |> IO.inspect
+    # cannot save in place when changing format, so we have to use a tmp file
+    # https://github.com/route/mogrify/issues/77
+    # also need a valid extension or it gets confused
+
+    original = tempfile <> ".heic"
+    File.rename!(tempfile, original)
+
+    %{path: converted} =
+      original
+      |> Mogrify.open()
+      |> Mogrify.format("jpg")
+      |> Mogrify.save()
+
+    File.rename!(converted, tempfile)
   end
 end
