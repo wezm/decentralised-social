@@ -75,7 +75,7 @@
   "mimerl": {:git, "https://github.com/benoitc/mimerl", "5a1b22a8fada5b3b40438da00a6923cb87a42bbc", [tag: "1.2.0"]},
   "mochiweb": {:hex, :mochiweb, "2.18.0", "eb55f1db3e6e960fac4e6db4e2db9ec3602cc9f30b86cd1481d56545c3145d2e", [:rebar3], [], "hexpm"},
   "mock": {:hex, :mock, "0.3.5", "feb81f52b8dcf0a0d65001d2fec459f6b6a8c22562d94a965862f6cc066b5431", [:mix], [{:meck, "~> 0.8.13", [hex: :meck, repo: "hexpm", optional: false]}], "hexpm", "6fae404799408300f863550392635d8f7e3da6b71abdd5c393faf41b131c8728"},
-  "mogrify": {:hex, :mogrify, "0.7.4", "9b2496dde44b1ce12676f85d7dc531900939e6367bc537c7243a1b089435b32d", [:mix], [], "hexpm", "50d79e337fba6bc95bfbef918058c90f50b17eed9537771e61d4619488f099c3"},
+  "mogrify": {:hex, :mogrify, "0.8.0", "3506f3ca3f7b95a155f3b4ef803b5db176f5a0633723e3fe85e0d6399e3b11c8", [:mix], [], "hexpm", "2278d245f07056ea3b586e98801e933695147066fa4cf563f552c1b4f0ff8ad9"},
   "mox": {:hex, :mox, "1.0.0", "4b3c7005173f47ff30641ba044eb0fe67287743eec9bd9545e37f3002b0a9f8b", [:mix], [], "hexpm", "201b0a20b7abdaaab083e9cf97884950f8a30a1350a1da403b3145e213c6f4df"},
   "myhtmlex": {:git, "https://git.pleroma.social/pleroma/myhtmlex.git", "ad0097e2f61d4953bfef20fb6abddf23b87111e6", [ref: "ad0097e2f61d4953bfef20fb6abddf23b87111e6", submodules: true]},
   "nimble_parsec": {:hex, :nimble_parsec, "0.6.0", "32111b3bf39137144abd7ba1cce0914533b2d16ef35e8abc5ec8be6122944263", [:mix], [], "hexpm", "27eac315a94909d4dc68bc07a4a83e06c8379237c5ea528a9acff4ca1c873c52"},
