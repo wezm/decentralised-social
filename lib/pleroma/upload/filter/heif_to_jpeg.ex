@@ -33,11 +33,11 @@ defmodule Pleroma.Upload.Filter.HeifToJpeg do
     # https://github.com/route/mogrify/issues/77
     # also need a valid extension or it gets confused
 
-    original = tempfile <> ".heic"
-    File.rename!(tempfile, original)
+    with_extension = tempfile <> ".heic"
+    File.rename!(tempfile, with_extension)
 
     %{path: converted} =
-      original
+      with_extension
       |> Mogrify.open()
       |> Mogrify.format("jpg")
       |> Mogrify.save()
