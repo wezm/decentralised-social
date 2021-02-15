@@ -22,7 +22,7 @@ defmodule Pleroma.Upload.Filter.HeifToJpeg do
       {:ok, :filtered, %Upload{upload | name: name, path: path, content_type: "image/jpeg"}}
     rescue
       e in ErlangError ->
-        {:error, "mogrify error: #{inspect(e)}"}
+        {:error, "#{__MODULE__}: #{inspect(e)}"}
     end
   end
 
