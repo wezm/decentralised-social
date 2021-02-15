@@ -44,7 +44,7 @@ defmodule Pleroma.Upload.Filter.Mogrifun do
       Filter.Mogrify.do_filter(file, [Enum.random(@filters)])
       {:ok, :filtered}
     rescue
-      _e in ErlangError ->
+      e in ErlangError ->
         {:error, "#{__MODULE__}: #{inspect(e)}"}
     end
   end
