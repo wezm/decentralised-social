@@ -28,7 +28,7 @@ defmodule Pleroma.Upload.Filter.HeifToJpeg do
 
   def filter(_), do: {:ok, :noop}
 
-  def convert(tempfile) do
+  defp convert(tempfile) do
     # cannot save in place when changing format, so we have to use a tmp file
     # https://github.com/route/mogrify/issues/77
     # also need a valid extension or it gets confused
