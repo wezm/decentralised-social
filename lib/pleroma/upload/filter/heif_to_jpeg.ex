@@ -42,6 +42,7 @@ defmodule Pleroma.Upload.Filter.HeifToJpeg do
       |> Mogrify.format("jpg")
       |> Mogrify.save()
 
+    File.rm!(with_extension)
     File.rename!(converted, tempfile)
   end
 end
