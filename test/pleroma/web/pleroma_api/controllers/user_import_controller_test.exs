@@ -81,9 +81,9 @@ defmodule Pleroma.Web.PleromaAPI.UserImportControllerTest do
 
         if token == token3 do
           assert %{"error" => "Insufficient permissions: follow | write:follows."} ==
-                   json_response(conn, 403)
+                   json_response_and_validate_schema(conn, 403)
         else
-          assert json_response(conn, 200)
+          assert json_response_and_validate_schema(conn, 200)
         end
       end
     end
