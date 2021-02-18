@@ -122,7 +122,7 @@ defmodule Pleroma.Web.ApiSpec.Admin.ConfigOperation do
               type: :object,
               properties: %{
                 label: %Schema{type: :string},
-                path: %Schema{type: :string},
+                path: %Schema{type: :string}
               }
             }
           }),
