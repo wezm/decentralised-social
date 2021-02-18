@@ -1122,6 +1122,30 @@ Loads json generated from `config/descriptions.exs`.
 }]
 ```
 
+## ` GET /api/pleroma/admin/config/tabs`
+
+### Get JSON formatted list of ConfigDB setting routes for AdminFE
+Also generated from `config/descriptions.exs`.
+
+- Params: none
+- Response:
+
+```json
+[
+  {
+    "label": "ActivityPub", // Text label of the setting
+    "path": "activity-pub" // URL path for rendering that group of settings
+  },
+  {
+    "label": "Authentication",
+    "path": "authentication"
+  },
+  {
+    "label": "Captcha",
+    "path": "captcha"
+  }
+```
+
 ## `GET /api/pleroma/admin/moderation_log`
 
 ### Get moderation log
