@@ -278,11 +278,12 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
 - Params:
   - `nickname` or `id`
   - *optional* `page_size`: number of statuses to return (default is `20`)
+  - *optional* `page`: **integer** page number
   - *optional* `godmode`: `true`/`false` – allows to see private statuses
   - *optional* `with_reblogs`: `true`/`false` – allows to see reblogs (default is false)
 - Response:
   - On failure: `Not found`
- - On success: JSON, where:
+  - On success: JSON, where:
     - `total`: total count of the statuses for the user
     - `activities`: list of the statuses for the user
 
@@ -302,6 +303,7 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
 - Params:
   - `instance`: instance name
   - *optional* `page_size`: number of statuses to return (default is `20`)
+  - *optional* `page`: **integer** page number
   - *optional* `godmode`: `true`/`false` – allows to see private statuses
   - *optional* `with_reblogs`: `true`/`false` – allows to see reblogs (default is false)
 - Response:
@@ -325,12 +327,38 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
 
 - Params:
   - *optional* `page_size`: number of statuses to return (default is `20`)
+  - *optional* `page`: **integer** page number
   - *optional* `local_only`: excludes remote statuses
   - *optional* `godmode`: `true`/`false` – allows to see private statuses
   - *optional* `with_reblogs`: `true`/`false` – allows to see reblogs (default is false)
 - Response:
   - On failure: `Not found`
   - On success: JSON array of user's latest statuses
+
+## `GET /api/v2/pleroma/admin/statuses`
+
+### Retrives all latest statuses with total
+
+- Params:
+  - *optional* `page_size`: number of statuses to return (default is `20`)
+  - *optional* `page`: **integer** page number
+  - *optional* `local_only`: excludes remote statuses
+  - *optional* `godmode`: `true`/`false` – allows to see private statuses
+  - *optional* `with_reblogs`: `true`/`false` – allows to see reblogs (default is false)
+- Response:
+  - On failure: `Not found`
+  - On success: JSON, where:
+    - `total`: total count of the statuses
+    - `activities`: list of the statuses
+
+```json
+{
+  "total" : 1,
+  "activities": [
+    // activities list
+  ]
+}
+```
 
 ## `GET /api/v1/pleroma/admin/relay`
 

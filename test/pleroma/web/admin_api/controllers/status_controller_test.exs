@@ -194,8 +194,64 @@ defmodule Pleroma.Web.AdminAPI.StatusControllerTest do
 
       {:ok, _} = CommonAPI.post(user, %{status: ".", visibility: "private"})
       {:ok, _} = CommonAPI.post(user, %{status: ".", visibility: "public"})
+
       conn = get(conn, "/api/pleroma/admin/statuses?godmode=true")
+
       assert json_response_and_validate_schema(conn, 200) |> length() == 3
+    end
+  end
+
+  describe "GET /api/v2/pleroma/admin/statuses" do
+    test "returns all public and unlisted statuses", %{conn: conn, admin: admin} do
+      blocked = insert(:user)
+      user = insert(:user)
+      User.block(admin, blocked)
+
+      {:ok, _} = CommonAPI.post(user, %{status: "@#{admin.nickname}", visibility: "direct"})
+
+      {:ok, _} = CommonAPI.post(user, %{status: ".", visibility: "unlisted"})
+      {:ok, private} = CommonAPI.post(user, %{status: ".", visibility: "private"})
+      {:ok, _} = CommonAPI.post(user, %{status: ".", visibility: "public"})
+      {:ok, _} = CommonAPI.post(blocked, %{status: ".", visibility: "public"})
+
+      %{"total" => 3, "activities" => activities} =
+        conn
+        |> get("/api/v2/pleroma/admin/statuses")
+        |> json_response_and_validate_schema(200)
+
+      ids = Enum.map(activities, & &1["id"])
+      refute private.id in ids
+      assert length(activities) == 3
+    end
+
+    test "returns only local statuses with local_only on", %{conn: conn} do
+      user = insert(:user)
+      remote_user = insert(:user, local: false, nickname: "archaeme@archae.me")
+      insert(:note_activity, user: user, local: true)
+      insert(:note_activity, user: remote_user, local: false)
+
+      %{"total" => 1, "activities" => activities} =
+        conn
+        |> get("/api/v2/pleroma/admin/statuses?local_only=true")
+        |> json_response_and_validate_schema(200)
+
+      assert length(activities) == 1
+    end
+
+    test "returns private and direct statuses with godmode on", %{conn: conn, admin: admin} do
+      user = insert(:user)
+
+      {:ok, _} = CommonAPI.post(user, %{status: "@#{admin.nickname}", visibility: "direct"})
+
+      {:ok, _} = CommonAPI.post(user, %{status: ".", visibility: "private"})
+      {:ok, _} = CommonAPI.post(user, %{status: ".", visibility: "public"})
+
+      %{"total" => 3, "activities" => activities} =
+        conn
+        |> get("/api/v2/pleroma/admin/statuses?godmode=true")
+        |> json_response_and_validate_schema(200)
+
+      assert length(activities) == 3
     end
   end
 end

@@ -832,6 +832,26 @@ defmodule Pleroma.Web.AdminAPI.AdminAPIControllerTest do
 
       assert length(activities) == 3
     end
+
+    test "godmode", %{conn: conn} do
+      user = insert(:user, local: false, ap_id: "https://example.com/users/user")
+      {:ok, a1} = CommonAPI.post(user, %{status: "public"})
+      {:ok, a2} = CommonAPI.post(user, %{status: "private", visibility: "private"})
+
+      %{"total" => 1, "activities" => activities} =
+        conn |> get("/api/pleroma/admin/instances/example.com/statuses") |> json_response(200)
+
+      assert Enum.map(activities, & &1["id"]) == [a1.id]
+
+      %{"total" => 2, "activities" => activities} =
+        conn
+        |> get("/api/pleroma/admin/instances/example.com/statuses?godmode=true")
+        |> json_response(200)
+
+      ids = Enum.map(activities, & &1["id"])
+      assert a1.id in ids
+      assert a2.id in ids
+    end
   end
 
   describe "PATCH /confirm_email" do

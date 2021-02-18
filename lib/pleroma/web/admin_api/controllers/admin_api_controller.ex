@@ -81,16 +81,18 @@ defmodule Pleroma.Web.AdminAPI.AdminAPIController do
 
   action_fallback(AdminAPI.FallbackController)
 
+  defp truthy_param?(value), do: value in ["true", true]
+
   def list_instance_statuses(conn, %{"instance" => instance} = params) do
-    with_reblogs = params["with_reblogs"] == "true" || params["with_reblogs"] == true
     {page, page_size} = page_params(params)
 
     result =
       ActivityPub.fetch_statuses(nil, %{
         instance: instance,
         limit: page_size,
+        godmode: truthy_param?(params["godmode"]),
         offset: (page - 1) * page_size,
-        exclude_reblogs: not with_reblogs,
+        exclude_reblogs: not truthy_param?(params["with_reblogs"]),
         total: true
       })
 
@@ -100,9 +102,6 @@ defmodule Pleroma.Web.AdminAPI.AdminAPIController do
   end
 
   def list_user_statuses(%{assigns: %{user: admin}} = conn, %{"nickname" => nickname} = params) do
-    with_reblogs = params["with_reblogs"] == "true" || params["with_reblogs"] == true
-    godmode = params["godmode"] == "true" || params["godmode"] == true
-
     with %User{} = user <- User.get_cached_by_nickname_or_id(nickname, for: admin) do
       {page, page_size} = page_params(params)
 
@@ -110,8 +109,8 @@ defmodule Pleroma.Web.AdminAPI.AdminAPIController do
         ActivityPub.fetch_user_activities(user, nil, %{
           limit: page_size,
           offset: (page - 1) * page_size,
-          godmode: godmode,
-          exclude_reblogs: not with_reblogs,
+          godmode: truthy_param?(params["godmode"]),
+          exclude_reblogs: not truthy_param?(params["with_reblogs"]),
           pagination_type: :offset,
           total: true
         })

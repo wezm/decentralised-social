@@ -77,6 +77,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Mastodon API: `/api/v1/accounts/:id` & `/api/v1/mutes` endpoints accept `with_relationships` parameter and return filled `pleroma.relationship` field.
 - Mastodon API: Endpoint to remove a conversation (`DELETE /api/v1/conversations/:id`).
 - Mastodon API: `expires_in` in the scheduled post `params` field on `/api/v1/statuses` and `/api/v1/scheduled_statuses/:id` endpoints.
+- Admin API: Added `GET /api/v2/pleroma/admin/statuses` endpoint, differs from `/api/pleroma/admin/statuses` only in response format.
 </details>
 
 ### Fixed
@@ -98,6 +99,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Mastodon API: Fixed own_votes being not returned with poll data.
   - Mastodon API: Fixed creation of scheduled posts with polls.
   - Mastodon API: Support for expires_in/expires_at in the Filters.
+  - Admin API: `godmode` parameter in `/api/pleroma/admin/instances/:instance/statuses` endpoint.
 </details>
 
 ## Unreleased (Patch)

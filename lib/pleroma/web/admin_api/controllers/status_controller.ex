@@ -15,7 +15,11 @@ defmodule Pleroma.Web.AdminAPI.StatusController do
   require Logger
 
   plug(Pleroma.Web.ApiSpec.CastAndValidate)
-  plug(OAuthScopesPlug, %{scopes: ["admin:read:statuses"]} when action in [:index, :show])
+
+  plug(
+    OAuthScopesPlug,
+    %{scopes: ["admin:read:statuses"]} when action in [:index, :index2, :show]
+  )
 
   plug(
     OAuthScopesPlug,
@@ -37,6 +41,20 @@ defmodule Pleroma.Web.AdminAPI.StatusController do
       })
 
     render(conn, "index.json", activities: activities, as: :activity)
+  end
+
+  def index2(%{assigns: %{user: _admin}} = conn, params) do
+    result =
+      ActivityPub.fetch_statuses(nil, %{
+        godmode: params.godmode,
+        local_only: params.local_only,
+        limit: params.page_size,
+        offset: (params.page - 1) * params.page_size,
+        exclude_reblogs: not params.with_reblogs,
+        total: true
+      })
+
+    render(conn, "index.json", %{total: result[:total], activities: result[:items], as: :activity})
   end
 
   def show(conn, %{id: id}) do

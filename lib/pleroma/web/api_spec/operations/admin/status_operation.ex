@@ -22,8 +22,10 @@ defmodule Pleroma.Web.ApiSpec.Admin.StatusOperation do
   def index_operation do
     %Operation{
       tags: ["Status administration"],
+      description:
+        "Use [/api/v2/pleroma/admin/statuses](#operation/AdminAPI.StatusController.index2) to get response with `total` field.",
       operationId: "AdminAPI.StatusController.index",
-      summary: "Get all statuses",
+      summary: "Get all statuses (without total)",
       security: [%{"oAuth" => ["admin:read:statuses"]}],
       parameters: [
         Operation.parameter(
@@ -63,6 +65,61 @@ defmodule Pleroma.Web.ApiSpec.Admin.StatusOperation do
           Operation.response("Array of statuses", "application/json", %Schema{
             type: :array,
             items: status()
+          })
+      }
+    }
+  end
+
+  def index2_operation do
+    %Operation{
+      tags: ["Status administration"],
+      operationId: "AdminAPI.StatusController.index2",
+      summary: "Get all statuses",
+      security: [%{"oAuth" => ["admin:read:statuses"]}],
+      parameters: [
+        Operation.parameter(
+          :godmode,
+          :query,
+          %Schema{type: :boolean, default: false},
+          "Allows to see private statuses"
+        ),
+        Operation.parameter(
+          :local_only,
+          :query,
+          %Schema{type: :boolean, default: false},
+          "Excludes remote statuses"
+        ),
+        Operation.parameter(
+          :with_reblogs,
+          :query,
+          %Schema{type: :boolean, default: false},
+          "Allows to see reblogs"
+        ),
+        Operation.parameter(
+          :page,
+          :query,
+          %Schema{type: :integer, default: 1},
+          "Page"
+        ),
+        Operation.parameter(
+          :page_size,
+          :query,
+          %Schema{type: :integer, default: 50},
+          "Number of statuses to return"
+        )
+        | admin_api_params()
+      ],
+      responses: %{
+        200 =>
+          Operation.response("Response", "application/json", %Schema{
+            type: :object,
+            properties: %{
+              total: %Schema{type: :integer},
+              reports: %Schema{
+                type: :array,
+                items: status()
+              }
+            }
           })
       }
     }
