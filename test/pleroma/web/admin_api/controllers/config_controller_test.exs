@@ -1453,4 +1453,12 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
       assert esshd["children"]
     end
   end
+
+  test "GET /api/pleroma/admin/config/tabs", %{conn: conn} do
+    result = get(conn, "/api/pleroma/admin/config/tabs") |> json_response_and_validate_schema(200)
+
+    assert length(result) > 0
+
+    assert Enum.any?(result, fn tab -> tab["label"] == "Instance" end)
+  end
 end
