@@ -107,6 +107,30 @@ defmodule Pleroma.Web.ApiSpec.Admin.ConfigOperation do
     }
   end
 
+  def tabs_operation do
+    %Operation{
+      tags: ["Instance configuration"],
+      summary: "Retrieve config tabs for AdminFE",
+      operationId: "AdminAPI.ConfigController.tabs",
+      security: [%{"oAuth" => ["admin:read"]}],
+      parameters: admin_api_params(),
+      responses: %{
+        200 =>
+          Operation.response("Config Tab List", "application/json", %Schema{
+            type: :array,
+            items: %Schema{
+              type: :object,
+              properties: %{
+                label: %Schema{type: :string},
+                path: %Schema{type: :string},
+              }
+            }
+          }),
+        400 => Operation.response("Bad Request", "application/json", ApiError)
+      }
+    }
+  end
+
   defp any do
     %Schema{
       oneOf: [

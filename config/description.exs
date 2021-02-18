@@ -69,6 +69,30 @@ frontend_options = [
   }
 ]
 
+config :pleroma, :config_tablist, [
+  %{label: "ActivityPub", path: "activity-pub"},
+  %{label: "Authentication", path: "authentication"},
+  %{label: "Captcha", path: "captcha"},
+  %{label: "BBS / SSH access", path: "esshd"},
+  %{label: "Emoji", path: "emoji"},
+  %{label: "Frontend", path: "frontend"},
+  %{label: "Gopher", path: "gopher"},
+  %{label: "HTTP", path: "http"},
+  %{label: "Instance", path: "instance"},
+  %{label: "Job queue", path: "job-queue"},
+  %{label: "Link Formatter", path: "link-formatter"},
+  %{label: "Logger", path: "logger"},
+  %{label: "Mailer", path: "mailer"},
+  %{label: "Media Proxy", path: "media-proxy"},
+  %{label: "Metadata", path: "metadata"},
+  %{label: "MRF", path: "mrf"},
+  %{label: "Rate limiters", path: "rate-limiters"},
+  %{label: "Relays", path: "relays"},
+  %{label: "Web push encryption", path: "web-push"},
+  %{label: "Upload", path: "upload"},
+  %{label: "Other", path: "other"}
+]
+
 config :pleroma, :config_description, [
   %{
     group: :pleroma,

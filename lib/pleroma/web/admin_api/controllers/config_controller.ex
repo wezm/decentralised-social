@@ -15,7 +15,7 @@ defmodule Pleroma.Web.AdminAPI.ConfigController do
   plug(
     OAuthScopesPlug,
     %{scopes: ["admin:read"]}
-    when action in [:show, :descriptions]
+    when action in [:show, :descriptions, :tabs]
   )
 
   action_fallback(Pleroma.Web.AdminAPI.FallbackController)
@@ -23,9 +23,16 @@ defmodule Pleroma.Web.AdminAPI.ConfigController do
   defdelegate open_api_operation(action), to: Pleroma.Web.ApiSpec.Admin.ConfigOperation
 
   def descriptions(conn, _params) do
-    descriptions = Enum.filter(Pleroma.Docs.JSON.compiled_descriptions(), &whitelisted_config?/1)
+    %{tabs: _, descriptions: descriptions} = Pleroma.Docs.JSON.compiled_descriptions()
+    descriptions = Enum.filter(descriptions, &whitelisted_config?/1)
 
     json(conn, descriptions)
+  end
+
+  def tabs(conn, _params) do
+    %{tabs: tabs, descriptions: _} = Pleroma.Docs.JSON.compiled_descriptions()
+
+    json(conn, tabs)
   end
 
   def show(conn, %{only_db: true}) do
