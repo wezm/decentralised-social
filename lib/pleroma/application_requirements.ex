@@ -163,7 +163,7 @@ defmodule Pleroma.ApplicationRequirements do
       check_filter(Pleroma.Upload.Filters.Exiftool, "exiftool"),
       check_filter(Pleroma.Upload.Filters.Mogrify, "mogrify"),
       check_filter(Pleroma.Upload.Filters.Mogrifun, "mogrify"),
-      check_filter(Pleroma.Upload.Filters.HeifToJpeg, "heif-convert")
+      check_filter(Pleroma.Upload.Filters.HeifToJpeg, "heic-convert")
     ]
 
     preview_proxy_commands_status =
