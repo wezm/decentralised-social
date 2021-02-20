@@ -34,11 +34,9 @@ defmodule Pleroma.Upload.Filter.HeifToJpeg do
 
     File.rename!(tempfile, with_extension)
 
-    convert_cmd =
-      "heif-convert #{with_extension} #{jpeg}"
-      |> String.to_charlist()
+    args = [with_extension, jpeg]
 
-    :os.cmd(convert_cmd)
+    {_, 0} = System.cmd("heif-convert", args)
 
     File.rm!(with_extension)
     File.rename!(jpeg, tempfile)
