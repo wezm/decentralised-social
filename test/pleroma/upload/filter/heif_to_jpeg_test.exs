@@ -7,7 +7,7 @@ defmodule Pleroma.Upload.Filter.HeifToJpegTest do
   alias Pleroma.Upload.Filter
 
   test "apply HeicToJpeg filter" do
-    assert Pleroma.Utils.command_available?("mogrify")
+    assert Pleroma.Utils.command_available?("heif-convert")
 
     File.cp!(
       "test/fixtures/image.heic",
