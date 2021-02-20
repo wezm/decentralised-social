@@ -214,31 +214,6 @@ defmodule Pleroma.ApplicationRequirements do
 
   defp check_repo_pool_size!(result), do: result
 
-  defp check_filter(:"Elixir.Pleroma.Upload.Filter.HeifToJpeg" = filter, command_required) do
-    filters = Config.get([Pleroma.Upload, :filters])
-
-    if filter in filters && Pleroma.Utils.command_available?(command_required) do
-      output =
-        String.to_charlist("#{command_required} --version")
-        |> :os.cmd()
-        |> String.Chars.to_string()
-        |> String.split()
-
-      cond do
-        "heic" in output ->
-          true
-
-        true ->
-          Logger.error(
-            "#{filter} is specified in the list of Pleroma.Upload filters, but the " <>
-              "#{command_required} does not support heic files."
-          )
-
-          false
-      end
-    end
-  end
-
   defp check_filter(filter, command_required) do
     filters = Config.get([Pleroma.Upload, :filters])
 
