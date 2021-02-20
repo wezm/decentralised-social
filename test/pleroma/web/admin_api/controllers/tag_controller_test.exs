@@ -58,7 +58,53 @@ defmodule Pleroma.Web.AdminAPI.TagControllerTest do
 
       assert conn
              |> put_req_header("content-type", "application/json")
-             |> patch("/api/pleroma/admin/users/tags", %{
+             |> put("/api/pleroma/admin/users/tags", %{
+               nicknames: [user1.nickname, user2.nickname],
+               tags: ["foo", "bar"]
+             })
+             |> json_response_and_validate_schema(204)
+
+      %{user1: user1, user2: user2, user3: user3}
+    end
+
+    test "it appends specified tags to users with specified nicknames", %{
+      admin: admin,
+      user1: user1,
+      user2: user2
+    } do
+      {:ok, tags} = Repo.get_assoc(User.get_cached_by_id(user1.id), :tags)
+      assert Enum.map(tags, & &1.name) == ["x", "foo", "bar"]
+      {:ok, tags} = Repo.get_assoc(User.get_cached_by_id(user2.id), :tags)
+      assert Enum.map(tags, & &1.name) == ["y", "foo", "bar"]
+
+      log_entry = Repo.one(ModerationLog)
+
+      users =
+        [user1.nickname, user2.nickname]
+        |> Enum.map(&"@#{&1}")
+        |> Enum.join(", ")
+
+      tags = ["foo", "bar"] |> Enum.join(", ")
+
+      assert ModerationLog.get_log_entry_message(log_entry) ==
+               "@#{admin.nickname} added tags: #{tags} to users: #{users}"
+    end
+
+    test "it does not modify tags of not specified users", %{user3: user3} do
+      {:ok, tags} = Repo.get_assoc(User.get_cached_by_id(user3.id), :tags)
+      assert Enum.map(tags, & &1.name) == ["unchanged"]
+    end
+  end
+
+  describe "PATCH /api/v2/pleroma/admin/users/tags" do
+    setup %{conn: conn} do
+      user1 = insert(:user, %{tags: [build(:tag, name: "x")]})
+      user2 = insert(:user, %{tags: [build(:tag, name: "y")]})
+      user3 = insert(:user, %{tags: [build(:tag, name: "unchanged")]})
+
+      assert conn
+             |> put_req_header("content-type", "application/json")
+             |> patch("/api/v2/pleroma/admin/users/tags", %{
                nicknames: [user1.nickname, user2.nickname],
                tags: ["foo", "bar"]
              })

@@ -213,5 +213,17 @@ defmodule Pleroma.Web.AdminAPI.SearchTest do
 
       assert total == 2
     end
+
+    test "tags deduplication" do
+      first_tag = insert(:tag, name: "first")
+      second_tag = insert(:tag, name: "second")
+
+      user1 = insert(:user, tags: [first_tag, second_tag])
+      user2 = insert(:user, tags: [first_tag, second_tag])
+
+      {:ok, users, count} = Search.user(%{tags: ["first", "second"], page_size: 2})
+
+      assert {Enum.sort(Enum.map(users, & &1.id)), count} == {Enum.sort([user1.id, user2.id]), 2}
+    end
   end
 end

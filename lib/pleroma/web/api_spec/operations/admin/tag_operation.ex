@@ -32,10 +32,21 @@ defmodule Pleroma.Web.ApiSpec.Admin.TagOperation do
   end
 
   def update_operation do
+    %{
+      append_op()
+      | description:
+          "Deprecated. Using [/api/v2/pleroma/admin/users/tags](#operation/AdminAPI.TagController.append) instead is recommended.",
+        operationId: "AdminAPI.TagController.update"
+    }
+  end
+
+  def append_operation, do: append_op()
+
+  defp append_op do
     %Operation{
       tags: ["Admin", "Tags"],
       summary: "Adds tags to users.",
-      operationId: "AdminAPI.TagController.update",
+      operationId: "AdminAPI.TagController.append",
       parameters: admin_api_params(),
       requestBody:
         request_body(

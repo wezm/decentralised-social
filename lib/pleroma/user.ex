@@ -2027,7 +2027,7 @@ defmodule Pleroma.User do
   def tag(%User{} = user, tags) do
     tag_names = Pleroma.Tag.normalize_tags(tags)
     Pleroma.Tag.upsert_tags(tag_names)
-    update_user_tags(user, tag_names)
+    append_user_tags(user, tag_names)
   end
 
   @spec untag([String.t()] | String.t() | t(), [String.t() | String.t()]) :: {:ok, [t()]} | t()
@@ -2054,7 +2054,7 @@ defmodule Pleroma.User do
     preload_tags_and_set_cache(user)
   end
 
-  defp update_user_tags(%User{} = user, new_tags) do
+  defp append_user_tags(%User{} = user, new_tags) do
     {:ok, user_id} = FlakeId.Ecto.Type.dump(user.id)
 
     tags =

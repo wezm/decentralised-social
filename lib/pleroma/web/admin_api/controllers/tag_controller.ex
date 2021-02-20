@@ -15,12 +15,12 @@ defmodule Pleroma.Web.AdminAPI.TagController do
 
   plug(
     OAuthScopesPlug,
-    %{scopes: ["write:accounts"], admin: true} when action in [:update, :delete]
+    %{scopes: ["admin:write:accounts"]} when action in [:update, :append, :delete]
   )
 
   plug(
     OAuthScopesPlug,
-    %{scopes: ["read:accounts"], admin: true} when action in [:index]
+    %{scopes: ["admin:read:accounts"]} when action == :index
   )
 
   plug(ApiSpec.CastAndValidate)
@@ -35,7 +35,9 @@ defmodule Pleroma.Web.AdminAPI.TagController do
     json(conn, tags)
   end
 
-  def update(
+  def update(conn, params), do: append(conn, params)
+
+  def append(
         %{assigns: %{user: admin}, body_params: %{nicknames: nicknames, tags: tags}} = conn,
         _
       ) do

@@ -155,13 +155,18 @@ defmodule Pleroma.Web.Router do
     post("/uploader_callback/:upload_path", UploaderController, :callback)
   end
 
+  scope "/api/v2/pleroma/admin", Pleroma.Web.AdminAPI do
+    pipe_through(:admin_api)
+    patch("/users/tags", TagController, :append)
+  end
+
   scope "/api/v1/pleroma/admin", Pleroma.Web.AdminAPI do
     pipe_through(:admin_api)
 
     put("/users/disable_mfa", AdminAPIController, :disable_mfa)
 
     get("/user_tags", TagController, :index)
-    patch("/users/tags", TagController, :update)
+    put("/users/tags", TagController, :update)
     delete("/users/tags", TagController, :delete)
 
     get("/users/:nickname/permission_group", AdminAPIController, :right_get)

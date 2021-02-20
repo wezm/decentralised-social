@@ -37,7 +37,7 @@ defmodule Pleroma.Tag do
 
   @spec upsert_tags(list(String.t())) :: {integer(), nil | [term()]}
   def upsert_tags(names) do
-    date = NaiveDateTime.utc_now()
+    date = NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
 
     tags =
       names

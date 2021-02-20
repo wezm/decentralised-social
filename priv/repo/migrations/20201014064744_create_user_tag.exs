@@ -8,7 +8,6 @@ defmodule Pleroma.Repo.Migrations.CreateUserTag do
     end
 
     create_if_not_exists(index(:users_tags, [:tag_id]))
-    create_if_not_exists(index(:users_tags, [:user_id]))
     create_if_not_exists(unique_index(:users_tags, [:user_id, :tag_id]))
   end
 end
