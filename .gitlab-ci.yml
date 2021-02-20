@@ -69,7 +69,7 @@ unit-testing:
     alias: postgres
     command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
   script:
-    - apt-get update && apt-get install -y libimage-exiftool-perl ffmpeg
+    - apt-get update && apt-get install -y libheif-examples libimage-exiftool-perl ffmpeg
     - mix deps.get
     - mix ecto.create
     - mix ecto.migrate
@@ -103,7 +103,7 @@ unit-testing-rum:
     <<: *global_variables
     RUM_ENABLED: "true"
   script:
-    - apt-get update && apt-get install -y libimage-exiftool-perl ffmpeg
+    - apt-get update && apt-get install -y libheif-examples libimage-exiftool-perl ffmpeg
     - mix deps.get
     - mix ecto.create
     - mix ecto.migrate
@@ -239,7 +239,7 @@ amd64-musl:
   cache: *release-cache
   variables: *release-variables
   before_script: &before-release-musl
-  - apk add git gcc g++ musl-dev make cmake file-dev
+  - apk add git gcc g++ musl-dev make cmake file-dev libheif-tools
   - echo "import Mix.Config" > config/prod.secret.exs
   - mix local.hex --force
   - mix local.rebar --force
