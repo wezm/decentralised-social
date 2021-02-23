@@ -78,13 +78,6 @@ defmodule Pleroma.Web.RichMedia.Helpers do
 
   def fetch_data_for_activity(_), do: %{}
 
-  # YouTube's oEmbed implementation is broken, requiring this hack.
-  # https://github.com/oscarotero/Embed/issues/417#issuecomment-746673027
-  def rich_media_get("http://www.youtube.com/oembed?" <> params) do
-    # Use HTTPS explicitly, even though YouTube returns HTTP
-    rich_media_get("https://www.youtube.com/oembed?#{params}")
-  end
-
   def rich_media_get(url) do
     headers = [{"user-agent", Pleroma.Application.user_agent() <> "; Bot"}]
 

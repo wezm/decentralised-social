@@ -21,6 +21,13 @@ defmodule Pleroma.Web.RichMedia.Parsers.OEmbed do
     Enum.find_value(attributes, fn {k, v} -> if k == "href", do: v end)
   end
 
+  # YouTube's oEmbed implementation is broken, requiring this hack.
+  # https://github.com/oscarotero/Embed/issues/417#issuecomment-746673027
+  defp get_oembed_data("http://www.youtube.com/oembed?" <> params) do
+    # Use HTTPS explicitly, even though YouTube returns HTTP
+    get_oembed_data("https://www.youtube.com/oembed?#{params}")
+  end
+
   defp get_oembed_data(url) do
     with {:ok, %Tesla.Env{body: json}} <- Pleroma.Web.RichMedia.Helpers.rich_media_get(url) do
       Jason.decode(json)
