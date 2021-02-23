@@ -9,30 +9,6 @@ defmodule Pleroma.TagTest do
 
   alias Pleroma.Tag
 
-  describe "upsert/1" do
-    test "create new normalize tag" do
-      Tag.upsert("  verify   \n")
-
-      assert [tag] = Pleroma.Repo.all(Tag)
-      assert tag.name == "verify"
-    end
-
-    test "create new tag" do
-      Tag.upsert("verify")
-
-      assert [tag] = Pleroma.Repo.all(Tag)
-      assert tag.name == "verify"
-    end
-
-    test "do nothing when tag exists" do
-      insert(:tag, name: "verify")
-      Tag.upsert("verify")
-
-      assert [tag] = Pleroma.Repo.all(Tag)
-      assert tag.name == "verify"
-    end
-  end
-
   describe "upsert_tags/1" do
     test "create new normalize tags" do
       Tag.upsert_tags(["  verify   \n", "bot", "unconfirmed   "])

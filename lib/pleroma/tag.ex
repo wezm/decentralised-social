@@ -27,14 +27,6 @@ defmodule Pleroma.Tag do
     timestamps()
   end
 
-  @spec upsert(String.t()) :: {:ok, t()} | {:error, Ecto.Changeset.t()}
-  def upsert(name) do
-    %__MODULE__{}
-    |> Ecto.Changeset.change(name: normalize_tag(name))
-    |> Ecto.Changeset.unique_constraint(:name)
-    |> Repo.insert(on_conflict: :nothing, conflict_target: :name)
-  end
-
   @spec upsert_tags(list(String.t())) :: {integer(), nil | [term()]}
   def upsert_tags(names) do
     date = NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
