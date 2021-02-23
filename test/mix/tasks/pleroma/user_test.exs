@@ -95,17 +95,13 @@ defmodule Mix.Tasks.Pleroma.UserTest do
       clear_config([:instance, :federating], true)
       user = insert(:user)
 
-      with_mock Pleroma.Web.Federator,
-        publish: fn _ -> nil end do
-        Mix.Tasks.Pleroma.User.run(["rm", user.nickname])
-        ObanHelpers.perform_all()
+      Mix.Tasks.Pleroma.User.run(["rm", user.nickname])
 
-        assert_received {:mix_shell, :info, [message]}
-        assert message =~ " deleted"
-        assert %{is_active: false} = User.get_by_nickname(user.nickname)
+      assert [{:ok, job_result}] = ObanHelpers.perform_all()
 
-        assert called(Pleroma.Web.Federator.publish(:_))
-      end
+      assert_received {:mix_shell, :info, [message]}
+      assert message =~ " deleted"
+      assert %{is_active: false} = User.get_by_nickname(user.nickname)
     end
 
     test "a remote user's create activity is deleted when the object has been pruned" do
