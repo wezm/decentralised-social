@@ -16,6 +16,7 @@ defmodule Pleroma.Workers.BackgroundWorker do
 
   def perform(%Job{args: %{"op" => "delete_user", "user_id" => user_id}}) do
     user = User.get_cached_by_id(user_id)
+    User.set_activation_async(user, false)
     User.perform(:delete, user)
   end
 
