@@ -9,6 +9,7 @@ defmodule Pleroma.Web.AdminAPI.UserControllerTest do
   import Mock
   import Pleroma.Factory
 
+  alias Pleroma.Chat
   alias Pleroma.HTML
   alias Pleroma.ModerationLog
   alias Pleroma.Repo
@@ -108,11 +109,17 @@ defmodule Pleroma.Web.AdminAPI.UserControllerTest do
       {:ok, _} = CommonAPI.post(user, %{status: "test"})
       {:ok, _, _, _} = CommonAPI.follow(user, follower)
       {:ok, _, _, _} = CommonAPI.follow(follower, user)
-      user = Repo.get(User, user.id)
+
+      {:ok, _create} = CommonAPI.post_chat_message(user, follower, "sup")
+
+      user = refresh_record(user)
       assert user.note_count == 1
       assert user.follower_count == 1
       assert user.following_count == 1
       assert user.is_active
+      assert %Chat{} = chat = Chat.get(user.id, follower.ap_id)
+
+      assert [%Chat.MessageReference{}] = Chat.MessageReference.for_chat_query(chat) |> Repo.all()
 
       with_mock Pleroma.Web.Federator,
         publish: fn _ -> nil end,
@@ -143,7 +150,9 @@ defmodule Pleroma.Web.AdminAPI.UserControllerTest do
         assert user.following_count == 0
         assert user.bio == ""
         assert user.name == nil
-
+        assert [] == Chat.MessageReference.for_chat_query(chat) |> Repo.all()
+        assert Chat.get(user.id, follower.ap_id) == nil
+        assert Chat.get(follower.id, user.ap_id) == nil
         assert called(Pleroma.Web.Federator.publish(:_))
       end
     end

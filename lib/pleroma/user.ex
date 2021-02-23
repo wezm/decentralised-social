@@ -1763,6 +1763,7 @@ defmodule Pleroma.User do
     end)
 
     delete_user_activities(user)
+    Pleroma.Chat.delete_all_by_user(user)
     delete_notifications_from_user_activities(user)
 
     delete_outgoing_pending_follow_requests(user)

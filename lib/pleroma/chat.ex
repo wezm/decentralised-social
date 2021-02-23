@@ -8,7 +8,6 @@ defmodule Pleroma.Chat do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Pleroma.Chat
   alias Pleroma.Repo
   alias Pleroma.User
 
@@ -89,9 +88,16 @@ defmodule Pleroma.Chat do
 
   @spec for_user_query(FlakeId.Ecto.CompatType.t()) :: Ecto.Query.t()
   def for_user_query(user_id) do
-    from(c in Chat,
+    from(c in __MODULE__,
       where: c.user_id == ^user_id,
       order_by: [desc: c.updated_at]
     )
+  end
+
+  def delete_all_by_user(%User{id: user_id, ap_id: ap_id}) do
+    __MODULE__
+    |> where(user_id: ^user_id)
+    |> or_where(recipient: ^ap_id)
+    |> Repo.delete_all()
   end
 end
