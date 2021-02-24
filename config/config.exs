@@ -652,7 +652,9 @@ config :pleroma, :oauth2,
   issue_new_refresh_token: true,
   clean_expired_tokens: false
 
-config :pleroma, :database, rum_enabled: false
+config :pleroma, :database,
+  rum_enabled: false,
+  rollback_on_activity_deletion_errors: true
 
 config :pleroma, :env, Mix.env()
 

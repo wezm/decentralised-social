@@ -1072,7 +1072,19 @@ defmodule Pleroma.User do
 
   def update_and_set_cache(changeset) do
     with {:ok, user} <- Repo.update(changeset, stale_error_field: :id) do
-      set_cache(user)
+      BackgroundWorker.execute_or_enqueue_if_in_transaction(fn
+        false ->
+          set_cache(user)
+
+        # If the function has been enqueued, there is a chance something changed
+        # before the worker got to executing it, so refetch the user from the database
+        true ->
+          user.id
+          |> get_by_id()
+          |> set_cache()
+      end)
+
+      {:ok, user}
     end
   end
 
@@ -1339,7 +1351,7 @@ defmodule Pleroma.User do
 
       user
       |> follow_information_changeset(%{follower_count: follower_count})
-      |> update_and_set_cache
+      |> update_and_set_cache()
     else
       {:ok, maybe_fetch_follow_information(user)}
     end
@@ -1747,27 +1759,67 @@ defmodule Pleroma.User do
 
   @spec perform(atom(), User.t()) :: {:ok, User.t()}
   def perform(:delete, %User{} = user) do
-    # Remove all relationships
-    user
-    |> get_followers()
-    |> Enum.each(fn follower ->
-      ActivityPub.unfollow(follower, user)
-      unfollow(follower, user)
-    end)
+    # Deactivate the user before starting the deletion
+    # to make sure they are not able to make new posts/follows during it
+    {:ok, user} = set_activation_status(user, false)
 
-    user
-    |> get_friends()
-    |> Enum.each(fn followed ->
-      ActivityPub.unfollow(user, followed)
-      unfollow(user, followed)
-    end)
+    Repo.transaction(
+      fn ->
+        # Remove all relationships
+        # No need to handle errors from ActivityPub.unfollow because
+        # they will automatically rollback the transaction.
+        user
+        |> get_followers()
+        |> Enum.each(fn follower ->
+          ActivityPub.unfollow(follower, user)
+          unfollow(follower, user)
+        end)
 
-    delete_user_activities(user)
-    delete_notifications_from_user_activities(user)
+        user
+        |> get_friends()
+        |> Enum.each(fn followed ->
+          ActivityPub.unfollow(user, followed)
+          unfollow(user, followed)
+        end)
 
-    delete_outgoing_pending_follow_requests(user)
+        rollback_on_activity_deletion_errors =
+          Config.get([:database, :rollback_on_activity_deletion_errors], true)
 
-    delete_or_deactivate(user)
+        case {delete_user_activities(user), rollback_on_activity_deletion_errors} do
+          {res, rollback} when res == :ok or rollback == false ->
+            case res do
+              {:error, _} ->
+                Logger.warn(fn ->
+                  "Deleting #{user.ap_id}: Failed deleting some of the activities, proceeding anyway."
+                end)
+
+              _ ->
+                :noop
+            end
+
+            delete_notifications_from_user_activities(user)
+
+            delete_outgoing_pending_follow_requests(user)
+
+            case delete_or_deactivate(user) do
+              {:ok, user} -> user
+              {:error, e} -> Repo.rollback(e)
+            end
+
+          {{:error, e}, true} ->
+            Logger.error(fn ->
+              """
+              Deleting #{user.ap_id}: Failed deleting some of the activities, rolling back.
+              Set `config :pleroma, :database, rollback_on_activity_deletion_errors: true`
+              and restart the deletion if you want to continue anyway. Please report this on Pleroma bugtracker.
+              """
+            end)
+
+            Repo.rollback({:deleting_activities, e})
+        end
+      end,
+      timeout: :infinity
+    )
   end
 
   def perform(:set_activation_async, user, status), do: set_activation(user, status)
@@ -1807,16 +1859,48 @@ defmodule Pleroma.User do
     |> Repo.delete_all()
   end
 
+  @type activity_id :: String.t()
+  @spec delete_user_activities(User.t()) ::
+          :ok | {:error, [{:error, activity_id(), any()}]}
   def delete_user_activities(%User{ap_id: ap_id} = user) do
-    ap_id
-    |> Activity.Queries.by_actor()
-    |> Repo.chunk_stream(50, :batches)
-    |> Stream.each(fn activities ->
-      Enum.each(activities, fn activity -> delete_activity(activity, user) end)
-    end)
-    |> Stream.run()
+    errors =
+      ap_id
+      |> Activity.Queries.by_actor()
+      |> Repo.chunk_stream(50)
+      |> Stream.flat_map(fn activity ->
+        case delete_activity(activity, user) do
+          {:ok, _activity, _meta} ->
+            []
+
+          {:error, error} ->
+            Logger.error(fn ->
+              "Deleting #{ap_id}: could not delete or undo #{activity.data["id"]}.\n Reason: #{
+                inspect(error)
+              }"
+            end)
+
+            [{:error, activity.id, error}]
+
+          :noop ->
+            Logger.debug(fn ->
+              "Deleting #{ap_id}: nothing to do for #{activity.data["id"]} of type #{
+                activity.data["type"]
+              }"
+            end)
+
+            []
+        end
+      end)
+      |> Enum.to_list()
+
+    case errors do
+      [] -> :ok
+      errors -> {:error, errors}
+    end
   end
 
+  @spec delete_activity(Pleroma.Activity.t(), User.t()) ::
+          {:ok, Activity.t(), keyword()} | {:error, any()} | :noop
   defp delete_activity(%{data: %{"type" => "Create", "object" => object}} = activity, user) do
     with {_, %Object{}} <- {:find_object, Object.get_by_ap_id(object)},
          {:ok, delete_data, _} <- Builder.delete(user, object) do
@@ -1831,18 +1915,20 @@ defmodule Pleroma.User do
         end
 
       e ->
-        Logger.error("Could not delete #{object} created by #{activity.data["ap_id"]}")
-        Logger.error("Error: #{inspect(e)}")
+        e
     end
   end
 
   defp delete_activity(%{data: %{"type" => type}} = activity, user)
        when type in ["Like", "Announce"] do
-    {:ok, undo, _} = Builder.undo(user, activity)
-    Pipeline.common_pipeline(undo, local: user.local)
+    with {:ok, undo, _} <- Builder.undo(user, activity) do
+      Pipeline.common_pipeline(undo, local: user.local)
+    else
+      e -> e
+    end
   end
 
-  defp delete_activity(_activity, _user), do: "Doing nothing"
+  defp delete_activity(_activity, _user), do: :noop
 
   defp delete_outgoing_pending_follow_requests(user) do
     user

@@ -13,6 +13,7 @@ defmodule Pleroma.Web.ActivityPub.Pipeline do
   alias Pleroma.Web.ActivityPub.SideEffects
   alias Pleroma.Web.ActivityPub.Visibility
   alias Pleroma.Web.Federator
+  alias Pleroma.Workers.BackgroundWorker
 
   @side_effects Config.get([:pipeline, :side_effects], SideEffects)
   @federator Config.get([:pipeline, :federator], Federator)
@@ -26,7 +27,10 @@ defmodule Pleroma.Web.ActivityPub.Pipeline do
   def common_pipeline(object, meta) do
     case Repo.transaction(fn -> do_common_pipeline(object, meta) end) do
       {:ok, {:ok, activity, meta}} ->
-        @side_effects.handle_after_transaction(meta)
+        BackgroundWorker.execute_or_enqueue_if_in_transaction(fn ->
+          @side_effects.handle_after_transaction(meta)
+        end)
+
         {:ok, activity, meta}
 
       {:ok, value} ->

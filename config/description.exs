@@ -72,6 +72,20 @@ frontend_options = [
 config :pleroma, :config_description, [
   %{
     group: :pleroma,
+    key: :database,
+    type: :group,
+    description: "Database settings",
+    children: [
+      %{
+        key: :rollback_on_activity_deletion_errors,
+        type: :boolean,
+        description:
+          "Rollback the transaction if Pleroma fails to delete an activity during user deletion. If you need to disable this, please report the issue you were having on the bugtracker."
+      }
+    ]
+  },
+  %{
+    group: :pleroma,
     key: Pleroma.Upload,
     type: :group,
     description: "Upload general settings",

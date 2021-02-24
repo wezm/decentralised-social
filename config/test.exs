@@ -133,6 +133,10 @@ config :pleroma, :side_effects,
   ap_streamer: Pleroma.Web.ActivityPub.ActivityPubMock,
   logger: Pleroma.LoggerMock
 
+# Disable transaction check by default unless the test wants otherwise
+# because all tests run in a transaction.
+config :pleroma, Pleroma.Workers.BackgroundWorker, ignore_transaction_check: true
+
 if File.exists?("./config/test.secret.exs") do
   import_config "test.secret.exs"
 else

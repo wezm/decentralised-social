@@ -18,6 +18,7 @@ defmodule Pleroma.Web.Streamer do
   alias Pleroma.Web.OAuth.Token
   alias Pleroma.Web.Plugs.OAuthScopesPlug
   alias Pleroma.Web.StreamerView
+  alias Pleroma.Workers.BackgroundWorker
 
   @mix_env Mix.env()
   @registry Pleroma.Web.StreamerRegistry
@@ -135,9 +136,11 @@ defmodule Pleroma.Web.Streamer do
 
   def stream(topics, items) do
     if should_env_send?() do
-      for topic <- List.wrap(topics), item <- List.wrap(items) do
-        spawn(fn -> do_stream(topic, item) end)
-      end
+      BackgroundWorker.execute_or_enqueue_if_in_transaction(fn ->
+        for topic <- List.wrap(topics), item <- List.wrap(items) do
+          spawn(fn -> do_stream(topic, item) end)
+        end
+      end)
     end
   end
 
