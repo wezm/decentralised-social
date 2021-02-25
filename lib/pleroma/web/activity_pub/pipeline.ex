@@ -22,7 +22,9 @@ defmodule Pleroma.Web.ActivityPub.Pipeline do
   @activity_pub Config.get([:pipeline, :activity_pub], ActivityPub)
   @config Config.get([:pipeline, :config], Config)
 
-  @spec common_pipeline(map(), keyword()) ::
+  @type common_pipeline_meta_option ::
+          {:local, boolean()} | {:allow_deactivated_actor, boolean()} | {atom(), term()}
+  @spec common_pipeline(map(), [common_pipeline_meta_option()]) ::
           {:ok, Activity.t() | Object.t(), keyword()} | {:error, any()}
   def common_pipeline(object, meta) do
     case Repo.transaction(fn -> do_common_pipeline(object, meta) end) do

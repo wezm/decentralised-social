@@ -36,7 +36,11 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.CommonValidations do
     |> validate_change(field_name, fn field_name, actor ->
       case User.get_cached_by_ap_id(actor) do
         %User{is_active: false} ->
-          [{field_name, "user is deactivated"}]
+          unless options[:allow_deactivated_actor] do
+            [{field_name, "user is deactivated"}]
+          else
+            []
+          end
 
         %User{} ->
           []

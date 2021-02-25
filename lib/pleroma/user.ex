@@ -1738,21 +1738,16 @@ defmodule Pleroma.User do
 
   defp delete_or_deactivate(%User{local: false} = user), do: delete_and_invalidate_cache(user)
 
+  defp delete_or_deactivate(%User{is_confirmed: false} = user),
+    do: delete_and_invalidate_cache(user)
+
+  defp delete_or_deactivate(%User{is_approved: false} = user),
+    do: delete_and_invalidate_cache(user)
+
   defp delete_or_deactivate(%User{local: true} = user) do
-    status = account_status(user)
-
-    case status do
-      :confirmation_pending ->
-        delete_and_invalidate_cache(user)
-
-      :approval_pending ->
-        delete_and_invalidate_cache(user)
-
-      _ ->
-        user
-        |> purge_user_changeset()
-        |> update_and_set_cache()
-    end
+    user
+    |> purge_user_changeset()
+    |> update_and_set_cache()
   end
 
   def perform(:force_password_reset, user), do: force_password_reset(user)
@@ -1778,7 +1773,7 @@ defmodule Pleroma.User do
         user
         |> get_friends()
         |> Enum.each(fn followed ->
-          ActivityPub.unfollow(user, followed)
+          ActivityPub.unfollow(user, followed, nil, true, true)
           unfollow(user, followed)
         end)
 
@@ -1904,7 +1899,7 @@ defmodule Pleroma.User do
   defp delete_activity(%{data: %{"type" => "Create", "object" => object}} = activity, user) do
     with {_, %Object{}} <- {:find_object, Object.get_by_ap_id(object)},
          {:ok, delete_data, _} <- Builder.delete(user, object) do
-      Pipeline.common_pipeline(delete_data, local: user.local)
+      Pipeline.common_pipeline(delete_data, local: user.local, allow_deactivated_actor: true)
     else
       {:find_object, nil} ->
         # We have the create activity, but not the object, it was probably pruned.
@@ -1922,7 +1917,7 @@ defmodule Pleroma.User do
   defp delete_activity(%{data: %{"type" => type}} = activity, user)
        when type in ["Like", "Announce"] do
     with {:ok, undo, _} <- Builder.undo(user, activity) do
-      Pipeline.common_pipeline(undo, local: user.local)
+      Pipeline.common_pipeline(undo, local: user.local, allow_deactivated_actor: true)
     else
       e -> e
     end

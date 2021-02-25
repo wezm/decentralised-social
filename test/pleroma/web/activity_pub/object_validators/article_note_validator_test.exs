@@ -29,7 +29,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.ArticleNoteValidatorTest do
     end
 
     test "a basic note validates", %{note: note} do
-      %{valid?: true} = ArticleNoteValidator.cast_and_validate(note)
+      %{valid?: true} = ArticleNoteValidator.cast_and_validate(note, [])
     end
   end
 end

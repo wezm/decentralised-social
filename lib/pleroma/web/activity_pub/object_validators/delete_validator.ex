@@ -53,11 +53,11 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.DeleteValidator do
     Tombstone
     Video
   }
-  def validate_data(cng) do
+  def validate_data(cng, meta \\ []) do
     cng
     |> validate_required([:id, :type, :actor, :to, :cc, :object])
     |> validate_inclusion(:type, ["Delete"])
-    |> validate_actor_presence()
+    |> validate_actor_presence(meta)
     |> validate_modification_rights()
     |> validate_object_or_user_presence(allowed_types: @deletable_types)
     |> add_deleted_activity_id()
@@ -67,9 +67,9 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.DeleteValidator do
     !same_domain?(cng)
   end
 
-  def cast_and_validate(data) do
+  def cast_and_validate(data, meta) do
     data
     |> cast_data
-    |> validate_data
+    |> validate_data(meta)
   end
 end

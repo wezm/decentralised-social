@@ -37,7 +37,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.LikeValidationTest do
     end
 
     test "is valid for a valid object", %{valid_like: valid_like} do
-      assert LikeValidator.cast_and_validate(valid_like).valid?
+      assert LikeValidator.cast_and_validate(valid_like, []).valid?
     end
 
     test "sets the 'to' field to the object actor if no recipients are given", %{
@@ -69,21 +69,21 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.LikeValidationTest do
     test "it errors when the actor is missing or not known", %{valid_like: valid_like} do
       without_actor = Map.delete(valid_like, "actor")
 
-      refute LikeValidator.cast_and_validate(without_actor).valid?
+      refute LikeValidator.cast_and_validate(without_actor, []).valid?
 
       with_invalid_actor = Map.put(valid_like, "actor", "invalidactor")
 
-      refute LikeValidator.cast_and_validate(with_invalid_actor).valid?
+      refute LikeValidator.cast_and_validate(with_invalid_actor, []).valid?
     end
 
     test "it errors when the object is missing or not known", %{valid_like: valid_like} do
       without_object = Map.delete(valid_like, "object")
 
-      refute LikeValidator.cast_and_validate(without_object).valid?
+      refute LikeValidator.cast_and_validate(without_object, []).valid?
 
       with_invalid_object = Map.put(valid_like, "object", "invalidobject")
 
-      refute LikeValidator.cast_and_validate(with_invalid_object).valid?
+      refute LikeValidator.cast_and_validate(with_invalid_object, []).valid?
     end
 
     test "it errors when the actor has already like the object", %{
@@ -93,7 +93,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.LikeValidationTest do
     } do
       _like = CommonAPI.favorite(user, post_activity.id)
 
-      refute LikeValidator.cast_and_validate(valid_like).valid?
+      refute LikeValidator.cast_and_validate(valid_like, []).valid?
     end
 
     test "it works when actor or object are wrapped in maps", %{valid_like: valid_like} do
@@ -102,7 +102,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.LikeValidationTest do
         |> Map.put("actor", %{"id" => valid_like["actor"]})
         |> Map.put("object", %{"id" => valid_like["object"]})
 
-      validated = LikeValidator.cast_and_validate(wrapped_like)
+      validated = LikeValidator.cast_and_validate(wrapped_like, [])
 
       assert validated.valid?
 

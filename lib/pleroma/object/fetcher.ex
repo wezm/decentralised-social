@@ -37,7 +37,7 @@ defmodule Pleroma.Object.Fetcher do
     Logger.debug("Reinjecting object #{new_data["id"]}")
 
     with data <- maybe_reinject_internal_fields(object, new_data),
-         {:ok, data, _} <- ObjectValidator.validate(data, %{}),
+         {:ok, data, _} <- ObjectValidator.validate(data, []),
          changeset <- Object.change(object, %{data: data}),
          changeset <- touch_changeset(changeset),
          {:ok, object} <- Repo.insert_or_update(changeset),

@@ -24,10 +24,10 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.EmojiReactValidator do
     field(:cc, ObjectValidators.Recipients, default: [])
   end
 
-  def cast_and_validate(data) do
+  def cast_and_validate(data, meta) do
     data
     |> cast_data()
-    |> validate_data()
+    |> validate_data(meta)
   end
 
   def cast_data(data) do
@@ -70,11 +70,11 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.EmojiReactValidator do
     end
   end
 
-  def validate_data(data_cng) do
+  def validate_data(data_cng, meta \\ []) do
     data_cng
     |> validate_inclusion(:type, ["EmojiReact"])
     |> validate_required([:id, :type, :object, :actor, :context, :to, :cc, :content])
-    |> validate_actor_presence()
+    |> validate_actor_presence(meta)
     |> validate_object_presence()
     |> validate_emoji()
   end

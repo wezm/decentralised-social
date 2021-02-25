@@ -26,17 +26,17 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.BlockValidator do
     |> cast(data, __schema__(:fields))
   end
 
-  def validate_data(cng) do
+  def validate_data(cng, meta \\ []) do
     cng
     |> validate_required([:id, :type, :actor, :to, :cc, :object])
     |> validate_inclusion(:type, ["Block"])
-    |> validate_actor_presence()
+    |> validate_actor_presence(meta)
     |> validate_actor_presence(field_name: :object)
   end
 
-  def cast_and_validate(data) do
+  def cast_and_validate(data, meta) do
     data
     |> cast_data
-    |> validate_data
+    |> validate_data(meta)
   end
 end

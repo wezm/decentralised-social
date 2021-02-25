@@ -27,19 +27,19 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AcceptRejectValidator do
     |> cast(data, __schema__(:fields))
   end
 
-  def validate_data(cng) do
+  def validate_data(cng, meta \\ []) do
     cng
     |> validate_required([:id, :type, :actor, :to, :cc, :object])
     |> validate_inclusion(:type, ["Accept", "Reject"])
-    |> validate_actor_presence()
+    |> validate_actor_presence(meta)
     |> validate_object_presence(allowed_types: ["Follow"])
     |> validate_accept_reject_rights()
   end
 
-  def cast_and_validate(data) do
+  def cast_and_validate(data, meta) do
     data
     |> cast_data
-    |> validate_data
+    |> validate_data(meta)
   end
 
   def validate_accept_reject_rights(cng) do

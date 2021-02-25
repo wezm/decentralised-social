@@ -59,10 +59,10 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.EventValidator do
     |> apply_action(:insert)
   end
 
-  def cast_and_validate(data) do
+  def cast_and_validate(data, meta) do
     data
     |> cast_data()
-    |> validate_data()
+    |> validate_data(meta)
   end
 
   def cast_data(data) do
@@ -85,13 +85,13 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.EventValidator do
     |> cast_embed(:attachment)
   end
 
-  def validate_data(data_cng) do
+  def validate_data(data_cng, meta \\ []) do
     data_cng
     |> validate_inclusion(:type, ["Event"])
     |> validate_required([:id, :actor, :attributedTo, :type, :context, :context_id])
     |> CommonValidations.validate_any_presence([:cc, :to])
     |> CommonValidations.validate_fields_match([:actor, :attributedTo])
-    |> CommonValidations.validate_actor_presence()
+    |> CommonValidations.validate_actor_presence(meta)
     |> CommonValidations.validate_host_match()
   end
 end
