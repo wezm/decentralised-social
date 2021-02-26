@@ -12,6 +12,7 @@ defmodule Pleroma.Web.ActivityPub.MRF do
       group: :pleroma,
       key: :mrf,
       tab: :mrf,
+      tab_label: "MRF",
       label: "MRF",
       type: :group,
       description: "General MRF settings",
@@ -153,6 +154,7 @@ defmodule Pleroma.Web.ActivityPub.MRF do
           |> Map.merge(policy.config_description)
           |> Map.put(:group, :pleroma)
           |> Map.put(:tab, :mrf)
+          |> Map.put(:tab_label, "MRF")
           |> Map.put(:type, :group)
 
         if Enum.all?(@required_description_keys, &Map.has_key?(description, &1)) do

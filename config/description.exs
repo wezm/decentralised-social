@@ -73,6 +73,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Upload,
+    tab: :upload,
+    tab_label: "Upload",
     type: :group,
     description: "Upload general settings",
     children: [
@@ -123,6 +125,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Uploaders.Local,
+    tab: :upload,
+    tab_label: "Upload",
     type: :group,
     description: "Local uploader-related settings",
     children: [
@@ -139,6 +143,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Uploaders.S3,
+    tab: :upload,
+    tab_label: "Upload",
     type: :group,
     description: "S3 uploader-related settings",
     children: [
@@ -174,6 +180,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Upload.Filter.Mogrify,
+    tab: :upload,
+    tab_label: "Upload",
     type: :group,
     description: "Uploads mogrify filter settings",
     children: [
@@ -194,6 +202,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Upload.Filter.AnonymizeFilename,
+    tab: :upload,
+    tab_label: "Upload",
     type: :group,
     description: "Filter replaces the filename of the upload",
     children: [
@@ -212,6 +222,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Emails.Mailer,
+    tab: :mailer,
+    tab_label: "Mailer",
     type: :group,
     description: "Mailer-related settings",
     children: [
@@ -431,6 +443,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :uri_schemes,
+    tab: :instance,
+    tab_label: "Instance",
     label: "URI Schemes",
     type: :group,
     description: "URI schemes related settings",
@@ -462,6 +476,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :instance,
+    tab: :instance,
+    tab_label: "Instance",
     type: :group,
     description: "Instance-related settings",
     children: [
@@ -911,6 +927,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :welcome,
+    tab: :instance,
+    tab_label: "Instance",
     type: :group,
     description: "Welcome messages settings",
     children: [
@@ -1017,6 +1035,8 @@ config :pleroma, :config_description, [
   },
   %{
     group: :logger,
+    tab: :logger,
+    tab_label: "Logger",
     type: :group,
     description: "Logger-related settings",
     children: [
@@ -1033,6 +1053,8 @@ config :pleroma, :config_description, [
     group: :logger,
     type: :group,
     key: :ex_syslogger,
+    tab: :logger,
+    tab_label: "Logger",
     label: "ExSyslogger",
     description: "ExSyslogger-related settings",
     children: [
@@ -1066,6 +1088,8 @@ config :pleroma, :config_description, [
     group: :logger,
     type: :group,
     key: :console,
+    tab: :logger,
+    tab_label: "Logger",
     label: "Console Logger",
     description: "Console logger settings",
     children: [
@@ -1090,6 +1114,8 @@ config :pleroma, :config_description, [
   },
   %{
     group: :quack,
+    tab: :logger,
+    tab_label: "Logger",
     type: :group,
     label: "Quack Logger",
     description: "Quack-related settings",
@@ -1130,6 +1156,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :frontend_configurations,
+    tab: :frontend,
+    tab_label: "Frontend",
     type: :group,
     description:
       "This form can be used to configure a keyword list that keeps the configuration data for any " <>
@@ -1365,6 +1393,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :assets,
+    tab: :frontend,
+    tab_label: "Frontend",
     type: :group,
     description:
       "This section configures assets to be used with various frontends. Currently the only option relates to mascots on the mastodon frontend",
@@ -1405,6 +1435,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :manifest,
+    tab: :instance,
+    tab_label: "Instance",
     type: :group,
     description:
       "This section describe PWA manifest instance-specific values. Currently this option relate only for MastoFE.",
@@ -1444,6 +1476,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :media_proxy,
+    tab: :media_proxy,
+    tab_label: "Media Proxy",
     type: :group,
     description: "Media proxy",
     children: [
@@ -1530,6 +1564,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :media_preview_proxy,
+    tab: :media_proxy,
+    tab_label: "Media Proxy",
     type: :group,
     description: "Media preview proxy",
     children: [
@@ -1567,6 +1603,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Web.MediaProxy.Invalidation.Http,
+    tab: :media_proxy,
+    tab_label: "Media Proxy",
     type: :group,
     description: "HTTP invalidate settings",
     children: [
@@ -1597,6 +1635,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Web.MediaProxy.Invalidation.Script,
+    tab: :media_proxy,
+    tab_label: "Media Proxy",
     type: :group,
     description: "Invalidation script settings",
     children: [
@@ -1619,6 +1659,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :gopher,
+    tab: :gopher,
+    tab_label: "Gopher",
     type: :group,
     description: "Gopher settings",
     children: [
@@ -1651,6 +1693,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :activitypub,
+    tab: :activity_pub,
+    tab_label: "ActivityPub",
     label: "ActivityPub",
     type: :group,
     description: "ActivityPub-related settings",
@@ -1687,6 +1731,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :http_security,
+    tab: :http,
+    tab_label: "HTTP",
     label: "HTTP security",
     type: :group,
     description: "HTTP security settings",
@@ -1734,6 +1780,8 @@ config :pleroma, :config_description, [
   %{
     group: :web_push_encryption,
     key: :vapid_details,
+    tab: :web_push,
+    tab_label: "Web push encryption",
     label: "Vapid Details",
     type: :group,
     description:
@@ -1764,6 +1812,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Captcha,
+    tab: :captcha,
+    tab_label: "Captcha",
     type: :group,
     description: "Captcha-related settings",
     children: [
@@ -1789,6 +1839,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Captcha.Kocaptcha,
+    tab: :captcha,
+    tab_label: "Captcha",
     type: :group,
     description:
       "Kocaptcha is a very simple captcha service with a single API endpoint, the source code is" <>
@@ -1804,6 +1856,8 @@ config :pleroma, :config_description, [
   },
   %{
     group: :pleroma,
+    tab: :instance,
+    tab_label: "Instance",
     label: "Pleroma Admin Token",
     type: :group,
     description:
@@ -1822,6 +1876,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Oban,
+    tab: :job_queue,
+    tab_label: "Job queue",
     type: :group,
     description:
       "[Oban](https://github.com/sorentwo/oban) asynchronous job processor configuration.",
@@ -1925,6 +1981,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :workers,
+    tab: :job_queue,
+    tab_label: "Job queue",
     type: :group,
     description: "Includes custom worker options not interpretable directly by `Oban`",
     children: [
@@ -1942,6 +2000,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Web.Metadata,
+    tab: :metadata,
+    tab_label: "Metadata",
     type: :group,
     description: "Metadata-related settings",
     children: [
@@ -1967,6 +2027,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :rich_media,
+    tab: :metadata,
+    tab_label: "Metadata",
     type: :group,
     description:
       "If enabled the instance will parse metadata from attached links to generate link previews",
@@ -2021,6 +2083,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Formatter,
+    tab: :link_formatter,
+    tab_label: "Link Formatter",
     label: "Linkify",
     type: :group,
     description:
@@ -2072,6 +2136,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.ScheduledActivity,
+    tab: :instance,
+    tab_label: "Instance",
     type: :group,
     description: "Scheduled activities settings",
     children: [
@@ -2099,6 +2165,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Workers.PurgeExpiredActivity,
+    tab: :job_queue,
+    tab_label: "Job queue",
     type: :group,
     description: "Expired activities settings",
     children: [
@@ -2118,6 +2186,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     label: "Pleroma Authenticator",
+    tab: :authentication,
+    tab_label: "Authentication",
     type: :group,
     description: "Authenticator",
     children: [
@@ -2131,6 +2201,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :ldap,
+    tab: :authentication,
+    tab_label: "Authentication",
     label: "LDAP",
     type: :group,
     description:
@@ -2229,19 +2301,11 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :auth,
+    tab: :authentication,
+    tab_label: "Authentication",
     type: :group,
     description: "Authentication / authorization settings",
     children: [
-      %{
-        key: :enforce_oauth_admin_scope_usage,
-        label: "Enforce OAuth admin scope usage",
-        type: :boolean,
-        description:
-          "OAuth admin scope requirement toggle. " <>
-            "If enabled, admin actions explicitly demand admin OAuth scope(s) presence in OAuth token " <>
-            "(client app must support admin scopes). If disabled and token doesn't have admin scope(s), " <>
-            "`is_admin` user flag grants access to admin-specific actions."
-      },
       %{
         key: :auth_template,
         type: :string,
@@ -2273,6 +2337,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :email_notifications,
+    tab: :mailer,
+    tab_label: "Mailer",
     type: :group,
     description: "Email notifications settings",
     children: [
@@ -2322,6 +2388,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Emails.UserEmail,
+    tab: :mailer,
+    tab_label: "Mailer",
     type: :group,
     description: "Email template settings",
     children: [
@@ -2383,6 +2451,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Emails.NewUsersDigestEmail,
+    tab: :mailer,
+    tab_label: "Mailer",
     type: :group,
     description: "New users admin email digest",
     children: [
@@ -2396,6 +2466,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :oauth2,
+    tab: :authentication,
+    tab_label: "Authentication",
     label: "OAuth2",
     type: :group,
     description: "Configure OAuth 2 provider capabilities",
@@ -2422,6 +2494,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :emoji,
+    tab: :emoji,
+    tab_label: "Emoji",
     type: :group,
     children: [
       %{
@@ -2469,6 +2543,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :rate_limit,
+    tab: :rate_limits,
+    tab_label: "Rate limiters",
     type: :group,
     description:
       "Rate limit settings. This is an advanced feature enabled only for :authentication by default.",
@@ -2529,6 +2605,8 @@ config :pleroma, :config_description, [
   },
   %{
     group: :esshd,
+    tab: :esshd,
+    tab_label: "BBS / SSH access",
     label: "ESSHD",
     type: :group,
     description:
@@ -2568,6 +2646,8 @@ config :pleroma, :config_description, [
   },
   %{
     group: :mime,
+    tab: :other,
+    tab_label: "Other",
     label: "Mime Types",
     type: :group,
     description: "Mime Types settings",
@@ -2617,6 +2697,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :chat,
+    tab: :frontend,
+    tab_label: "Frontend",
     type: :group,
     description: "Pleroma chat settings",
     children: [
@@ -2629,6 +2711,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :http,
+    tab: :http,
+    tab_label: "HTTP",
     label: "HTTP",
     type: :group,
     description: "HTTP settings",
@@ -2678,6 +2762,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :markup,
+    tab: :frontend,
+    tab_label: "Frontend",
     label: "Markup Settings",
     type: :group,
     children: [
@@ -2709,6 +2795,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :user,
+    tab: :activity_pub,
+    tab_label: "ActivityPub",
     type: :group,
     children: [
       %{
@@ -2720,6 +2808,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.User,
+    tab: :instance,
+    tab_label: "Instance",
     type: :group,
     children: [
       %{
@@ -2769,6 +2859,8 @@ config :pleroma, :config_description, [
   },
   %{
     group: :cors_plug,
+    tab: :http,
+    tab_label: "HTTP",
     label: "CORS plug config",
     type: :group,
     children: [
@@ -2808,6 +2900,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Web.Plugs.RemoteIp,
+    tab: :other,
+    tab_label: "Other",
     type: :group,
     description: """
     `Pleroma.Web.Plugs.RemoteIp` is a shim to call [`RemoteIp`](https://git.pleroma.social/pleroma/remote_ip) but with runtime configuration.
@@ -2844,6 +2938,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :web_cache_ttl,
+    tab: :http,
+    tab_label: "HTTP",
     label: "Web cache TTL",
     type: :group,
     description:
@@ -2867,6 +2963,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :static_fe,
+    tab: :frontend,
+    tab_label: "Frontend",
     label: "Static FE",
     type: :group,
     description:
@@ -2882,6 +2980,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :feed,
+    tab: :instance,
+    tab_label: "Instance",
     type: :group,
     description: "Configure feed rendering",
     children: [
@@ -2909,6 +3009,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :modules,
+    tab: :other,
+    tab_label: "Other",
     type: :group,
     description: "Custom Runtime Modules",
     children: [
@@ -2922,6 +3024,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :streamer,
+    tab: :instance,
+    tab_label: "Instance",
     type: :group,
     description: "Settings for notifications streamer",
     children: [
@@ -2942,6 +3046,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :connections_pool,
+    tab: :http,
+    tab_label: "HTTP",
     type: :group,
     description: "Advanced settings for `Gun` connections pool",
     children: [
@@ -2983,6 +3089,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :pools,
+    tab: :http,
+    tab_label: "HTTP",
     type: :group,
     description: "Advanced settings for `Gun` workers pools",
     children:
@@ -3002,13 +3110,14 @@ config :pleroma, :config_description, [
               key: :max_waiting,
               type: :integer,
               description:
-                "Maximum number of requests waiting for other requests to finish. After this number is reached, the pool will start returning errrors when a new request is made",
+                "Maximum number of requests waiting for other requests to finish. After this number is reached, the pool will start returning errrors when a new request is made.",
               suggestions: [10]
             },
             %{
               key: :recv_timeout,
               type: :integer,
-              description: "Timeout for the pool while gun will wait for response",
+              description:
+                "Timeout for the pool while gun will wait for response (in milliseconds).",
               suggestions: [10_000]
             }
           ]
@@ -3018,6 +3127,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :hackney_pools,
+    tab: :http,
+    tab_label: "HTTP",
     type: :group,
     description: "Advanced settings for `Hackney` connections pools",
     children: [
@@ -3035,7 +3146,7 @@ config :pleroma, :config_description, [
           %{
             key: :timeout,
             type: :integer,
-            description: "Timeout while `hackney` will wait for response.",
+            description: "Timeout while `hackney` will wait for response (in milliseconds).",
             suggestions: [150_000]
           }
         ]
@@ -3083,6 +3194,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :restrict_unauthenticated,
+    tab: :instance,
+    tab_label: "Instance",
     label: "Restrict Unauthenticated",
     type: :group,
     description:
@@ -3144,6 +3257,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Web.ApiSpec.CastAndValidate,
+    tab: :other,
+    tab_label: "Other",
     type: :group,
     children: [
       %{
@@ -3157,6 +3272,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :instances_favicons,
+    tab: :instance,
+    tab_label: "Instance",
     type: :group,
     description: "Control favicons for instances",
     children: [
@@ -3170,6 +3287,8 @@ config :pleroma, :config_description, [
   %{
     group: :ex_aws,
     key: :s3,
+    tab: :upload,
+    tab_label: "Upload",
     type: :group,
     descriptions: "S3 service related settings",
     children: [
@@ -3202,6 +3321,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :frontends,
+    tab: :frontend,
+    tab_label: "Frontend",
     type: :group,
     description: "Installed frontends management",
     children: [
@@ -3229,6 +3350,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.Web.Preload,
+    tab: :frontend,
+    tab_label: "Frontend",
     type: :group,
     description: "Preload-related settings",
     children: [
@@ -3248,6 +3371,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: :majic_pool,
+    tab: :other,
+    tab_label: "Other",
     type: :group,
     description: "Majic/libmagic configuration",
     children: [
@@ -3262,6 +3387,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: Pleroma.User.Backup,
+    tab: :other,
+    tab_label: "Other",
     type: :group,
     description: "Account Backup",
     children: [
@@ -3282,6 +3409,8 @@ config :pleroma, :config_description, [
   %{
     group: :prometheus,
     key: Pleroma.Web.Endpoint.MetricsExporter,
+    tab: :other,
+    tab_label: "Other",
     type: :group,
     description: "Prometheus app metrics endpoint configuration",
     children: [
@@ -3319,6 +3448,8 @@ config :pleroma, :config_description, [
   %{
     group: :pleroma,
     key: ConcurrentLimiter,
+    tab: :job_queue,
+    tab_label: "Job queue",
     type: :group,
     description: "Limits configuration for background tasks.",
     children: [
