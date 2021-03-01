@@ -17,14 +17,14 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token.token}")
              |> get("/api/pleroma/accounts/mfa")
-             |> json_response(:ok) == %{
+             |> json_response_and_validate_schema(:ok) == %{
                "settings" => %{"enabled" => false, "totp" => false}
              }
 
       assert conn
              |> put_req_header("authorization", "Bearer #{token2.token}")
              |> get("/api/pleroma/accounts/mfa")
-             |> json_response(403) == %{
+             |> json_response_and_validate_schema(403) == %{
                "error" => "Insufficient permissions: read:security."
              }
     end
@@ -43,7 +43,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token.token}")
              |> get("/api/pleroma/accounts/mfa")
-             |> json_response(:ok) == %{
+             |> json_response_and_validate_schema(:ok) == %{
                "settings" => %{"enabled" => true, "totp" => true}
              }
     end
@@ -66,7 +66,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
         conn
         |> put_req_header("authorization", "Bearer #{token.token}")
         |> get("/api/pleroma/accounts/mfa/backup_codes")
-        |> json_response(:ok)
+        |> json_response_and_validate_schema(:ok)
 
       assert [<<_::bytes-size(6)>>, <<_::bytes-size(6)>>] = response["codes"]
       user = refresh_record(user)
@@ -78,7 +78,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token2.token}")
              |> get("/api/pleroma/accounts/mfa/backup_codes")
-             |> json_response(403) == %{
+             |> json_response_and_validate_schema(403) == %{
                "error" => "Insufficient permissions: write:security."
              }
     end
@@ -93,7 +93,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
         conn
         |> put_req_header("authorization", "Bearer #{token.token}")
         |> get("/api/pleroma/accounts/mfa/setup/torf")
-        |> json_response(400)
+        |> json_response_and_validate_schema(400)
 
       assert response == %{"error" => "undefined method"}
     end
@@ -111,7 +111,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
         conn
         |> put_req_header("authorization", "Bearer #{token.token}")
         |> get("/api/pleroma/accounts/mfa/setup/totp")
-        |> json_response(:ok)
+        |> json_response_and_validate_schema(:ok)
 
       user = refresh_record(user)
       mfa_settings = user.multi_factor_authentication_settings
@@ -127,7 +127,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token2.token}")
              |> get("/api/pleroma/accounts/mfa/setup/totp")
-             |> json_response(403) == %{
+             |> json_response_and_validate_schema(403) == %{
                "error" => "Insufficient permissions: write:security."
              }
     end
@@ -152,7 +152,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token.token}")
              |> post("/api/pleroma/accounts/mfa/confirm/totp", %{password: "test", code: code})
-             |> json_response(:ok)
+             |> json_response_and_validate_schema(:ok)
 
       settings = refresh_record(user).multi_factor_authentication_settings
       assert settings.enabled
@@ -163,7 +163,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token2.token}")
              |> post("/api/pleroma/accounts/mfa/confirm/totp", %{password: "test", code: code})
-             |> json_response(403) == %{
+             |> json_response_and_validate_schema(403) == %{
                "error" => "Insufficient permissions: write:security."
              }
     end
@@ -186,7 +186,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
         conn
         |> put_req_header("authorization", "Bearer #{token.token}")
         |> post("/api/pleroma/accounts/mfa/confirm/totp", %{password: "xxx", code: code})
-        |> json_response(422)
+        |> json_response_and_validate_schema(422)
 
       settings = refresh_record(user).multi_factor_authentication_settings
       refute settings.enabled
@@ -213,7 +213,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
         conn
         |> put_req_header("authorization", "Bearer #{token.token}")
         |> post("/api/pleroma/accounts/mfa/confirm/totp", %{password: "test", code: "code"})
-        |> json_response(422)
+        |> json_response_and_validate_schema(422)
 
       settings = refresh_record(user).multi_factor_authentication_settings
       refute settings.enabled
@@ -224,7 +224,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token2.token}")
              |> post("/api/pleroma/accounts/mfa/confirm/totp", %{password: "test", code: "code"})
-             |> json_response(403) == %{
+             |> json_response_and_validate_schema(403) == %{
                "error" => "Insufficient permissions: write:security."
              }
     end
@@ -246,7 +246,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token.token}")
              |> delete("/api/pleroma/accounts/mfa/totp", %{password: "test"})
-             |> json_response(:ok)
+             |> json_response_and_validate_schema(:ok)
 
       settings = refresh_record(user).multi_factor_authentication_settings
       refute settings.enabled
@@ -256,7 +256,7 @@ defmodule Pleroma.Web.PleromaAPI.TwoFactorAuthenticationControllerTest do
       assert conn
              |> put_req_header("authorization", "Bearer #{token2.token}")
              |> delete("/api/pleroma/accounts/mfa/totp", %{password: "test"})
-             |> json_response(403) == %{
+             |> json_response_and_validate_schema(403) == %{
                "error" => "Insufficient permissions: write:security."
              }
     end
