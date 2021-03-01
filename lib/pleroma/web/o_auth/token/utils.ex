@@ -41,7 +41,7 @@ defmodule Pleroma.Web.OAuth.Token.Utils do
            ) do
       {id, secret}
     else
-      _ -> {conn.params["client_id"], conn.params["client_secret"]}
+      _ -> {conn.params[:client_id], conn.params[:client_secret]}
     end
   end
 

@@ -780,7 +780,8 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_secret" => app.client_secret
         })
 
-      assert %{"access_token" => token, "me" => ap_id} = json_response(conn, 200)
+      assert %{"access_token" => token, "me" => ap_id} =
+               json_response_and_validate_schema(conn, 200)
 
       token = Repo.get_by(Token, token: token)
       assert token
@@ -805,7 +806,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_secret" => app.client_secret
         })
 
-      assert %{"access_token" => token} = json_response(conn, 200)
+      assert %{"access_token" => token} = json_response_and_validate_schema(conn, 200)
 
       token = Repo.get_by(Token, token: token)
       assert token
@@ -836,7 +837,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(403)
+        |> json_response_and_validate_schema(403)
 
       assert match?(
                %{
@@ -872,7 +873,8 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "redirect_uri" => OAuthController.default_redirect_uri(app)
         })
 
-      assert %{"access_token" => token, "scope" => scope} = json_response(conn, 200)
+      assert %{"access_token" => token, "scope" => scope} =
+               json_response_and_validate_schema(conn, 200)
 
       assert scope == "scope1 scope2"
 
@@ -893,7 +895,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
         })
 
       assert %{"access_token" => token, "refresh_token" => refresh, "scope" => scope} =
-               json_response(conn, 200)
+               json_response_and_validate_schema(conn, 200)
 
       assert token
       token_from_db = Repo.get_by(Token, token: token)
@@ -917,7 +919,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "redirect_uri" => OAuthController.default_redirect_uri(app)
         })
 
-      assert resp = json_response(conn, 400)
+      assert resp = json_response_and_validate_schema(conn, 400)
       assert %{"error" => _} = resp
       refute Map.has_key?(resp, "access_token")
     end
@@ -945,7 +947,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_secret" => app.client_secret
         })
 
-      assert resp = json_response(conn, 403)
+      assert resp = json_response_and_validate_schema(conn, 403)
       assert %{"error" => _} = resp
       refute Map.has_key?(resp, "access_token")
     end
@@ -970,7 +972,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(403)
+        |> json_response_and_validate_schema(403)
 
       assert resp == %{
                "error" => "Your account is currently disabled",
@@ -998,7 +1000,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(403)
+        |> json_response_and_validate_schema(403)
 
       assert resp == %{
                "error" => "Password reset is required",
@@ -1027,7 +1029,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(403)
+        |> json_response_and_validate_schema(403)
 
       assert resp == %{
                "error" => "Your login is missing a confirmed e-mail address",
@@ -1058,7 +1060,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_secret" => app.client_secret
         })
 
-      assert resp = json_response(conn, 403)
+      assert resp = json_response_and_validate_schema(conn, 403)
       assert %{"error" => _} = resp
       refute Map.has_key?(resp, "access_token")
     end
@@ -1076,8 +1078,8 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_secret" => app.client_secret
         })
 
-      assert resp = json_response(conn, 400)
-      assert %{"error" => _} = json_response(conn, 400)
+      assert resp = json_response_and_validate_schema(conn, 400)
+      assert %{"error" => _} = json_response_and_validate_schema(conn, 400)
       refute Map.has_key?(resp, "access_token")
     end
   end
@@ -1101,7 +1103,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(200)
+        |> json_response_and_validate_schema(200)
 
       ap_id = user.ap_id
 
@@ -1140,7 +1142,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(200)
+        |> json_response_and_validate_schema(200)
 
       ap_id = user.ap_id
 
@@ -1178,7 +1180,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(400)
+        |> json_response_and_validate_schema(400)
 
       assert %{"error" => "Invalid credentials"} == response
     end
@@ -1194,7 +1196,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(400)
+        |> json_response_and_validate_schema(400)
 
       assert %{"error" => "Invalid credentials"} == response
     end
@@ -1222,7 +1224,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(200)
+        |> json_response_and_validate_schema(200)
 
       ap_id = user.ap_id
 
@@ -1251,7 +1253,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
       response =
         build_conn()
         |> post("/oauth/token", %{})
-        |> json_response(500)
+        |> json_response_and_validate_schema(500)
 
       assert %{"error" => "Bad request"} == response
     end
@@ -1268,7 +1270,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
         |> AuthHelper.put_session_token(oauth_token.token)
         |> post("/oauth/revoke", %{"token" => oauth_token.token})
 
-      assert json_response(conn, 200)
+      assert json_response_and_validate_schema(conn, 200)
 
       refute AuthHelper.get_session_token(conn)
       assert Token.get_by_token(oauth_token.token) == {:error, :not_found}
@@ -1287,7 +1289,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
         |> AuthHelper.put_session_token(oauth_token.token)
         |> post("/oauth/revoke", %{"token" => other_app_oauth_token.token})
 
-      assert json_response(conn, 200)
+      assert json_response_and_validate_schema(conn, 200)
 
       assert AuthHelper.get_session_token(conn) == oauth_token.token
       assert Token.get_by_token(other_app_oauth_token.token) == {:error, :not_found}
@@ -1297,7 +1299,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
       response =
         build_conn()
         |> post("/oauth/revoke", %{})
-        |> json_response(500)
+        |> json_response_and_validate_schema(500)
 
       assert %{"error" => "Bad request"} == response
     end

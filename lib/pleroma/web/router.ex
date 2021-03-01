@@ -30,11 +30,17 @@ defmodule Pleroma.Web.Router do
     plug(:fetch_session)
   end
 
+  pipeline :fetch_session_api do
+    plug(:fetch_session)
+    plug(OpenApiSpex.Plug.PutApiSpec, module: Pleroma.Web.ApiSpec)
+  end
+
   pipeline :oauth do
     plug(:fetch_session)
     plug(Pleroma.Web.Plugs.OAuthPlug)
     plug(Pleroma.Web.Plugs.UserEnabledPlug)
     plug(Pleroma.Web.Plugs.EnsureUserTokenAssignsPlug)
+    plug(OpenApiSpex.Plug.PutApiSpec, module: Pleroma.Web.ApiSpec)
   end
 
   # Note: expects _user_ authentication (user-unbound app-bound tokens don't qualify)
@@ -344,7 +350,7 @@ defmodule Pleroma.Web.Router do
     end
 
     scope [] do
-      pipe_through(:fetch_session)
+      pipe_through(:fetch_session_api)
 
       post("/token", OAuthController, :token_exchange)
       post("/revoke", OAuthController, :token_revoke)

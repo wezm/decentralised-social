@@ -164,7 +164,7 @@ defmodule Pleroma.Web.OAuth.MFAControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(:ok)
+        |> json_response_and_validate_schema(:ok)
 
       ap_id = user.ap_id
 
@@ -192,7 +192,7 @@ defmodule Pleroma.Web.OAuth.MFAControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(400)
+        |> json_response_and_validate_schema(400)
 
       assert response == %{"error" => "Invalid code"}
     end
@@ -209,7 +209,7 @@ defmodule Pleroma.Web.OAuth.MFAControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(400)
+        |> json_response_and_validate_schema(400)
 
       assert response == %{"error" => "Invalid code"}
     end
@@ -227,7 +227,7 @@ defmodule Pleroma.Web.OAuth.MFAControllerTest do
           "client_id" => "xxx",
           "client_secret" => "xxx"
         })
-        |> json_response(400)
+        |> json_response_and_validate_schema(400)
 
       assert response == %{"error" => "Invalid code"}
     end
@@ -272,7 +272,7 @@ defmodule Pleroma.Web.OAuth.MFAControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(:ok)
+        |> json_response_and_validate_schema(:ok)
 
       ap_id = user.ap_id
 
@@ -296,7 +296,7 @@ defmodule Pleroma.Web.OAuth.MFAControllerTest do
           "client_id" => app.client_id,
           "client_secret" => app.client_secret
         })
-        |> json_response(400)
+        |> json_response_and_validate_schema(400)
 
       assert error_response == %{"error" => "Invalid code"}
     end

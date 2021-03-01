@@ -60,7 +60,7 @@ defmodule Pleroma.Web.Auth.Authenticator do
       %{"authorization" => %{"name" => name, "password" => password}} ->
         {:ok, {name, password}}
 
-      %{"grant_type" => "password", "username" => name, "password" => password} ->
+      %{grant_type: "password", username: name, password: password} ->
         {:ok, {name, password}}
 
       _ ->

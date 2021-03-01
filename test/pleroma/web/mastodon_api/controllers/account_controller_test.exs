@@ -1049,7 +1049,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
       clear_config([:instance, :account_activation_required], false)
       clear_config([:instance, :account_approval_required], false)
 
-      conn =
+      apps_response =
         conn
         |> put_req_header("content-type", "application/json")
         |> post("/api/v1/apps", %{
@@ -1057,6 +1057,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
           redirect_uris: "urn:ietf:wg:oauth:2.0:oob",
           scopes: "read, write, follow"
         })
+        |> json_response_and_validate_schema(200)
 
       assert %{
                "client_id" => client_id,
@@ -1066,17 +1067,24 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
                "redirect_uri" => "urn:ietf:wg:oauth:2.0:oob",
                "vapid_key" => _,
                "website" => nil
-             } = json_response_and_validate_schema(conn, 200)
+             } = apps_response
 
-      conn =
-        post(conn, "/oauth/token", %{
-          grant_type: "client_credentials",
-          client_id: client_id,
-          client_secret: client_secret
-        })
+      token_response =
+        conn
+        |> put_req_header("content-type", "application/x-www-form-urlencoded")
+        |> post(
+          "/oauth/token?#{
+            URI.encode_query(%{
+              "grant_type" => "client_credentials",
+              "client_id" => client_id,
+              "client_secret" => client_secret
+            })
+          }"
+        )
+        |> json_response_and_validate_schema(200)
 
       assert %{"access_token" => token, "refresh_token" => refresh, "scope" => scope} =
-               json_response(conn, 200)
+               token_response
 
       assert token
       token_from_db = Repo.get_by(Token, token: token)
@@ -1131,7 +1139,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
       clear_config([:instance, :account_activation_required], true)
       clear_config([:instance, :account_approval_required], false)
 
-      conn =
+      register_response =
         conn
         |> put_req_header("content-type", "application/json")
         |> post("/api/v1/apps", %{
@@ -1139,6 +1147,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
           redirect_uris: "urn:ietf:wg:oauth:2.0:oob",
           scopes: "read, write, follow"
         })
+        |> json_response_and_validate_schema(200)
 
       assert %{
                "client_id" => client_id,
@@ -1148,17 +1157,24 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
                "redirect_uri" => "urn:ietf:wg:oauth:2.0:oob",
                "vapid_key" => _,
                "website" => nil
-             } = json_response_and_validate_schema(conn, 200)
+             } = register_response
 
-      conn =
-        post(conn, "/oauth/token", %{
-          grant_type: "client_credentials",
-          client_id: client_id,
-          client_secret: client_secret
-        })
+      token_response =
+        conn
+        |> put_req_header("content-type", "application/x-www-form-urlencoded")
+        |> post(
+          "/oauth/token?#{
+            URI.encode_query(%{
+              "grant_type" => "client_credentials",
+              "client_id" => client_id,
+              "client_secret" => client_secret
+            })
+          }"
+        )
+        |> json_response_and_validate_schema(200)
 
       assert %{"access_token" => token, "refresh_token" => refresh, "scope" => scope} =
-               json_response(conn, 200)
+               token_response
 
       assert token
       token_from_db = Repo.get_by(Token, token: token)
@@ -1166,19 +1182,19 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
       assert refresh
       assert scope == "read write follow"
 
-      conn =
-        build_conn()
-        |> put_req_header("content-type", "multipart/form-data")
-        |> put_req_header("authorization", "Bearer " <> token)
-        |> post("/api/v1/accounts", %{
-          username: "lain",
-          email: "lain@example.org",
-          password: "PlzDontHackLain",
-          bio: "Test Bio",
-          agreement: true
-        })
+      assert response =
+               conn
+               |> put_req_header("content-type", "multipart/form-data")
+               |> put_req_header("authorization", "Bearer " <> token)
+               |> post("/api/v1/accounts", %{
+                 username: "lain",
+                 email: "lain@example.org",
+                 password: "PlzDontHackLain",
+                 bio: "Test Bio",
+                 agreement: true
+               })
+               |> json_response_and_validate_schema(200)
 
-      response = json_response_and_validate_schema(conn, 200)
       assert %{"identifier" => "missing_confirmed_email"} = response
       refute response["access_token"]
       refute response["token_type"]
@@ -1191,7 +1207,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
       clear_config([:instance, :account_approval_required], true)
       clear_config([:instance, :account_activation_required], false)
 
-      conn =
+      apps_response =
         conn
         |> put_req_header("content-type", "application/json")
         |> post("/api/v1/apps", %{
@@ -1199,6 +1215,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
           redirect_uris: "urn:ietf:wg:oauth:2.0:oob",
           scopes: "read, write, follow"
         })
+        |> json_response_and_validate_schema(200)
 
       assert %{
                "client_id" => client_id,
@@ -1208,17 +1225,24 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
                "redirect_uri" => "urn:ietf:wg:oauth:2.0:oob",
                "vapid_key" => _,
                "website" => nil
-             } = json_response_and_validate_schema(conn, 200)
+             } = apps_response
 
-      conn =
-        post(conn, "/oauth/token", %{
-          grant_type: "client_credentials",
-          client_id: client_id,
-          client_secret: client_secret
-        })
+      token_response =
+        conn
+        |> put_req_header("content-type", "application/x-www-form-urlencoded")
+        |> post(
+          "/oauth/token?#{
+            URI.encode_query(%{
+              "grant_type" => "client_credentials",
+              "client_id" => client_id,
+              "client_secret" => client_secret
+            })
+          }"
+        )
+        |> json_response_and_validate_schema(200)
 
       assert %{"access_token" => token, "refresh_token" => refresh, "scope" => scope} =
-               json_response(conn, 200)
+               token_response
 
       assert token
       token_from_db = Repo.get_by(Token, token: token)
@@ -1226,7 +1250,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
       assert refresh
       assert scope == "read write follow"
 
-      conn =
+      response =
         build_conn()
         |> put_req_header("content-type", "multipart/form-data")
         |> put_req_header("authorization", "Bearer " <> token)
@@ -1238,8 +1262,8 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
           agreement: true,
           reason: "I'm a cool dude, bro"
         })
+        |> json_response_and_validate_schema(200)
 
-      response = json_response_and_validate_schema(conn, 200)
       assert %{"identifier" => "awaiting_approval"} = response
       refute response["access_token"]
       refute response["token_type"]
@@ -1372,13 +1396,19 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
 
       conn =
         build_conn()
-        |> post("/oauth/token", %{
-          "grant_type" => "client_credentials",
-          "client_id" => app.client_id,
-          "client_secret" => app.client_secret
-        })
+        |> put_req_header("content-type", "application/x-www-form-urlencoded")
+        |> post(
+          "/oauth/token?#{
+            URI.encode_query(%{
+              "grant_type" => "client_credentials",
+              "client_id" => app.client_id,
+              "client_secret" => app.client_secret
+            })
+          }"
+        )
 
-      assert %{"access_token" => token, "token_type" => "Bearer"} = json_response(conn, 200)
+      assert %{"access_token" => token, "token_type" => "Bearer"} =
+               json_response_and_validate_schema(conn, 200)
 
       response =
         build_conn()
