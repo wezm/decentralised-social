@@ -1091,9 +1091,10 @@ config :quack,
 }
 ```
 
-## ` GET /api/v1/pleroma/admin/config/descriptions`
+## `GET /api/v1/pleroma/admin/config/descriptions`
 
-### Get JSON with config descriptions.
+### Get JSON with config descriptions
+
 Loads json generated from `config/descriptions.exs`.
 
 - Params: none
@@ -1105,6 +1106,7 @@ Loads json generated from `config/descriptions.exs`.
     "key": "ModuleName", // string
     "type": "group", // string or list with possible values,
     "description": "Upload general settings", // string
+    "tab": "mrf",
     "children": [
       {
         "key": ":uploader", // string or module name `Pleroma.Upload`
