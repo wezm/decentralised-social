@@ -110,7 +110,6 @@ defmodule Pleroma.Web.ActivityPub.MRFTest do
              description: "Some description",
              group: :pleroma,
              tab: :mrf,
-             tab_label: "MRF",
              type: :group
            }
   end

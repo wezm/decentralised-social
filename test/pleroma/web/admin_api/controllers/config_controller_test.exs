@@ -1488,11 +1488,27 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
     end
   end
 
-  describe "GET /api/pleroma/admin/config/descriptions" do
-    test "structure", %{conn: conn} do
+  describe "config descriptions" do
+    test "api v1 structure", %{conn: conn} do
       conn = get(conn, "/api/pleroma/admin/config/descriptions")
 
       assert [child | _others] = json_response_and_validate_schema(conn, 200)
+
+      assert child["children"]
+      assert child["key"]
+      assert String.starts_with?(child["group"], ":")
+      assert child["description"]
+    end
+
+    test "api v2 structure", %{conn: conn} do
+      conn = get(conn, "/api/v2/pleroma/admin/config/descriptions")
+
+      assert %{"tabs" => tabs, "descriptions" => [child | _others]} =
+               json_response_and_validate_schema(conn, 200)
+
+      assert Enum.all?(tabs, fn tab ->
+               Map.has_key?(tab, "tab") and Map.has_key?(tab, "label")
+             end)
 
       assert child["children"]
       assert child["key"]

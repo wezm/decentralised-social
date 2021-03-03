@@ -7,7 +7,9 @@ defmodule Pleroma.Docs.JSON do
   @external_resource "config/description.exs"
   @raw_config Pleroma.Config.Loader.read("config/description.exs")
   @raw_descriptions @raw_config[:pleroma][:config_description]
+  @raw_tabs @raw_config[:pleroma][:tabs]
   @term __MODULE__.Compiled
+  @tabs __MODULE__.CompiledTabs
 
   @spec compile :: :ok
   def compile do
@@ -16,12 +18,16 @@ defmodule Pleroma.Docs.JSON do
       |> Enum.reduce(@raw_descriptions, fn description, acc -> [description | acc] end)
 
     :persistent_term.put(@term, Pleroma.Docs.Generator.convert_to_strings(descriptions))
+    :persistent_term.put(@tabs, @raw_tabs)
   end
 
-  @spec compiled_descriptions :: Map.t()
+  @spec compiled_descriptions :: [map()]
   def compiled_descriptions do
     :persistent_term.get(@term)
   end
+
+  @spec compiled_tabs() :: [map()]
+  def compiled_tabs, do: :persistent_term.get(@tabs)
 
   @spec process(keyword()) :: {:ok, String.t()}
   def process(descriptions) do

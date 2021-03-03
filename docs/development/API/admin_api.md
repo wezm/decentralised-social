@@ -1107,6 +1107,7 @@ Loads json generated from `config/descriptions.exs`.
     "type": "group", // string or list with possible values,
     "description": "Upload general settings", // string
     "tab": "mrf",
+    "label": "MRF",
     "children": [
       {
         "key": ":uploader", // string or module name `Pleroma.Upload`
@@ -1124,6 +1125,47 @@ Loads json generated from `config/descriptions.exs`.
       }
     ]
 }]
+```
+
+## `GET /api/v2/pleroma/admin/config/descriptions`
+
+### Get tabs and config descriptions
+
+Loads json generated from `config/descriptions.exs`.
+
+- Params: none
+- Response:
+
+```json
+{
+  "tabs": [{"tab": "activity_pub", "label": "ActivityPub"}],
+  "descriptions": [
+    {
+      "group": ":pleroma", // string
+      "key": "ModuleName", // string
+      "type": "group", // string or list with possible values,
+      "description": "Upload general settings", // string
+      "tab": "mrf",
+      "label": "MRF",
+      "children": [
+        {
+          "key": ":uploader", // string or module name `Pleroma.Upload`
+          "type": "module",
+          "description": "Module which will be used for uploads",
+          "suggestions": ["module1", "module2"]
+        },
+        {
+          "key": ":filters",
+          "type": ["list", "module"],
+          "description": "List of filter modules for uploads",
+          "suggestions": [
+            "module1", "module2", "module3"
+          ]
+        }
+      ]
+    }
+  ]
+}
 ```
 
 ## `GET /api/v1/pleroma/admin/moderation_log`
