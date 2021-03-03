@@ -78,31 +78,64 @@ defmodule Pleroma.Web.ApiSpec.Admin.ConfigOperation do
       parameters: admin_api_params(),
       responses: %{
         200 =>
+          Operation.response("Config Descriptions", "application/json", descriptions_schema()),
+        400 => Operation.response("Bad Request", "application/json", ApiError)
+      }
+    }
+  end
+
+  def descriptions2_operation do
+    %Operation{
+      tags: ["Instance configuration"],
+      summary: "Retrieve config description",
+      operationId: "AdminAPI.ConfigController.descriptions2",
+      security: [%{"oAuth" => ["admin:read"]}],
+      parameters: admin_api_params(),
+      responses: %{
+        200 =>
           Operation.response("Config Descriptions", "application/json", %Schema{
+            type: :object,
+            properties: %{
+              tabs: %Schema{
+                type: :array,
+                items: %Schema{
+                  type: :object,
+                  properties: %{tab: %Schema{type: :string}, label: %Schema{type: :string}}
+                }
+              },
+              descriptions: descriptions_schema()
+            }
+          }),
+        400 => Operation.response("Bad Request", "application/json", ApiError)
+      }
+    }
+  end
+
+  defp descriptions_schema do
+    %Schema{
+      type: :array,
+      items: %Schema{
+        type: :object,
+        properties: %{
+          group: %Schema{type: :string},
+          key: %Schema{type: :string},
+          tab: %Schema{type: :string},
+          label: %Schema{type: :string},
+          type: %Schema{oneOf: [%Schema{type: :string}, %Schema{type: :array}]},
+          description: %Schema{type: :string},
+          children: %Schema{
             type: :array,
             items: %Schema{
               type: :object,
               properties: %{
-                group: %Schema{type: :string},
                 key: %Schema{type: :string},
                 type: %Schema{oneOf: [%Schema{type: :string}, %Schema{type: :array}]},
                 description: %Schema{type: :string},
-                children: %Schema{
-                  type: :array,
-                  items: %Schema{
-                    type: :object,
-                    properties: %{
-                      key: %Schema{type: :string},
-                      type: %Schema{oneOf: [%Schema{type: :string}, %Schema{type: :array}]},
-                      description: %Schema{type: :string},
-                      suggestions: %Schema{type: :array}
-                    }
-                  }
-                }
+                suggestions: %Schema{type: :array}
               }
             }
-          }),
-        400 => Operation.response("Bad Request", "application/json", ApiError)
+          }
+        }
       }
     }
   end

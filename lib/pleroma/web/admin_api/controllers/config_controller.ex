@@ -15,17 +15,32 @@ defmodule Pleroma.Web.AdminAPI.ConfigController do
   plug(
     OAuthScopesPlug,
     %{scopes: ["admin:read"]}
-    when action in [:show, :descriptions]
+    when action in [:show, :descriptions, :descriptions2]
   )
 
   action_fallback(Pleroma.Web.AdminAPI.FallbackController)
 
   defdelegate open_api_operation(action), to: Pleroma.Web.ApiSpec.Admin.ConfigOperation
 
+  @doc """
+  GET /api/v1/pleroma/admin/config/descriptions
+  """
   def descriptions(conn, _params) do
-    descriptions = Enum.filter(Pleroma.Docs.JSON.compiled_descriptions(), &whitelisted_config?/1)
+    descriptions =
+      whitelisted_descriptions()
+      |> Enum.map(&Map.delete(&1, "tab"))
 
     json(conn, descriptions)
+  end
+
+  @doc """
+  GET /api/v2/pleroma/admin/config/descriptions
+  """
+  def descriptions2(conn, _params) do
+    json(conn, %{
+      tabs: Pleroma.Docs.JSON.compiled_tabs(),
+      descriptions: whitelisted_descriptions()
+    })
   end
 
   def show(conn, %{only_db: true}) do
@@ -124,6 +139,10 @@ defmodule Pleroma.Web.AdminAPI.ConfigController do
     else
       {:error, "You must enable configurable_from_database in your config file."}
     end
+  end
+
+  defp whitelisted_descriptions do
+    Enum.filter(Pleroma.Docs.JSON.compiled_descriptions(), &whitelisted_config?/1)
   end
 
   defp whitelisted_config?(group, key) do
