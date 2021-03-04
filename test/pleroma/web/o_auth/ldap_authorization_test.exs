@@ -37,13 +37,17 @@ defmodule Pleroma.Web.OAuth.LDAPAuthorizationTest do
     ] do
       conn =
         build_conn()
-        |> post("/oauth/token?#{URI.encode_query(%{
-          "grant_type" => "password",
-          "username" => user.nickname,
-          "password" => password,
-          "client_id" => app.client_id,
-          "client_secret" => app.client_secret
-        })}")
+        |> post(
+          "/oauth/token?#{
+            URI.encode_query(%{
+              "grant_type" => "password",
+              "username" => user.nickname,
+              "password" => password,
+              "client_id" => app.client_id,
+              "client_secret" => app.client_secret
+            })
+          }"
+        )
 
       assert %{"access_token" => token} = json_response_and_validate_schema(conn, 200)
 
@@ -81,13 +85,17 @@ defmodule Pleroma.Web.OAuth.LDAPAuthorizationTest do
     ] do
       conn =
         build_conn()
-        |> post("/oauth/token?#{URI.encode_query(%{
-          "grant_type" => "password",
-          "username" => user.nickname,
-          "password" => password,
-          "client_id" => app.client_id,
-          "client_secret" => app.client_secret
-        })}")
+        |> post(
+          "/oauth/token?#{
+            URI.encode_query(%{
+              "grant_type" => "password",
+              "username" => user.nickname,
+              "password" => password,
+              "client_id" => app.client_id,
+              "client_secret" => app.client_secret
+            })
+          }"
+        )
 
       assert %{"access_token" => token} = json_response_and_validate_schema(conn, 200)
 
@@ -120,13 +128,17 @@ defmodule Pleroma.Web.OAuth.LDAPAuthorizationTest do
     ] do
       conn =
         build_conn()
-        |> post("/oauth/token?#{URI.encode_query(%{
-          "grant_type" => "password",
-          "username" => user.nickname,
-          "password" => password,
-          "client_id" => app.client_id,
-          "client_secret" => app.client_secret
-        })}")
+        |> post(
+          "/oauth/token?#{
+            URI.encode_query(%{
+              "grant_type" => "password",
+              "username" => user.nickname,
+              "password" => password,
+              "client_id" => app.client_id,
+              "client_secret" => app.client_secret
+            })
+          }"
+        )
 
       assert %{"error" => "Invalid credentials"} = json_response_and_validate_schema(conn, 400)
       assert_received :close_connection

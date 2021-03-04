@@ -77,8 +77,18 @@ defmodule Pleroma.Web.ApiSpec.OAuthOperation do
           "Set equal to `authorization_code` if `code` is provided in order to gain user-level access. Set equal to `password` if `username` and `password` are provided. Otherwise, set equal to `client_credentials` to obtain app-level access only.",
           required: true
         ),
-        Operation.parameter(:username, :query, :string, "User's username, used with `grant_type=password`"),
-        Operation.parameter(:password, :query, :string, "User's password, used with `grant_type=password`")
+        Operation.parameter(
+          :username,
+          :query,
+          :string,
+          "User's username, used with `grant_type=password`"
+        ),
+        Operation.parameter(
+          :password,
+          :query,
+          :string,
+          "User's password, used with `grant_type=password`"
+        )
       ],
       responses: %{
         200 =>
@@ -150,23 +160,6 @@ defmodule Pleroma.Web.ApiSpec.OAuthOperation do
           "An opaque value used by the client to maintain state between the request and callback.  The authorization server includes this value when redirecting the user-agent back to the client."
         )
       ],
-      responses: %{
-        200 =>
-          Operation.response("Success", "application/json", %Schema{
-            type: :object,
-            properties: %{status: %Schema{type: :string, example: "success"}}
-          }),
-        400 => Operation.response("Error", "application/json", ApiError)
-      }
-    }
-  end
-
-  def create_authorization_operation do
-    %Operation{
-      tags: ["OAuth"],
-      summary: "Create Authorization",
-      operationId: "OAuthController.create_authorization",
-      parameters: [],
       responses: %{
         200 =>
           Operation.response("Success", "application/json", %Schema{

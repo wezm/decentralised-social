@@ -40,6 +40,10 @@ defmodule Pleroma.Web.Router do
     plug(Pleroma.Web.Plugs.OAuthPlug)
     plug(Pleroma.Web.Plugs.UserEnabledPlug)
     plug(Pleroma.Web.Plugs.EnsureUserTokenAssignsPlug)
+  end
+
+  pipeline :oauth_api do
+    plug(:oauth)
     plug(OpenApiSpex.Plug.PutApiSpec, module: Pleroma.Web.ApiSpec)
   end
 
@@ -337,16 +341,21 @@ defmodule Pleroma.Web.Router do
   scope "/oauth", Pleroma.Web.OAuth do
     # Note: use /api/v1/accounts/verify_credentials for userinfo of signed-in user
 
-    get("/registration_details", OAuthController, :registration_details)
+    get("/registration_details", OAuthBrowserController, :registration_details)
 
     post("/mfa/verify", MFAController, :verify, as: :mfa_verify)
     get("/mfa", MFAController, :show)
 
     scope [] do
-      pipe_through(:oauth)
+      pipe_through(:oauth_api)
 
       get("/authorize", OAuthController, :authorize)
-      post("/authorize", OAuthController, :create_authorization)
+    end
+
+    scope [] do
+      pipe_through(:oauth)
+
+      post("/authorize_callback", OAuthBrowserController, :authorize_callback)
     end
 
     scope [] do
@@ -360,10 +369,10 @@ defmodule Pleroma.Web.Router do
     scope [] do
       pipe_through(:browser)
 
-      get("/prepare_request", OAuthController, :prepare_request)
-      get("/:provider", OAuthController, :request)
-      get("/:provider/callback", OAuthController, :callback)
-      post("/register", OAuthController, :register)
+      get("/prepare_request", OAuthBrowserController, :prepare_request)
+      get("/:provider", OAuthBrowserController, :provider_request)
+      get("/:provider/callback", OAuthBrowserController, :provider_callback)
+      post("/register", OAuthBrowserController, :register)
     end
   end
 

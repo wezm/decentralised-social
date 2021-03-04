@@ -12,6 +12,7 @@ defmodule Pleroma.Web.OAuth.MFAController do
   alias Pleroma.MFA
   alias Pleroma.Web.Auth.TOTPAuthenticator
   alias Pleroma.Web.OAuth.MFAView, as: View
+  alias Pleroma.Web.OAuth.OAuthBrowserController
   alias Pleroma.Web.OAuth.OAuthController
   alias Pleroma.Web.OAuth.Token
 
@@ -40,7 +41,7 @@ defmodule Pleroma.Web.OAuth.MFAController do
     with {:ok, %{user: user, authorization: auth}} <- MFA.Token.validate(mfa_token),
          {:ok, _} <- validates_challenge(user, mfa_params) do
       conn
-      |> OAuthController.after_create_authorization(auth, %{
+      |> OAuthBrowserController.after_create_authorization(auth, %{
         "authorization" => %{
           "redirect_uri" => mfa_params["redirect_uri"],
           "state" => mfa_params["state"]
