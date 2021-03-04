@@ -100,7 +100,11 @@ defmodule Pleroma.Web.ApiSpec.Admin.ConfigOperation do
                 type: :array,
                 items: %Schema{
                   type: :object,
-                  properties: %{tab: %Schema{type: :string}, label: %Schema{type: :string}}
+                  properties: %{
+                    tab: %Schema{type: :string},
+                    label: %Schema{type: :string},
+                    path: %Schema{type: :string}
+                  }
                 }
               },
               descriptions: descriptions_schema()
