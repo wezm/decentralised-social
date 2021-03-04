@@ -1507,7 +1507,8 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
                json_response_and_validate_schema(conn, 200)
 
       assert Enum.all?(tabs, fn tab ->
-               Map.has_key?(tab, "tab") and Map.has_key?(tab, "label")
+               Map.has_key?(tab, "tab") and Map.has_key?(tab, "label") and
+                 Map.has_key?(tab, "path")
              end)
 
       assert child["children"]

@@ -26,11 +26,7 @@ defmodule Pleroma.Web.AdminAPI.ConfigController do
   GET /api/v1/pleroma/admin/config/descriptions
   """
   def descriptions(conn, _params) do
-    descriptions =
-      whitelisted_descriptions()
-      |> Enum.map(&Map.delete(&1, "tab"))
-
-    json(conn, descriptions)
+    json(conn, whitelisted_descriptions())
   end
 
   @doc """

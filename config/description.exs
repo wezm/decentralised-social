@@ -70,26 +70,26 @@ frontend_options = [
 ]
 
 config :pleroma, :tabs, [
-  %{tab: :activity_pub, label: "ActivityPub"},
-  %{tab: :authentication, label: "Authentication"},
-  %{tab: :captcha, label: "Captcha"},
-  %{tab: :esshd, label: "BBS / SSH access"},
-  %{tab: :emoji, label: "Emoji"},
-  %{tab: :frontend, label: "Frontend"},
-  %{tab: :gopher, label: "Gopher"},
-  %{tab: :http, label: "HTTP"},
-  %{tab: :instance, label: "Instance"},
-  %{tab: :job_queue, label: "Job queue"},
-  %{tab: :link_formatter, label: "Link Formatter"},
-  %{tab: :logger, label: "Logger"},
-  %{tab: :mailer, label: "Mailer"},
-  %{tab: :media_proxy, label: "Media Proxy"},
-  %{tab: :metadata, label: "Metadata"},
-  %{tab: :mrf, label: "MRF"},
-  %{tab: :rate_limiters, label: "Rate limiters"},
-  %{tab: :web_push, label: "Web push encryption"},
-  %{tab: :upload, label: "Upload"},
-  %{tab: :other, label: "Other"}
+  %{tab: :activity_pub, label: "ActivityPub", path: "activity-pub"},
+  %{tab: :authentication, label: "Authentication", path: "authentication"},
+  %{tab: :captcha, label: "Captcha", path: "captcha"},
+  %{tab: :esshd, label: "BBS / SSH access", path: "esshd"},
+  %{tab: :emoji, label: "Emoji", path: "emoji"},
+  %{tab: :frontend, label: "Frontend", path: "frontend"},
+  %{tab: :gopher, label: "Gopher", path: "gopher"},
+  %{tab: :http, label: "HTTP", path: "http"},
+  %{tab: :instance, label: "Instance", path: "instance"},
+  %{tab: :job_queue, label: "Job queue", path: "job-queue"},
+  %{tab: :link_formatter, label: "Link Formatter", path: "link-formatter"},
+  %{tab: :logger, label: "Logger", path: "logger"},
+  %{tab: :mailer, label: "Mailer", path: "mailer"},
+  %{tab: :media_proxy, label: "Media Proxy", path: "media-proxy"},
+  %{tab: :metadata, label: "Metadata", path: "metadata"},
+  %{tab: :mrf, label: "MRF", path: "mrf"},
+  %{tab: :rate_limiters, label: "Rate limiters", path: "rate-limiters"},
+  %{tab: :web_push, label: "Web push encryption", path: "web-push"},
+  %{tab: :upload, label: "Upload", path: "upload"},
+  %{tab: :other, label: "Other", path: "other"}
 ]
 
 config :pleroma, :config_description, [

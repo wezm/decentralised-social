@@ -1138,7 +1138,7 @@ Loads json generated from `config/descriptions.exs`.
 
 ```json
 {
-  "tabs": [{"tab": "activity_pub", "label": "ActivityPub"}],
+  "tabs": [{"tab": "activity_pub", "label": "ActivityPub", "path": "activity-pub"}],
   "descriptions": [
     {
       "group": ":pleroma", // string
