@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - The `application` metadata returned with statuses is no longer hardcoded. Apps that want to display these details will now have valid data for new posts after this change.
 
+### Added
+
+- Added `assets` to the list of the reserved nicknames and static file constants
+
 ## Unreleased (Patch)
 
 ## [2.3.0] - 2020-03-01
