@@ -31,6 +31,9 @@ defmodule Pleroma.ConfigDB do
     timestamps()
   end
 
+  @spec all() :: [t()]
+  def all, do: Repo.all(ConfigDB)
+
   @spec get_all_as_keyword() :: keyword()
   def get_all_as_keyword do
     ConfigDB
@@ -105,6 +108,27 @@ defmodule Pleroma.ConfigDB do
     |> List.flatten()
     |> Enum.reduce(merged_value, &Keyword.put(&2, &1, new_value[&1]))
   end
+
+  @spec merge_with_default(t(), keyword()) :: {t(), any()}
+  def merge_with_default(%ConfigDB{} = change, defaults) do
+    %{group: group, key: key, value: value} = change
+    default = defaults[group][key]
+
+    merged =
+      cond do
+        Ecto.get_meta(change, :state) == :deleted -> default
+        can_be_merged?(default, value) -> merge_group(group, key, default, value)
+        true -> value
+      end
+
+    {change, merged}
+  end
+
+  defp can_be_merged?(val1, val2) when is_list(val1) and is_list(val2) do
+    Keyword.keyword?(val1) and Keyword.keyword?(val2)
+  end
+
+  defp can_be_merged?(_val1, _val2), do: false
 
   defp to_mapset(keyword) do
     keyword

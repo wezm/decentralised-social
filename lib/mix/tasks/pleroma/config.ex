@@ -237,17 +237,15 @@ defmodule Mix.Tasks.Pleroma.Config do
         |> elem(0)
 
       custom_config
-      |> Keyword.keys()
-      |> Enum.each(&create(&1, custom_config))
+      |> Pleroma.Config.Loader.filter()
+      |> Enum.each(&create/1)
     else
       shell_info("To migrate settings, you must define custom settings in #{config_file}.")
     end
   end
 
-  defp create(group, settings) do
-    group
-    |> Pleroma.Config.Loader.filter_group(settings)
-    |> Enum.each(fn {key, value} ->
+  defp create({group, settings}) do
+    Enum.each(settings, fn {key, value} ->
       {:ok, _} = ConfigDB.update_or_create(%{group: group, key: key, value: value})
 
       shell_info("Settings for key #{key} migrated.")

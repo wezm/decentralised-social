@@ -2,9 +2,9 @@
 # Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule Pleroma.ApplicationRequirements do
+defmodule Pleroma.Application.Requirements do
   @moduledoc """
-  The module represents the collection of validations to runs before start server.
+  Module contains collection of requirements before server start.
   """
 
   defmodule VerifyError, do: defexception([:message])
@@ -18,6 +18,8 @@ defmodule Pleroma.ApplicationRequirements do
 
   @spec verify!() :: :ok | VerifyError.t()
   def verify! do
+    adapter = Application.get_env(:tesla, :adapter)
+
     :ok
     |> check_system_commands!()
     |> check_confirmation_accounts!()
@@ -25,11 +27,12 @@ defmodule Pleroma.ApplicationRequirements do
     |> check_welcome_message_config!()
     |> check_rum!()
     |> check_repo_pool_size!()
-    |> handle_result()
+    |> check_otp_version!(adapter)
+    |> handle_result!()
   end
 
-  defp handle_result(:ok), do: :ok
-  defp handle_result({:error, message}), do: raise(VerifyError, message: message)
+  defp handle_result!(:ok), do: :ok
+  defp handle_result!({:error, message}), do: raise(VerifyError, message: message)
 
   defp check_welcome_message_config!(:ok) do
     if Pleroma.Config.get([:welcome, :email, :enabled], false) and
@@ -160,9 +163,9 @@ defmodule Pleroma.ApplicationRequirements do
 
   defp check_system_commands!(:ok) do
     filter_commands_statuses = [
-      check_filter(Pleroma.Upload.Filters.Exiftool, "exiftool"),
-      check_filter(Pleroma.Upload.Filters.Mogrify, "mogrify"),
-      check_filter(Pleroma.Upload.Filters.Mogrifun, "mogrify")
+      check_filter!(Pleroma.Upload.Filters.Exiftool, "exiftool"),
+      check_filter!(Pleroma.Upload.Filters.Mogrify, "mogrify"),
+      check_filter!(Pleroma.Upload.Filters.Mogrifun, "mogrify")
     ]
 
     preview_proxy_commands_status =
@@ -213,7 +216,7 @@ defmodule Pleroma.ApplicationRequirements do
 
   defp check_repo_pool_size!(result), do: result
 
-  defp check_filter(filter, command_required) do
+  defp check_filter!(filter, command_required) do
     filters = Config.get([Pleroma.Upload, :filters])
 
     if filter in filters and not Pleroma.Utils.command_available?(command_required) do
@@ -227,4 +230,32 @@ defmodule Pleroma.ApplicationRequirements do
       true
     end
   end
+
+  defp check_otp_version!(:ok, Tesla.Adapter.Gun) do
+    if version = Pleroma.OTPVersion.version() do
+      [major, minor] =
+        version
+        |> String.split(".")
+        |> Enum.map(&String.to_integer/1)
+        |> Enum.take(2)
+
+      if (major == 22 and minor < 2) or major < 22 do
+        Logger.error("
+            !!!OTP VERSION ERROR!!!
+            You are using gun adapter with OTP version #{version}, which doesn't support correct handling of unordered certificates chains. Please update your Erlang/OTP to at least 22.2.
+            ")
+        {:error, "OTP version error"}
+      else
+        :ok
+      end
+    else
+      Logger.error("
+          !!!OTP VERSION ERROR!!!
+          To support correct handling of unordered certificates chains - OTP version must be > 22.2.
+          ")
+      {:error, "OTP version error"}
+    end
+  end
+
+  defp check_otp_version!(result, _), do: result
 end

@@ -188,7 +188,6 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
         Application.delete_env(:pleroma, Pleroma.Captcha.NotReal)
         Application.put_env(:pleroma, :http, http)
         Application.put_env(:tesla, :adapter, Tesla.Mock)
-        Restarter.Pleroma.refresh()
       end)
     end
 
@@ -620,7 +619,7 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
         value: []
       )
 
-      Pleroma.Config.TransferTask.load_and_update_env([], false)
+      Pleroma.Application.Environment.load_from_db_and_update()
 
       assert Application.get_env(:logger, :backends) == []
 
@@ -686,31 +685,20 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
     end
 
     test "update config setting & delete with fallback to default value", %{
-      conn: conn,
-      admin: admin,
-      token: token
+      conn: conn
     } do
       ueberauth = Application.get_env(:ueberauth, Ueberauth)
-      insert(:config, key: :keyaa1)
-      insert(:config, key: :keyaa2)
 
-      config3 =
-        insert(:config,
-          group: :ueberauth,
-          key: Ueberauth
-        )
-
-      conn =
-        conn
-        |> put_req_header("content-type", "application/json")
-        |> post("/api/pleroma/admin/config", %{
-          configs: [
-            %{group: ":pleroma", key: ":keyaa1", value: "another_value"},
-            %{group: ":pleroma", key: ":keyaa2", value: "another_value"}
-          ]
-        })
-
-      assert json_response_and_validate_schema(conn, 200) == %{
+      assert conn
+             |> put_req_header("content-type", "application/json")
+             |> post("/api/pleroma/admin/config", %{
+               configs: [
+                 %{group: ":pleroma", key: ":keyaa1", value: "another_value"},
+                 %{group: ":pleroma", key: ":keyaa2", value: "another_value"},
+                 %{group: ":ueberauth", key: "Ueberauth", value: "another_value"}
+               ]
+             })
+             |> json_response_and_validate_schema(200) == %{
                "configs" => [
                  %{
                    "group" => ":pleroma",
@@ -723,6 +711,12 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
                    "key" => ":keyaa2",
                    "value" => "another_value",
                    "db" => [":keyaa2"]
+                 },
+                 %{
+                   "db" => ["Ueberauth"],
+                   "group" => ":ueberauth",
+                   "key" => "Ueberauth",
+                   "value" => "another_value"
                  }
                ],
                "need_reboot" => false
@@ -730,25 +724,21 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
 
       assert Application.get_env(:pleroma, :keyaa1) == "another_value"
       assert Application.get_env(:pleroma, :keyaa2) == "another_value"
-      assert Application.get_env(:ueberauth, Ueberauth) == config3.value
+      assert Application.get_env(:ueberauth, Ueberauth) == "another_value"
 
-      conn =
-        build_conn()
-        |> assign(:user, admin)
-        |> assign(:token, token)
-        |> put_req_header("content-type", "application/json")
-        |> post("/api/pleroma/admin/config", %{
-          configs: [
-            %{group: ":pleroma", key: ":keyaa2", delete: true},
-            %{
-              group: ":ueberauth",
-              key: "Ueberauth",
-              delete: true
-            }
-          ]
-        })
-
-      assert json_response_and_validate_schema(conn, 200) == %{
+      assert conn
+             |> put_req_header("content-type", "application/json")
+             |> post("/api/pleroma/admin/config", %{
+               configs: [
+                 %{group: ":pleroma", key: ":keyaa2", delete: true},
+                 %{
+                   group: ":ueberauth",
+                   key: "Ueberauth",
+                   delete: true
+                 }
+               ]
+             })
+             |> json_response_and_validate_schema(200) == %{
                "configs" => [],
                "need_reboot" => false
              }
@@ -1453,4 +1443,11 @@ defmodule Pleroma.Web.AdminAPI.ConfigControllerTest do
       assert esshd["children"]
     end
   end
+end
+
+# Needed for testing
+defmodule Pleroma.Web.Endpoint.NotReal do
+end
+
+defmodule Pleroma.Captcha.NotReal do
 end

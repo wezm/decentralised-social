@@ -34,7 +34,7 @@ defmodule Pleroma.Web.AdminAPI.ConfigController do
 
       render(conn, "index.json", %{
         configs: configs,
-        need_reboot: Restarter.Pleroma.need_reboot?()
+        need_reboot: Pleroma.Application.ConfigDependentDeps.need_reboot?()
       })
     end
   end
@@ -75,7 +75,7 @@ defmodule Pleroma.Web.AdminAPI.ConfigController do
 
       render(conn, "index.json", %{
         configs: merged,
-        need_reboot: Restarter.Pleroma.need_reboot?()
+        need_reboot: Pleroma.Application.ConfigDependentDeps.need_reboot?()
       })
     end
   end
@@ -93,27 +93,15 @@ defmodule Pleroma.Web.AdminAPI.ConfigController do
             ConfigDB.update_or_create(%{group: group, key: key, value: value})
         end)
         |> Enum.reject(fn {result, _} -> result == :error end)
-
-      {deleted, updated} =
-        results
         |> Enum.map(fn {:ok, %{key: key, value: value} = config} ->
           Map.put(config, :db, ConfigDB.get_db_keys(value, key))
         end)
-        |> Enum.split_with(&(Ecto.get_meta(&1, :state) == :deleted))
 
-      Config.TransferTask.load_and_update_env(deleted, false)
-
-      if not Restarter.Pleroma.need_reboot?() do
-        changed_reboot_settings? =
-          (updated ++ deleted)
-          |> Enum.any?(&Config.TransferTask.pleroma_need_restart?(&1.group, &1.key, &1.value))
-
-        if changed_reboot_settings?, do: Restarter.Pleroma.need_reboot()
-      end
+      Pleroma.Application.Environment.update(results, only_update: true)
 
       render(conn, "index.json", %{
-        configs: updated,
-        need_reboot: Restarter.Pleroma.need_reboot?()
+        configs: Enum.reject(results, &(Ecto.get_meta(&1, :state) == :deleted)),
+        need_reboot: Pleroma.Application.ConfigDependentDeps.need_reboot?()
       })
     end
   end
