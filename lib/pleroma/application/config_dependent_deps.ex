@@ -8,7 +8,7 @@ defmodule Pleroma.Application.ConfigDependentDeps do
   require Logger
 
   @config_path_mods_relation [
-    {{:pleroma, :chat}, Pleroma.Web.ChatChannel.ChatChannelState},
+    {{:pleroma, :chat}, Pleroma.Application.ChatSupervisor},
     {{:pleroma, Oban}, Oban},
     {{:pleroma, :rate_limit}, Pleroma.Web.Plugs.RateLimiter.Supervisor},
     {{:pleroma, :streamer}, Pleroma.Web.Streamer.registry()},

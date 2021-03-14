@@ -178,10 +178,7 @@ defmodule Pleroma.Application.StartUpDependencies do
 
   defp maybe_add_chat_child(children) do
     if Config.get([:chat, :enabled]) do
-      [
-        Pleroma.Web.ChatChannel.ChatChannelState,
-        {Phoenix.PubSub, [name: Pleroma.PubSub, adapter: Phoenix.PubSub.PG2]} | children
-      ]
+      [Pleroma.Application.ChatSupervisor | children]
     else
       children
     end
