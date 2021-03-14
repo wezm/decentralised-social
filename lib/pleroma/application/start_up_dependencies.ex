@@ -75,7 +75,6 @@ defmodule Pleroma.Application.StartUpDependencies do
     ]
     |> add_cachex_deps()
     |> maybe_add_init_internal_fetch_actor_task(env)
-    |> maybe_add_pub_sub()
     |> maybe_add_backgroud_migrator()
     |> start_while(fun)
   end
@@ -179,15 +178,10 @@ defmodule Pleroma.Application.StartUpDependencies do
 
   defp maybe_add_chat_child(children) do
     if Config.get([:chat, :enabled]) do
-      [Pleroma.Web.ChatChannel.ChatChannelState | children]
-    else
-      children
-    end
-  end
-
-  defp maybe_add_pub_sub(children) do
-    if Config.get([:chat, :enabled]) do
-      [{Phoenix.PubSub, [name: Pleroma.PubSub, adapter: Phoenix.PubSub.PG2]} | children]
+      [
+        Pleroma.Web.ChatChannel.ChatChannelState,
+        {Phoenix.PubSub, [name: Pleroma.PubSub, adapter: Phoenix.PubSub.PG2]} | children
+      ]
     else
       children
     end
