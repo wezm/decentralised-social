@@ -75,7 +75,7 @@ defmodule Pleroma.Application.StartUpDependencies do
     ]
     |> add_cachex_deps()
     |> maybe_add_init_internal_fetch_actor_task(env)
-    |> maybe_add_backgroud_migrator()
+    |> maybe_add_background_migrator(env)
     |> start_while(fun)
   end
 
@@ -166,7 +166,7 @@ defmodule Pleroma.Application.StartUpDependencies do
 
   defp maybe_add_background_migrator(children, env) when env in [:test, :benchmark], do: children
 
-  defp maybe_add_backgroud_migrator(children, _) do
+  defp maybe_add_background_migrator(children, _) do
     [Pleroma.Migrators.HashtagsTableMigrator | children]
   end
 
