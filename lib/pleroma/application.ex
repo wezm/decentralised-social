@@ -50,6 +50,7 @@ defmodule Pleroma.Application do
   end
 
   @doc """
+  Checks that config file exists and starts application, otherwise starts web UI for configuration.
   Under main supervisor is started DynamicSupervisor, which later starts pleroma startup dependencies.
   Pleroma start is splitted into three `phases`:
     - running prestart requirements (runtime compilation, warnings, deprecations, monitoring, etc.)
@@ -60,20 +61,68 @@ defmodule Pleroma.Application do
   def start(_type, _args) do
     children = [
       {DynamicSupervisor, strategy: :one_for_one, name: @dynamic_supervisor},
-      {Pleroma.Application.ConfigDependentDeps, [dynamic_supervisor: @dynamic_supervisor]},
-      Pleroma.Repo
+      {Pleroma.Application.ConfigDependentDeps, [dynamic_supervisor: @dynamic_supervisor]}
     ]
 
     {:ok, main_supervisor} =
       Supervisor.start_link(children, strategy: :one_for_one, name: Pleroma.Supervisor)
 
+    if @mix_env == :test or File.exists?(Pleroma.Application.config_path()) do
+      :ok = start_pleroma()
+    else
+      DynamicSupervisor.start_child(
+        @dynamic_supervisor,
+        Pleroma.InstallerWeb.Endpoint
+      )
+
+      token = Ecto.UUID.generate()
+
+      Pleroma.Config.put(:installer_token, token)
+
+      installer_port =
+        Pleroma.InstallerWeb.Endpoint
+        |> Pleroma.Config.get()
+        |> get_in([:http, :port])
+
+      ip =
+        with {:ok, ip} <- Pleroma.Helpers.ServerIPHelper.real_ip() do
+          ip
+        else
+          _ -> "IP not found"
+        end
+
+      Logger.warn("Access installer at http://#{ip}:#{installer_port}/?token=#{token}")
+    end
+
+    {:ok, main_supervisor}
+  end
+
+  defp start_pleroma do
+    {:ok, _} = DynamicSupervisor.start_child(@dynamic_supervisor, Pleroma.Repo)
     run_prestart_requirements()
 
     Pleroma.Application.Environment.load_from_db_and_update(pleroma_start: true)
 
     Pleroma.Application.StartUpDependencies.start_all(@mix_env)
+  end
 
-    {:ok, main_supervisor}
+  @spec stop_installer_and_start_pleroma() :: {:ok, pid()}
+  def stop_installer_and_start_pleroma do
+    Pleroma.Application.config_path()
+    |> Pleroma.Application.Environment.update()
+
+    start_pleroma()
+
+    Task.start(fn ->
+      Process.sleep(100)
+
+      installer_endpoint = Process.whereis(Pleroma.InstallerWeb.Endpoint)
+
+      DynamicSupervisor.terminate_child(
+        @dynamic_supervisor,
+        installer_endpoint
+      )
+    end)
   end
 
   defp run_prestart_requirements do

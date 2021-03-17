@@ -2483,4 +2483,7 @@ defmodule Pleroma.User do
     |> where([u], u.local == true)
     |> Repo.aggregate(:count)
   end
+
+  @spec email_regex() :: Regex.t()
+  def email_regex, do: @email_regex
 end

@@ -86,8 +86,8 @@ defmodule Pleroma.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:benchmark), do: ["lib", "benchmarks"]
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
+  defp elixirc_paths(:test), do: ["lib", "test/support", "installer/pleroma"]
+  defp elixirc_paths(_), do: ["lib", "installer/pleroma"]
 
   defp warnings_as_errors(:prod), do: false
   defp warnings_as_errors(_), do: true

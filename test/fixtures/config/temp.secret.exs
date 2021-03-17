@@ -14,6 +14,8 @@ config :pleroma, Pleroma.Repo, pool: Ecto.Adapters.SQL.Sandbox
 
 config :pleroma, Pleroma.Web.Endpoint, key: :val
 
+config :pleroma, Pleroma.InstallerWeb.Endpoint, key: :val
+
 config :pleroma, env: :test
 
 config :pleroma, :database, rum_enabled: true

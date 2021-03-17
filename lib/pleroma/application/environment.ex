@@ -20,6 +20,13 @@ defmodule Pleroma.Application.Environment do
     |> update(opts)
   end
 
+  @spec update(Path.t()) :: :ok
+  def update(config_path) when is_binary(config_path) do
+    config_path
+    |> Pleroma.Config.Loader.read!()
+    |> Application.put_all_env()
+  end
+
   @spec update([Pleroma.ConfigDB.t()], keyword()) :: :ok
   def update(changes, opts \\ []) when is_list(changes) do
     if Pleroma.Config.get(:configurable_from_database) do

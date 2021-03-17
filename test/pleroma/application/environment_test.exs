@@ -79,6 +79,55 @@ defmodule Pleroma.Application.EnvironmentTest do
     end
   end
 
+  test "update/1 loads file content into env" do
+    clear_config(:first_setting)
+    clear_config(:second_setting)
+    clear_config(Pleroma.Repo)
+    clear_config(Pleroma.Web.Endpoint)
+    clear_config(Pleroma.InstallerWeb.Endpoint)
+    clear_config(:env)
+    clear_config(:database)
+    clear_config(:configurable_from_database)
+    clear_config(:ecto_repos)
+
+    quack_level = Application.get_env(:quack, :level)
+    postgrex_json_lib = Application.get_env(:postrgex, :json_library)
+
+    assert Pleroma.Config.get(:configurable_from_database) == true
+
+    refute Pleroma.Config.get([Pleroma.Web.Endpoint, :key])
+    refute Pleroma.Config.get([Pleroma.InstallerWeb.Endpoint, :key])
+    refute Application.get_env(:http_signatures, :key)
+    refute Application.get_env(:web_push_encryption, :key)
+    refute Application.get_env(:floki, :key)
+
+    assert Environment.update("test/fixtures/config/temp.secret.exs") == :ok
+
+    assert Pleroma.Config.get(:first_setting) == [key: "value", key2: [Pleroma.Repo]]
+    assert Pleroma.Config.get(:second_setting) == [key: "value2", key2: ["Activity"]]
+    assert Pleroma.Config.get([Pleroma.Web.Endpoint, :key]) == :val
+    assert Pleroma.Config.get([Pleroma.InstallerWeb.Endpoint, :key]) == :val
+    assert Pleroma.Config.get([:database, :rum_enabled])
+    assert Application.get_env(:postgrex, :json_library) == Poison
+    assert Application.get_env(:http_signatures, :key) == :val
+    assert Application.get_env(:web_push_encryption, :key) == :val
+    assert Application.get_env(:floki, :key) == :val
+
+    refute Pleroma.Config.get(:configurable_from_database)
+
+    on_exit(fn ->
+      Application.put_env(:quack, :level, quack_level)
+      Application.put_env(:postgrex, :json_library, postgrex_json_lib)
+
+      Pleroma.Config.delete([Pleroma.Web.Endpoint, :key])
+      Pleroma.Config.delete([Pleroma.InstallerWeb.Endpoint, :key])
+
+      Application.delete_env(:http_signatures, :key)
+      Application.delete_env(:web_push_encryption, :key)
+      Application.delete_env(:floki, :key)
+    end)
+  end
+
   describe "update/2 :ex_syslogger" do
     setup do
       initial = Application.get_env(:logger, :ex_syslogger)

@@ -29,6 +29,7 @@ defmodule Pleroma.Config.LoaderTest do
 
     refute filtered_config[:pleroma][Pleroma.Repo]
     refute filtered_config[:pleroma][Pleroma.Web.Endpoint]
+    refute filtered_config[:pleroma][Pleroma.InstallerWeb.Endpoint]
     refute filtered_config[:pleroma][:env]
     refute filtered_config[:pleroma][:configurable_from_database]
     refute filtered_config[:pleroma][:database]

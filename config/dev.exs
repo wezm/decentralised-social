@@ -62,5 +62,7 @@ else
   )
 end
 
+config :pleroma, :installer, psql_cmd_args: ["psql", ["-c"]]
+
 if File.exists?("./config/dev.exported_from_db.secret.exs"),
   do: import_config("dev.exported_from_db.secret.exs")
