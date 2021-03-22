@@ -1431,9 +1431,7 @@ config :pleroma, :config_description, [
         type: :atom,
         description:
           "This will be used as the default mascot on MastoFE. Default: `:pleroma_fox_tan`",
-        suggestions: [
-          :pleroma_fox_tan
-        ]
+        suggestions: ["pleroma_fox_tan"]
       },
       %{
         key: :default_user_avatar,
@@ -1618,7 +1616,8 @@ config :pleroma, :config_description, [
       %{
         key: :method,
         type: :atom,
-        description: "HTTP method of request. Default: :purge"
+        description: "HTTP method of request. Default: :purge",
+        suggestions: ["purge"]
       },
       %{
         key: :headers,
@@ -2245,7 +2244,7 @@ config :pleroma, :config_description, [
             key: :verify,
             type: :atom,
             description: "Type of cert verification",
-            suggestions: [:verify_peer]
+            suggestions: ["verify_peer"]
           }
         ]
       },
@@ -2272,7 +2271,7 @@ config :pleroma, :config_description, [
             key: :verify,
             type: :atom,
             description: "Type of cert verification",
-            suggestions: [:verify_peer]
+            suggestions: ["verify_peer"]
           }
         ]
       },
@@ -3404,7 +3403,7 @@ config :pleroma, :config_description, [
         key: :format,
         type: :atom,
         description: "App metrics endpoint output format.",
-        suggestions: [:text, :protobuf]
+        suggestions: ["text / protobuf"]
       }
     ]
   },
