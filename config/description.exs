@@ -102,13 +102,15 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :uploader,
-        type: :module,
+        type: {:select, :reduced_labels},
+        prefix: "Pleroma.Uploaders.",
         description: "Module which will be used for uploads",
         suggestions: {:list_behaviour_implementations, Pleroma.Uploaders.Uploader}
       },
       %{
         key: :filters,
-        type: {:list, :module},
+        type: {:multiple_select, :reduced_labels},
+        prefix: "Pleroma.Upload.Filter.",
         description:
           "List of filter modules for uploads. Module names are shortened (removed leading `Pleroma.Upload.Filter.` part), but on adding custom module you need to use full name.",
         suggestions: {:list_behaviour_implementations, Pleroma.Upload.Filter}
@@ -251,7 +253,8 @@ config :pleroma, :config_description, [
       },
       %{
         key: :adapter,
-        type: :module,
+        type: {:select, :reduced_labels},
+        prefix: "Swoosh.Adapters.",
         description:
           "One of the mail adapters listed in [Swoosh documentation](https://hexdocs.pm/swoosh/Swoosh.html#module-adapters)",
         suggestions: [
@@ -1822,7 +1825,8 @@ config :pleroma, :config_description, [
       },
       %{
         key: :method,
-        type: :module,
+        type: {:select, :reduced_labels},
+        prefix: "Pleroma.Captcha.",
         description: "The method/service to use for captcha",
         suggestions: [Pleroma.Captcha.Kocaptcha, Pleroma.Captcha.Native]
       },
@@ -2045,7 +2049,8 @@ config :pleroma, :config_description, [
       },
       %{
         key: :parsers,
-        type: {:list, :module},
+        type: {:multiple_select, :reduced_labels},
+        prefix: "Pleroma.Web.RichMedia.Parsers.",
         description:
           "List of Rich Media parsers. Module names are shortened (removed leading `Pleroma.Web.RichMedia.Parsers.` part), but on adding custom module you need to use full name.",
         suggestions: [
@@ -2056,7 +2061,8 @@ config :pleroma, :config_description, [
       %{
         key: :ttl_setters,
         label: "TTL setters",
-        type: {:list, :module},
+        type: {:multiple_select, :reduced_labels},
+        prefix: "Pleroma.Web.RichMedia.Parser.",
         description:
           "List of rich media TTL setters. Module names are shortened (removed leading `Pleroma.Web.RichMedia.Parser.` part), but on adding custom module you need to use full name.",
         suggestions: [
@@ -2181,7 +2187,8 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: Pleroma.Web.Auth.Authenticator,
-        type: :module,
+        type: {:select, :reduced_labels},
+        prefix: "Pleroma.Web.Auth.",
         suggestions: [Pleroma.Web.Auth.PleromaAuthenticator, Pleroma.Web.Auth.LDAPAuthenticator]
       }
     ]
@@ -2760,7 +2767,8 @@ config :pleroma, :config_description, [
       },
       %{
         key: :scrub_policy,
-        type: {:list, :module},
+        type: {:multiple_select, :reduced_labels},
+        prefix: "Pleroma.HTML.",
         description:
           "Module names are shortened (removed leading `Pleroma.HTML.` part), but on adding custom module you need to use full name.",
         suggestions: [Pleroma.HTML.Transform.MediaProxy, Pleroma.HTML.Scrubber.Default]
@@ -3314,7 +3322,8 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :providers,
-        type: {:list, :module},
+        type: {:multiple_select, :reduced_labels},
+        prefix: "Pleroma.Web.Metadata.Providers.",
         description: "List of preload providers to enable",
         suggestions: [
           Pleroma.Web.Preload.Providers.Instance,
