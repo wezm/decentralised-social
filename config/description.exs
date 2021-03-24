@@ -1053,7 +1053,7 @@ config :pleroma, :config_description, [
   %{
     group: :logger,
     tab: :logger,
-    type: :group,
+    type: [:group, :without_key],
     description: "Logger-related settings",
     children: [
       %{
@@ -1129,7 +1129,7 @@ config :pleroma, :config_description, [
   %{
     group: :quack,
     tab: :logger,
-    type: :group,
+    type: [:group, :without_key],
     label: "Quack Logger",
     description: "Quack-related settings",
     children: [
@@ -1858,7 +1858,7 @@ config :pleroma, :config_description, [
     group: :pleroma,
     tab: :instance,
     label: "Pleroma Admin Token",
-    type: :group,
+    type: [:group, :without_key, :single_setting],
     description:
       "Allows setting a token that can be used to authenticate requests with admin privileges without a normal user account token. Append the `admin_token` parameter to requests to utilize it. (Please reconsider using HTTP Basic Auth or OAuth-based authentication if possible)",
     children: [
@@ -2181,7 +2181,7 @@ config :pleroma, :config_description, [
     group: :pleroma,
     label: "Pleroma Authenticator",
     tab: :authentication,
-    type: :group,
+    type: [:group, :without_key, :single_setting],
     description: "Authenticator",
     children: [
       %{
@@ -2593,7 +2593,7 @@ config :pleroma, :config_description, [
     group: :esshd,
     tab: :esshd,
     label: "ESSHD",
-    type: :group,
+    type: [:group, :without_key],
     description:
       "Before enabling this you must add :esshd to mix.exs as one of the extra_applications " <>
         "and generate host keys in your priv dir with ssh-keygen -m PEM -N \"\" -b 2048 -t rsa -f ssh_host_rsa_key",
@@ -2633,7 +2633,7 @@ config :pleroma, :config_description, [
     group: :mime,
     tab: :other,
     label: "Mime Types",
-    type: :group,
+    type: [:group, :without_key],
     description: "Mime Types settings",
     children: [
       %{
@@ -2841,7 +2841,7 @@ config :pleroma, :config_description, [
     group: :cors_plug,
     tab: :http,
     label: "CORS plug config",
-    type: :group,
+    type: [:group, :without_key],
     children: [
       %{
         key: :max_age,
