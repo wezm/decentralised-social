@@ -1181,37 +1181,6 @@ config :pleroma, :config_description, [
         label: "Pleroma FE",
         type: :map,
         description: "Settings for Pleroma FE",
-        suggestions: [
-          %{
-            alwaysShowSubjectInput: true,
-            background: "/static/aurora_borealis.jpg",
-            collapseMessageWithSubject: false,
-            disableChat: false,
-            greentext: false,
-            hideFilteredStatuses: false,
-            hideMutedPosts: false,
-            hidePostStats: false,
-            hideSitename: false,
-            hideUserStats: false,
-            loginMethod: "password",
-            logo: "/static/logo.svg",
-            logoMargin: ".1em",
-            logoMask: true,
-            minimalScopesMode: false,
-            noAttachmentLinks: false,
-            nsfwCensorImage: "/static/img/nsfw.74818f9.png",
-            postContentType: "text/plain",
-            redirectRootLogin: "/main/friends",
-            redirectRootNoLogin: "/main/all",
-            scopeCopy: true,
-            sidebarRight: false,
-            showFeaturesPanel: true,
-            showInstanceSpecificPanel: false,
-            subjectLineBehavior: "email",
-            theme: "pleroma-dark",
-            webPushNotifications: false
-          }
-        ],
         children: [
           %{
             key: :alwaysShowSubjectInput,
@@ -1221,10 +1190,10 @@ config :pleroma, :config_description, [
           },
           %{
             key: :background,
-            type: {:string, :image},
+            type: {:string, :image, :full_size},
             description:
               "URL of the background, unless viewing a user profile with a background that is set",
-            suggestions: ["/images/city.jpg"]
+            suggestions: ["/static/aurora_borealis.jpg"]
           },
           %{
             key: :collapseMessageWithSubject,
@@ -1310,7 +1279,7 @@ config :pleroma, :config_description, [
           %{
             key: :nsfwCensorImage,
             label: "NSFW Censor Image",
-            type: {:string, :image},
+            type: {:string, :image, :full_size},
             description:
               "URL of the image to use for hiding NSFW media attachments in the timeline",
             suggestions: ["/static/img/nsfw.74818f9.png"]
