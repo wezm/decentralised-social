@@ -1382,6 +1382,10 @@ config :pleroma, :config_description, [
       %{
         key: :mascots,
         type: {:keyword, :map},
+        map_keys: [
+          %{ key: ":url", label: "URL" },
+          %{ key: ":mime_type",  label: "Mime type" }
+        ],
         description:
           "Keyword of mascots, each element must contain both an URL and a mime_type key",
         suggestions: [
