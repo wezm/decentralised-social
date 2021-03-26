@@ -311,7 +311,7 @@ config :pleroma, :config_description, [
         group: {:subgroup, Swoosh.Adapters.SMTP},
         key: :tls,
         label: "STARTTLS Mode",
-        type: {:dropdown, :atom},
+        type: :select,
         description: "Explicit TLS (STARTTLS) enforcement mode",
         suggestions: [:if_available, :always, :never]
       },
@@ -319,7 +319,7 @@ config :pleroma, :config_description, [
         group: {:subgroup, Swoosh.Adapters.SMTP},
         key: :auth,
         label: "AUTH Mode",
-        type: {:dropdown, :atom},
+        type: :select,
         description: "SMTP AUTH enforcement mode",
         suggestions: [:if_available, :always, :never]
       },
@@ -816,7 +816,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :limit_to_local_content,
-        type: {:dropdown, :atom},
+        type: :select,
         description:
           "Limit unauthenticated users to search for local statutes and users only. Default: `:unauthenticated`.",
         suggestions: [
@@ -1075,7 +1075,7 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :level,
-        type: {:dropdown, :atom},
+        type: :select,
         description: "Log level",
         suggestions: [:debug, :info, :warn, :error]
       },
@@ -1109,7 +1109,7 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :level,
-        type: {:dropdown, :atom},
+        type: :select,
         description: "Log level",
         suggestions: [:debug, :info, :warn, :error]
       },
@@ -1135,7 +1135,7 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :level,
-        type: {:dropdown, :atom},
+        type: :select,
         description: "Log level",
         suggestions: [:debug, :info, :warn, :error]
       },
@@ -1287,7 +1287,7 @@ config :pleroma, :config_description, [
           %{
             key: :postContentType,
             label: "Post Content Type",
-            type: {:dropdown, :atom},
+            type: :select,
             description: "Default post formatting option",
             suggestions: ["text/plain", "text/html", "text/markdown", "text/bbcode"]
           },
@@ -1486,7 +1486,7 @@ config :pleroma, :config_description, [
           },
           %{
             key: :provider,
-            type: :module,
+            type: :select,
             description: "Module which will be used to purge objects from the cache.",
             suggestions: [
               Pleroma.Web.MediaProxy.Invalidation.Script,
@@ -1851,7 +1851,7 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :log,
-        type: {:dropdown, :atom},
+        type: :select,
         description: "Logs verbose mode",
         suggestions: [false, :error, :warn, :info, :debug]
       },
