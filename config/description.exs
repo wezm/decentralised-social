@@ -1645,7 +1645,7 @@ config :pleroma, :config_description, [
       %{
         key: :ip,
         label: "IP",
-        type: :tuple,
+        type: {:tuple, :ip},
         description: "IP address to bind to",
         suggestions: [{0, 0, 0, 0}]
       },
