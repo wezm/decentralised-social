@@ -462,38 +462,6 @@ config :pleroma, :config_description, [
   },
   %{
     group: :pleroma,
-    key: :uri_schemes,
-    tab: :instance,
-    label: "URI Schemes",
-    type: :group,
-    description: "URI schemes related settings",
-    children: [
-      %{
-        key: :valid_schemes,
-        type: {:list, :string},
-        description: "List of the scheme part that is considered valid to be an URL",
-        suggestions: [
-          "https",
-          "http",
-          "dat",
-          "dweb",
-          "gopher",
-          "hyper",
-          "ipfs",
-          "ipns",
-          "irc",
-          "ircs",
-          "magnet",
-          "mailto",
-          "mumble",
-          "ssb",
-          "xmpp"
-        ]
-      }
-    ]
-  },
-  %{
-    group: :pleroma,
     key: :instance,
     tab: :instance,
     type: :group,
@@ -944,6 +912,38 @@ config :pleroma, :config_description, [
   },
   %{
     group: :pleroma,
+    key: :uri_schemes,
+    tab: :instance,
+    label: "URI Schemes",
+    type: :group,
+    description: "URI schemes related settings",
+    children: [
+      %{
+        key: :valid_schemes,
+        type: {:list, :string},
+        description: "List of the scheme part that is considered valid to be an URL",
+        suggestions: [
+          "https",
+          "http",
+          "dat",
+          "dweb",
+          "gopher",
+          "hyper",
+          "ipfs",
+          "ipns",
+          "irc",
+          "ircs",
+          "magnet",
+          "mailto",
+          "mumble",
+          "ssb",
+          "xmpp"
+        ]
+      }
+    ]
+  },
+  %{
+    group: :pleroma,
     key: :welcome,
     tab: :instance,
     type: :group,
@@ -961,7 +961,7 @@ config :pleroma, :config_description, [
           },
           %{
             key: :message,
-            type: :string,
+            type: :textarea,
             description: "A message that will be sent to newly registered users",
             suggestions: [
               "Hi, @username! Welcome on board!"
@@ -989,7 +989,7 @@ config :pleroma, :config_description, [
           },
           %{
             key: :message,
-            type: :string,
+            type: :textarea,
             description:
               "A message that will be sent to newly registered users as a chat message",
             suggestions: [
@@ -2899,8 +2899,8 @@ config :pleroma, :config_description, [
         key: :activity_pub,
         type: :integer,
         description:
-          "Activity pub routes (except question activities). Default: `nil` (no expiration).",
-        suggestions: [nil]
+          "Activity pub routes (except question activities).",
+        suggestions: [0]
       },
       %{
         key: :activity_pub_question,
