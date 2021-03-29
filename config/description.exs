@@ -1861,20 +1861,9 @@ config :pleroma, :config_description, [
       },
       %{
         key: :queues,
-        type: {:keyword, :integer},
+        type: :keyword,
         description:
           "Background jobs queues (keys: queues, values: max numbers of concurrent jobs)",
-        suggestions: [
-          activity_expiration: 10,
-          attachments_cleanup: 5,
-          background: 5,
-          federator_incoming: 50,
-          federator_outgoing: 50,
-          mailer: 10,
-          scheduled_activities: 10,
-          transmogrifier: 20,
-          web_push: 50
-        ],
         children: [
           %{
             key: :activity_expiration,
