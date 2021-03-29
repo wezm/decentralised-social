@@ -1929,7 +1929,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :crontab,
-        type: {:list, :tuple},
+        type: {:keyword, :string},
         description: "Settings for cron background jobs",
         suggestions: [
           {"0 0 * * 0", Pleroma.Workers.Cron.DigestEmailsWorker},
