@@ -64,7 +64,7 @@ frontend_options = [
   %{
     key: "custom-http-headers",
     label: "Custom HTTP headers",
-    type: {:list, :string},
+    type: :multiple_select,
     description: "The custom HTTP headers for the frontend"
   }
 ]
@@ -208,7 +208,7 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :args,
-        type: [:string, {:list, :string}, {:list, :tuple}],
+        type: :multiple_select,
         description:
           "List of actions for the mogrify command. It's possible to add self-written settings as string. " <>
             "For example `auto-orient, strip, {\"resize\", \"3840x1080>\"}` value will be parsed into valid list of the settings.",
@@ -660,7 +660,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :quarantined_instances,
-        type: {:list, :string},
+        type: :multiple_select,
         description:
           "List of ActivityPub instances where private (DMs, followers-only) activities will not be sent",
         suggestions: [
@@ -678,7 +678,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :allowed_post_formats,
-        type: {:list, :string},
+        type: :multiple_select,
         description: "MIME-type list of formats allowed to be posted (transformed into HTML)",
         suggestions: [
           "text/plain",
@@ -715,13 +715,13 @@ config :pleroma, :config_description, [
       },
       %{
         key: :autofollowed_nicknames,
-        type: {:list, :string},
+        type: :multiple_select,
         description:
           "Set to nicknames of (local) users that every new user should automatically follow"
       },
       %{
         key: :autofollowing_nicknames,
-        type: {:list, :string},
+        type: :multiple_select,
         description:
           "Set to nicknames of (local) users that automatically follows every newly registered user"
       },
@@ -920,7 +920,7 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :valid_schemes,
-        type: {:list, :string},
+        type: :multiple_select,
         description: "List of the scheme part that is considered valid to be an URL",
         suggestions: [
           "https",
@@ -1058,10 +1058,10 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :backends,
-        type: [:atom, :tuple, :module],
+        type: :multiple_select,
         description:
-          "Where logs will be sent, :console - send logs to stdout, { ExSyslogger, :ex_syslogger } - to syslog, Quack.Logger - to Slack.",
-        suggestions: [:console, {ExSyslogger, :ex_syslogger}, Quack.Logger]
+          "Where logs will be sent, :console - send logs to stdout, ExSyslogger - to syslog, Quack.Logger - to Slack.",
+        suggestions: [:console, ExSyslogger, Quack.Logger]
       }
     ]
   },
@@ -1094,7 +1094,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :metadata,
-        type: {:list, :atom},
+        type: :multiple_select,
         suggestions: [:request_id]
       }
     ]
@@ -1121,7 +1121,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :metadata,
-        type: {:list, :atom},
+        type: :multiple_select,
         suggestions: [:request_id]
       }
     ]
@@ -1141,7 +1141,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :meta,
-        type: {:list, :atom},
+        type: :multiple_select,
         description: "Configure which metadata you want to report on",
         suggestions: [
           :application,
@@ -1535,7 +1535,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :whitelist,
-        type: {:list, :string},
+        type: :multiple_select,
         description: "List of hosts with scheme to bypass the MediaProxy",
         suggestions: ["http://example.com"]
       }
@@ -1997,14 +1997,14 @@ config :pleroma, :config_description, [
       },
       %{
         key: :ignore_hosts,
-        type: {:list, :string},
+        type: :multiple_select,
         description: "List of hosts which will be ignored by the metadata parser",
         suggestions: ["accounts.google.com", "xss.website"]
       },
       %{
         key: :ignore_tld,
         label: "Ignore TLD",
-        type: {:list, :string},
+        type: :multiple_select,
         description: "List TLDs (top-level domains) which will ignore for parse metadata",
         suggestions: ["local", "localdomain", "lan"]
       },
@@ -2279,7 +2279,7 @@ config :pleroma, :config_description, [
       %{
         key: :oauth_consumer_strategies,
         label: "OAuth consumer strategies",
-        type: {:list, :string},
+        type: :multiple_select,
         description:
           "The list of enabled OAuth consumer strategies. By default it's set by OAUTH_CONSUMER_STRATEGIES environment variable." <>
             " Each entry in this space-delimited string should be of format \"strategy\" or \"strategy:dependency\"" <>
@@ -2449,20 +2449,20 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :shortcode_globs,
-        type: {:list, :string},
+        type: :multiple_select,
         description: "Location of custom emoji files. * can be used as a wildcard.",
         suggestions: ["/emoji/custom/**/*.png"]
       },
       %{
         key: :pack_extensions,
-        type: {:list, :string},
+        type: :multiple_select,
         description:
           "A list of file extensions for emojis, when no emoji.txt for a pack is present",
         suggestions: [".png", ".gif"]
       },
       %{
         key: :groups,
-        type: {:keyword, {:list, :string}},
+        type: {:keyword, :multiple_select},
         description:
           "Emojis are ordered in groups (tags). This is an array of key-value pairs where the key is the group name" <>
             " and the value is the location or array of locations. * can be used as a wildcard.",
@@ -2613,27 +2613,27 @@ config :pleroma, :config_description, [
         children: [
           %{
             key: "application/xml",
-            type: {:list, :string},
+            type: :multiple_select,
             suggestions: ["xml"]
           },
           %{
             key: "application/xrd+xml",
-            type: {:list, :string},
+            type: :multiple_select,
             suggestions: ["xrd+xml"]
           },
           %{
             key: "application/jrd+json",
-            type: {:list, :string},
+            type: :multiple_select,
             suggestions: ["jrd+json"]
           },
           %{
             key: "application/activity+json",
-            type: {:list, :string},
+            type: :multiple_select,
             suggestions: ["activity+json"]
           },
           %{
             key: "application/ld+json",
-            type: {:list, :string},
+            type: :multiple_select,
             suggestions: ["activity+json"]
           }
         ]
@@ -2693,7 +2693,7 @@ config :pleroma, :config_description, [
             children: [
               %{
                 key: :versions,
-                type: {:list, :atom},
+                type: :multiple_select,
                 description: "List of TLS version to use",
                 suggestions: [:tlsv1, ":tlsv1.1", ":tlsv1.2"]
               }
@@ -2756,7 +2756,7 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :restricted_nicknames,
-        type: {:list, :string},
+        type: :multiple_select,
         description: "List of nicknames users may not register with.",
         suggestions: [
           ".well-known",
@@ -2793,7 +2793,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :email_blacklist,
-        type: {:list, :string},
+        type: :multiple_select,
         description: "List of email domains users may not register with.",
         suggestions: ["mailinator.com", "maildrop.cc"]
       }
@@ -2812,12 +2812,12 @@ config :pleroma, :config_description, [
       },
       %{
         key: :methods,
-        type: {:list, :string},
+        type: :multiple_select,
         suggestions: ["POST", "PUT", "DELETE", "GET", "PATCH", "OPTIONS"]
       },
       %{
         key: :expose,
-        type: {:list, :string},
+        type: :multiple_select,
         suggestions: [
           "Link",
           "X-RateLimit-Reset",
@@ -2833,7 +2833,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :headers,
-        type: {:list, :string},
+        type: :multiple_select,
         suggestions: ["Authorization", "Content-Type", "Idempotency-Key"]
       }
     ]
@@ -2855,20 +2855,20 @@ config :pleroma, :config_description, [
       },
       %{
         key: :headers,
-        type: {:list, :string},
+        type: :multiple_select,
         description: """
           A list of strings naming the HTTP headers to use when deriving the true client IP. Default: `["x-forwarded-for"]`.
         """
       },
       %{
         key: :proxies,
-        type: {:list, :string},
+        type: :multiple_select,
         description:
           "A list of upstream proxy IP subnets in CIDR notation from which we will parse the content of `headers`. Defaults to `[]`. IPv4 entries without a bitmask will be assumed to be /32 and IPv6 /128."
       },
       %{
         key: :reserved,
-        type: {:list, :string},
+        type: :multiple_select,
         description: """
           A list of reserved IP subnets in CIDR notation which should be ignored if found in `headers`. Defaults to `["127.0.0.0/8", "::1/128", "fc00::/7", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]`
         """
@@ -3346,12 +3346,12 @@ config :pleroma, :config_description, [
       %{
         key: :ip_whitelist,
         label: "IP Whitelist",
-        type: [{:list, :string}, {:list, :charlist}, {:list, :tuple}],
+        type: [:multiple_select, {:list, :charlist}, {:list, :tuple}],
         description: "Restrict access of app metrics endpoint to the specified IP addresses."
       },
       %{
         key: :auth,
-        type: [:boolean, :tuple],
+        type: [:tuple, :boolean],
         description: "Enables HTTP Basic Auth for app metrics endpoint.",
         suggestion: [false, {:basic, "myusername", "mypassword"}]
       },
