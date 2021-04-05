@@ -1018,7 +1018,7 @@ config :pleroma, :config_description, [
           },
           %{
             key: :sender,
-            type: [:string, :tuple],
+            type: [:tuple, :string],
             description:
               "Email address and/or nickname that will be used to send the welcome email.",
             suggestions: [
@@ -1929,7 +1929,7 @@ config :pleroma, :config_description, [
       },
       %{
         key: :crontab,
-        type: {:keyword, :string},
+        type: {:keyword, :string, :reversed},
         description: "Settings for cron background jobs",
         suggestions: [
           {"0 0 * * 0", Pleroma.Workers.Cron.DigestEmailsWorker},
@@ -2664,7 +2664,7 @@ config :pleroma, :config_description, [
       %{
         key: :proxy_url,
         label: "Proxy URL",
-        type: [:string, :tuple],
+        type: [:tuple, :string],
         description: "Proxy URL",
         suggestions: ["localhost:9020", {:socks5, :localhost, 3090}]
       },
