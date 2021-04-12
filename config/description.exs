@@ -1477,11 +1477,6 @@ config :pleroma, :config_description, [
       %{
         key: :invalidation,
         type: :keyword,
-        descpiption: "",
-        suggestions: [
-          enabled: true,
-          provider: Pleroma.Web.MediaProxy.Invalidation.Script
-        ],
         children: [
           %{
             key: :enabled,
@@ -1504,11 +1499,6 @@ config :pleroma, :config_description, [
         label: "Advanced MediaProxy Options",
         type: :keyword,
         description: "Internal Pleroma.ReverseProxy settings",
-        suggestions: [
-          redirect_on_failure: false,
-          max_body_length: 25 * 1_048_576,
-          max_read_duration: 30_000
-        ],
         children: [
           %{
             key: :redirect_on_failure,
@@ -1524,12 +1514,14 @@ config :pleroma, :config_description, [
             key: :max_body_length,
             type: :integer,
             description:
-              "Maximum file size (in bytes) allowed through the Pleroma MediaProxy cache."
+              "Maximum file size (in bytes) allowed through the Pleroma MediaProxy cache.",
+            suggestions: [25 * 1_048_576]
           },
           %{
             key: :max_read_duration,
             type: :integer,
-            description: "Timeout (in milliseconds) of GET request to the remote URI."
+            description: "Timeout (in milliseconds) of GET request to the remote URI.",
+            suggestions: [30_000]
           }
         ]
       },
@@ -2300,14 +2292,6 @@ config :pleroma, :config_description, [
         type: :map,
         description:
           "emails of \"what you've missed\" for users who have been inactive for a while",
-        suggestions: [
-          %{
-            active: false,
-            schedule: "0 0 * * 0",
-            interval: 7,
-            inactivity_threshold: 7
-          }
-        ],
         children: [
           %{
             key: :active,
@@ -2355,16 +2339,6 @@ config :pleroma, :config_description, [
         key: :styling,
         type: :map,
         description: "A map with color settings for email templates.",
-        suggestions: [
-          %{
-            link_color: "#d8a070",
-            background_color: "#2C3645",
-            content_background_color: "#1B2635",
-            header_color: "#d8a070",
-            text_color: "#b9b9ba",
-            text_muted_color: "#b9b9ba"
-          }
-        ],
         children: [
           %{
             key: :link_color,
