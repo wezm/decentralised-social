@@ -8,9 +8,7 @@ variables: &global_variables
   MIX_ENV: test
 
 cache: &global_cache_policy
-  key:
-    files:
-      - mix.lock
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - deps
     - _build
@@ -173,8 +171,8 @@ spec-deploy:
     - apk add curl
   script:
     - curl -X POST -F"token=$API_DOCS_PIPELINE_TRIGGER" -F'ref=master' -F"variables[BRANCH]=$CI_COMMIT_REF_NAME" -F"variables[JOB_REF]=$CI_JOB_ID" https://git.pleroma.social/api/v4/projects/1130/trigger/pipeline
-
-
+  
+ 
 stop_review_app:
   image: alpine:3.9
   stage: deploy
@@ -233,7 +231,7 @@ amd64-musl:
   stage: release
   artifacts: *release-artifacts
   only: *release-only
-  image: elixir:1.10.3-alpine
+  image: elixir:1.10.3-alpine 
   cache: *release-cache
   variables: *release-variables
   before_script: &before-release-musl
