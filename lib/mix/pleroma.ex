@@ -17,7 +17,7 @@ defmodule Mix.Pleroma do
     :oban
   ]
   @cachex_children ["object", "user", "scrubber", "web_resp"]
-  @doc "Common functions to be reused in mix tasks"
+  @doc "Common functions to be reused in mix tasks."
   def start_pleroma do
     Pleroma.Config.Holder.save_default()
     Pleroma.Config.Oban.warn()
