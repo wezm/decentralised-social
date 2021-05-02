@@ -1957,7 +1957,8 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :providers,
-        type: {:list, :module},
+        type: {:multiple_select, :reduced_labels},
+        prefix: "Pleroma.Web.Metadata.Providers.",
         description: "List of metadata providers to enable",
         suggestions: [
           Pleroma.Web.Metadata.Providers.OpenGraph,
@@ -2473,38 +2474,44 @@ config :pleroma, :config_description, [
     children: [
       %{
         key: :search,
-        type: [:tuple, {:list, :tuple}],
+        type: {:tuple_of_integers, :pair_of_tuples},
+        placeholders: ["scale", "limit"],
         description: "For the search requests (account & status search etc.)",
         suggestions: [{1000, 10}, [{10_000, 10}, {10_000, 50}]]
       },
       %{
         key: :timeline,
-        type: [:tuple, {:list, :tuple}],
+        type: {:tuple_of_integers, :pair_of_tuples},
+        placeholders: ["scale", "limit"],
         description: "For requests to timelines (each timeline has it's own limiter)",
         suggestions: [{1000, 10}, [{10_000, 10}, {10_000, 50}]]
       },
       %{
         key: :app_account_creation,
-        type: [:tuple, {:list, :tuple}],
+        type: {:tuple_of_integers, :pair_of_tuples},
+        placeholders: ["scale", "limit"],
         description: "For registering user accounts from the same IP address",
         suggestions: [{1000, 10}, [{10_000, 10}, {10_000, 50}]]
       },
       %{
         key: :relations_actions,
-        type: [:tuple, {:list, :tuple}],
+        type: {:tuple_of_integers, :pair_of_tuples},
+        placeholders: ["scale", "limit"],
         description: "For actions on relationships with all users (follow, unfollow)",
         suggestions: [{1000, 10}, [{10_000, 10}, {10_000, 50}]]
       },
       %{
         key: :relation_id_action,
         label: "Relation ID action",
-        type: [:tuple, {:list, :tuple}],
+        type: {:tuple_of_integers, :pair_of_tuples},
+        placeholders: ["scale", "limit"],
         description: "For actions on relation with a specific user (follow, unfollow)",
         suggestions: [{1000, 10}, [{10_000, 10}, {10_000, 50}]]
       },
       %{
         key: :statuses_actions,
-        type: [:tuple, {:list, :tuple}],
+        type: {:tuple_of_integers, :pair_of_tuples},
+        placeholders: ["scale", "limit"],
         description:
           "For create / delete / fav / unfav / reblog / unreblog actions on any statuses",
         suggestions: [{1000, 10}, [{10_000, 10}, {10_000, 50}]]
@@ -2512,14 +2519,16 @@ config :pleroma, :config_description, [
       %{
         key: :status_id_action,
         label: "Status ID action",
-        type: [:tuple, {:list, :tuple}],
+        type: {:tuple_of_integers, :pair_of_tuples},
+        placeholders: ["scale", "limit"],
         description:
           "For fav / unfav or reblog / unreblog actions on the same status by the same user",
         suggestions: [{1000, 10}, [{10_000, 10}, {10_000, 50}]]
       },
       %{
         key: :authentication,
-        type: [:tuple, {:list, :tuple}],
+        type: {:tuple_of_integers, :pair_of_tuples},
+        placeholders: ["scale", "limit"],
         description: "For authentication create / password check / user existence check requests",
         suggestions: [{60_000, 15}]
       }
