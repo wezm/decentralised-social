@@ -2584,15 +2584,6 @@ config :pleroma, :config_description, [
       %{
         key: :types,
         type: :map,
-        suggestions: [
-          %{
-            "application/xml" => ["xml"],
-            "application/xrd+xml" => ["xrd+xml"],
-            "application/jrd+json" => ["jrd+json"],
-            "application/activity+json" => ["activity+json"],
-            "application/ld+json" => ["activity+json"]
-          }
-        ],
         children: [
           %{
             key: "application/xml",
