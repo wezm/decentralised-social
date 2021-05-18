@@ -3325,7 +3325,8 @@ config :pleroma, :config_description, [
       },
       %{
         key: :auth,
-        type: [:tuple, :boolean],
+        type: [:tuple_of_three, :boolean],
+        placeholders: [":basic", "username", "password"],
         description: "Enables HTTP Basic Auth for app metrics endpoint.",
         suggestion: [false, {:basic, "myusername", "mypassword"}]
       },
