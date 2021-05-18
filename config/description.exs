@@ -3320,7 +3320,7 @@ config :pleroma, :config_description, [
       %{
         key: :ip_whitelist,
         label: "IP Whitelist",
-        type: [:multiple_select, {:list, :charlist}, {:list, :tuple}],
+        type: [:multiple_select, :tuple],
         description: "Restrict access of app metrics endpoint to the specified IP addresses."
       },
       %{
