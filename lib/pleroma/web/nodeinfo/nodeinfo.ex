@@ -6,8 +6,8 @@ defmodule Pleroma.Web.Nodeinfo.Nodeinfo do
   alias Pleroma.Config
   alias Pleroma.Stats
   alias Pleroma.User
+  alias Pleroma.Web.ActivityPub.MRF
   alias Pleroma.Web.Federator.Publisher
-  alias Pleroma.Web.MastodonAPI.InstanceView
 
   # returns a nodeinfo 2.0 map, since 2.1 just adds a repository field
   # under software.
@@ -17,9 +17,6 @@ defmodule Pleroma.Web.Nodeinfo.Nodeinfo do
     staff_accounts =
       User.all_superusers()
       |> Enum.map(fn u -> u.ap_id end)
-
-    federation = InstanceView.federation()
-    features = InstanceView.features()
 
     %{
       version: "2.0",
@@ -47,7 +44,7 @@ defmodule Pleroma.Web.Nodeinfo.Nodeinfo do
           enabled: false
         },
         staffAccounts: staff_accounts,
-        federation: federation,
+        federation: federation(),
         pollLimits: Config.get([:instance, :poll_limits]),
         postFormats: Config.get([:instance, :allowed_post_formats]),
         uploadLimits: %{
@@ -65,7 +62,7 @@ defmodule Pleroma.Web.Nodeinfo.Nodeinfo do
         accountActivationRequired: Config.get([:instance, :account_activation_required], false),
         invitesEnabled: Config.get([:instance, :invites_enabled], false),
         mailerEnabled: Config.get([Pleroma.Emails.Mailer, :enabled], false),
-        features: features,
+        features: features(),
         restrictedNicknames: Config.get([Pleroma.User, :restricted_nicknames]),
         skipThreadContainment: Config.get([:instance, :skip_thread_containment], false)
       }
@@ -87,5 +84,59 @@ defmodule Pleroma.Web.Nodeinfo.Nodeinfo do
 
   def get_nodeinfo(_version) do
     {:error, :missing}
+  end
+
+  def features do
+    [
+      "pleroma_api",
+      "mastodon_api",
+      "mastodon_api_streaming",
+      "polls",
+      "pleroma_explicit_addressing",
+      "shareable_emoji_packs",
+      "multifetch",
+      "pleroma:api/v1/notifications:include_types_filter",
+      if Config.get([:media_proxy, :enabled]) do
+        "media_proxy"
+      end,
+      if Config.get([:gopher, :enabled]) do
+        "gopher"
+      end,
+      if Config.get([:chat, :enabled]) do
+        "chat"
+      end,
+      if Config.get([:instance, :allow_relay]) do
+        "relay"
+      end,
+      if Config.get([:instance, :safe_dm_mentions]) do
+        "safe_dm_mentions"
+      end,
+      "pleroma_emoji_reactions",
+      "pleroma_chat_messages"
+    ]
+    |> Enum.filter(& &1)
+  end
+
+  def federation do
+    quarantined = Config.get([:instance, :quarantined_instances], [])
+
+    if Config.get([:mrf, :transparency]) do
+      {:ok, data} = MRF.describe()
+
+      data
+      |> Map.merge(%{quarantined_instances: quarantined})
+    else
+      %{}
+    end
+    |> Map.put(:enabled, Config.get([:instance, :federating]))
+  end
+
+  def fields_limits do
+    %{
+      max_fields: Config.get([:instance, :max_account_fields]),
+      max_remote_fields: Config.get([:instance, :max_remote_account_fields]),
+      name_length: Config.get([:instance, :account_field_name_length]),
+      value_length: Config.get([:instance, :account_field_value_length])
+    }
   end
 end
