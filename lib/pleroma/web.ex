@@ -230,10 +230,6 @@ defmodule Pleroma.Web do
     apply(__MODULE__, which, [])
   end
 
-  def base_url do
-    Pleroma.Web.Endpoint.url()
-  end
-
   # TODO: Change to Phoenix.Router.routes/1 for Phoenix 1.6.0+
   def get_api_routes do
     Pleroma.Web.Router.__routes__()
