@@ -117,7 +117,7 @@ defmodule Pleroma.Web.AdminAPI.UserController do
           bio: "."
         }
 
-        User.register_changeset(%User{}, user_data, need_confirmation: false)
+        User.Registration.register_changeset(%User{}, user_data, need_confirmation: false)
       end)
       |> Enum.reduce(Ecto.Multi.new(), fn changeset, multi ->
         Ecto.Multi.insert(multi, Ecto.UUID.generate(), changeset)
@@ -129,7 +129,7 @@ defmodule Pleroma.Web.AdminAPI.UserController do
           users
           |> Map.values()
           |> Enum.map(fn user ->
-            {:ok, user} = User.post_register_action(user)
+            {:ok, user} = User.Registration.post_register_action(user)
 
             user
           end)
@@ -219,7 +219,7 @@ defmodule Pleroma.Web.AdminAPI.UserController do
 
   def approve(%{assigns: %{user: admin}} = conn, %{"nicknames" => nicknames}) do
     users = Enum.map(nicknames, &User.get_cached_by_nickname/1)
-    {:ok, updated_users} = User.approve(users)
+    {:ok, updated_users} = User.Registration.approve(users)
 
     ModerationLog.insert_log(%{
       actor: admin,

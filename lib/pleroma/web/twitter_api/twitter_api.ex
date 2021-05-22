@@ -41,9 +41,9 @@ defmodule Pleroma.Web.TwitterAPI.TwitterAPI do
   end
 
   defp create_user(params, opts) do
-    changeset = User.register_changeset(%User{}, params, opts)
+    changeset = User.Registration.register_changeset(%User{}, params, opts)
 
-    case User.register(changeset) do
+    case User.Registration.register(changeset) do
       {:ok, user} ->
         {:ok, user}
 
