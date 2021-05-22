@@ -15,6 +15,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.ActivityPub.Builder
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.ObjectValidator
   alias Pleroma.Web.ActivityPub.Pipeline
   alias Pleroma.Web.ActivityPub.Utils
@@ -205,7 +206,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   end
 
   def fix_context(object) do
-    context = object["context"] || object["conversation"] || Utils.generate_context_id()
+    context = object["context"] || object["conversation"] || IDs.generate_context_id()
 
     object
     |> Map.put("context", context)
@@ -395,7 +396,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   # Flag objects are placed ahead of the ID check because Mastodon 2.8 and earlier send them
   # with nil ID.
   def handle_incoming(%{"type" => "Flag", "object" => objects, "actor" => actor} = data, _options) do
-    with context <- data["context"] || Utils.generate_context_id(),
+    with context <- data["context"] || IDs.generate_context_id(),
          content <- data["content"] || "",
          %User{} = actor <- User.get_cached_by_ap_id(actor),
          # Reduce the object list to find the reported user.

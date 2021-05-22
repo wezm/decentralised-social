@@ -13,7 +13,7 @@ defmodule Pleroma.Web.CommonAPI.Utils do
   alias Pleroma.Object
   alias Pleroma.Repo
   alias Pleroma.User
-  alias Pleroma.Web.ActivityPub.Utils
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.Visibility
   alias Pleroma.Web.CommonAPI.ActivityDraft
   alias Pleroma.Web.MediaProxy
@@ -240,7 +240,7 @@ defmodule Pleroma.Web.CommonAPI.Utils do
   end
 
   def make_context(%Activity{data: %{"context" => context}}, _), do: context
-  def make_context(_, _), do: Utils.generate_context_id()
+  def make_context(_, _), do: IDs.generate_context_id()
 
   def maybe_add_attachments(parsed, _attachments, false = _no_links), do: parsed
 

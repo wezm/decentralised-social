@@ -13,6 +13,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
   alias Pleroma.Object
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.ActivityPub
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.AdminAPI.AccountView
   alias Pleroma.Web.CommonAPI
@@ -1228,7 +1229,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
       target_account = insert(:user)
       content = "foobar"
       {:ok, activity} = CommonAPI.post(target_account, %{status: content})
-      context = Utils.generate_context_id()
+      context = IDs.generate_context_id()
 
       reporter_ap_id = reporter.ap_id
       target_ap_id = target_account.ap_id

@@ -5,7 +5,7 @@ defmodule Pleroma.Builders.ActivityBuilder do
     user = opts[:user] || Pleroma.Factory.insert(:user)
 
     activity = %{
-      "id" => Pleroma.Web.ActivityPub.Utils.generate_object_id(),
+      "id" => Pleroma.Web.ActivityPub.IDs.generate_object_id(),
       "actor" => user.ap_id,
       "to" => ["https://www.w3.org/ns/activitystreams#Public"],
       "type" => "Create",

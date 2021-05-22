@@ -13,10 +13,10 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubControllerTest do
   alias Pleroma.Tests.ObanHelpers
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.ActivityPub
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.ObjectView
   alias Pleroma.Web.ActivityPub.Relay
   alias Pleroma.Web.ActivityPub.UserView
-  alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.Endpoint
   alias Pleroma.Workers.ReceiverWorker
@@ -831,7 +831,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubControllerTest do
 
       data =
         data
-        |> Map.put("id", Utils.generate_object_id())
+        |> Map.put("id", IDs.generate_object_id())
         |> Map.put("actor", actor.ap_id)
         |> Map.put("object", object)
         |> Map.put("cc", [

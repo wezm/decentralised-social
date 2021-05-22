@@ -5,9 +5,9 @@
 defmodule Pleroma.Web.ActivityPub.ObjectValidators.LikeValidationTest do
   use Pleroma.DataCase, async: true
 
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.ObjectValidator
   alias Pleroma.Web.ActivityPub.ObjectValidators.LikeValidator
-  alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.CommonAPI
 
   import Pleroma.Factory
@@ -21,7 +21,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.LikeValidationTest do
         "to" => [user.ap_id],
         "cc" => [],
         "type" => "Like",
-        "id" => Utils.generate_activity_id(),
+        "id" => IDs.generate_activity_id(),
         "object" => post_activity.data["object"],
         "actor" => user.ap_id,
         "context" => "a context"

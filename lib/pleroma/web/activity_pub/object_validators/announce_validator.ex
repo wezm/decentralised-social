@@ -8,6 +8,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidator do
   alias Pleroma.EctoType.ActivityPub.ObjectValidators
   alias Pleroma.Object
   alias Pleroma.User
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.ActivityPub.Visibility
 
@@ -23,7 +24,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidator do
     field(:type, :string)
     field(:object, ObjectValidators.ObjectID)
     field(:actor, ObjectValidators.ObjectID)
-    field(:context, :string, autogenerate: {Utils, :generate_context_id, []})
+    field(:context, :string, autogenerate: {IDs, :generate_context_id, []})
     field(:to, ObjectValidators.Recipients, default: [])
     field(:cc, ObjectValidators.Recipients, default: [])
     field(:published, ObjectValidators.DateTime)

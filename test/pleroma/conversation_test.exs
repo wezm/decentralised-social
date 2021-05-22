@@ -184,7 +184,7 @@ defmodule Pleroma.ConversationTest do
     undo = %Activity{
       id: "fake",
       data: %{
-        "id" => Pleroma.Web.ActivityPub.Utils.generate_activity_id(),
+        "id" => Pleroma.Web.ActivityPub.IDs.generate_activity_id(),
         "actor" => note.data["actor"],
         "to" => [note.data["actor"]],
         "object" => note_id,

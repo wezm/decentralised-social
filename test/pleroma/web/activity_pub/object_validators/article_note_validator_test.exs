@@ -6,7 +6,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.ArticleNoteValidatorTest do
   use Pleroma.DataCase, async: true
 
   alias Pleroma.Web.ActivityPub.ObjectValidators.ArticleNoteValidator
-  alias Pleroma.Web.ActivityPub.Utils
+  alias Pleroma.Web.ActivityPub.IDs
 
   import Pleroma.Factory
 
@@ -15,7 +15,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.ArticleNoteValidatorTest do
       user = insert(:user)
 
       note = %{
-        "id" => Utils.generate_activity_id(),
+        "id" => IDs.generate_activity_id(),
         "type" => "Note",
         "actor" => user.ap_id,
         "to" => [user.follower_address],

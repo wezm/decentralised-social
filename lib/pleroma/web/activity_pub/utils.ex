@@ -4,7 +4,6 @@
 
 defmodule Pleroma.Web.ActivityPub.Utils do
   alias Ecto.Changeset
-  alias Ecto.UUID
   alias Pleroma.Activity
   alias Pleroma.Config
   alias Pleroma.Maps
@@ -12,12 +11,11 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   alias Pleroma.Object
   alias Pleroma.Repo
   alias Pleroma.User
-  alias Pleroma.Web
   alias Pleroma.Web.ActivityPub.ActivityPub
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.Visibility
   alias Pleroma.Web.AdminAPI.AccountView
   alias Pleroma.Web.Endpoint
-  alias Pleroma.Web.Router.Helpers
 
   import Ecto.Query
 
@@ -107,7 +105,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
     %{
       "@context" => [
         "https://www.w3.org/ns/activitystreams",
-        "#{Web.Endpoint.url()}/schemas/litepub-0.1.jsonld",
+        "#{Endpoint.url()}/schemas/litepub-0.1.jsonld",
         %{
           "@language" => "und"
         }
@@ -117,22 +115,6 @@ defmodule Pleroma.Web.ActivityPub.Utils do
 
   def make_date do
     DateTime.utc_now() |> DateTime.to_iso8601()
-  end
-
-  def generate_activity_id do
-    generate_id("activities")
-  end
-
-  def generate_context_id do
-    generate_id("contexts")
-  end
-
-  def generate_object_id do
-    Helpers.o_status_url(Endpoint, :object, UUID.generate())
-  end
-
-  def generate_id(type) do
-    "#{Web.Endpoint.url()}/#{type}/#{UUID.generate()}"
   end
 
   def get_notified_from_object(%{"type" => type} = object) when type in @supported_object_types do
@@ -151,7 +133,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   end
 
   def create_context(context) do
-    context = context || generate_id("contexts")
+    context = context || IDs.generate_id("contexts")
 
     # Ecto has problems accessing the constraint inside the jsonb,
     # so we explicitly check for the existed object before insert
@@ -205,7 +187,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
     %{data: %{"id" => context}, id: context_id} = create_context(map["context"])
 
     map
-    |> Map.put_new_lazy("id", &generate_activity_id/0)
+    |> Map.put_new_lazy("id", &IDs.generate_activity_id/0)
     |> Map.put_new_lazy("published", &make_date/0)
     |> Map.put_new("context", context)
     |> Map.put_new("context_id", context_id)
@@ -232,7 +214,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
        when is_map(map) do
     object =
       map
-      |> Map.put_new_lazy("id", &generate_object_id/0)
+      |> Map.put_new_lazy("id", &IDs.generate_object_id/0)
       |> Map.put_new_lazy("published", &make_date/0)
       |> Map.put_new("context", activity["context"])
       |> Map.put_new("context_id", activity["context_id"])

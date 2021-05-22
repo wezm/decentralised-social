@@ -12,6 +12,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
   alias Pleroma.Emoji
   alias Pleroma.Object
   alias Pleroma.User
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.Relay
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.ActivityPub.Visibility
@@ -20,7 +21,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
 
   def accept_or_reject(actor, activity, type) do
     data = %{
-      "id" => Utils.generate_activity_id(),
+      "id" => IDs.generate_activity_id(),
       "actor" => actor.ap_id,
       "type" => type,
       "object" => activity.data["id"],
@@ -43,7 +44,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
   @spec follow(User.t(), User.t()) :: {:ok, map(), keyword()}
   def follow(follower, followed) do
     data = %{
-      "id" => Utils.generate_activity_id(),
+      "id" => IDs.generate_activity_id(),
       "actor" => follower.ap_id,
       "type" => "Follow",
       "object" => followed.ap_id,
@@ -69,7 +70,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
   def undo(actor, object) do
     {:ok,
      %{
-       "id" => Utils.generate_activity_id(),
+       "id" => IDs.generate_activity_id(),
        "actor" => actor.ap_id,
        "type" => "Undo",
        "object" => object.data["id"],
@@ -97,7 +98,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
 
     {:ok,
      %{
-       "id" => Utils.generate_activity_id(),
+       "id" => IDs.generate_activity_id(),
        "actor" => actor.ap_id,
        "object" => object_id,
        "to" => to,
@@ -115,7 +116,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
 
     {:ok,
      %{
-       "id" => Utils.generate_activity_id(),
+       "id" => IDs.generate_activity_id(),
        "actor" => actor.ap_id,
        "to" => recipients,
        "object" => object,
@@ -127,7 +128,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
 
   def chat_message(actor, recipient, content, opts \\ []) do
     basic = %{
-      "id" => Utils.generate_object_id(),
+      "id" => IDs.generate_object_id(),
       "actor" => actor.ap_id,
       "type" => "ChatMessage",
       "to" => [recipient],
@@ -161,7 +162,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
        "inReplyTo" => object.data["id"],
        "context" => object.data["context"],
        "published" => DateTime.utc_now() |> DateTime.to_iso8601(),
-       "id" => Utils.generate_object_id()
+       "id" => IDs.generate_object_id()
      }, []}
   end
 
@@ -193,7 +194,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
 
     {:ok,
      %{
-       "id" => Utils.generate_activity_id(),
+       "id" => IDs.generate_activity_id(),
        "type" => "Update",
        "actor" => actor.ap_id,
        "object" => object,
@@ -205,7 +206,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
   def block(blocker, blocked) do
     {:ok,
      %{
-       "id" => Utils.generate_activity_id(),
+       "id" => IDs.generate_activity_id(),
        "type" => "Block",
        "actor" => blocker.ap_id,
        "object" => blocked.ap_id,
@@ -234,7 +235,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
 
     {:ok,
      %{
-       "id" => Utils.generate_activity_id(),
+       "id" => IDs.generate_activity_id(),
        "actor" => actor.ap_id,
        "object" => object.data["id"],
        "to" => to,
@@ -265,7 +266,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
 
     {:ok,
      %{
-       "id" => Utils.generate_activity_id(),
+       "id" => IDs.generate_activity_id(),
        "actor" => actor.ap_id,
        "object" => object.data["id"],
        "to" => to,

@@ -12,6 +12,7 @@ defmodule Pleroma.Web.CommonAPI do
   alias Pleroma.UserRelationship
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.ActivityPub.Builder
+  alias Pleroma.Web.ActivityPub.IDs
   alias Pleroma.Web.ActivityPub.Pipeline
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.ActivityPub.Visibility
@@ -489,7 +490,7 @@ defmodule Pleroma.Web.CommonAPI do
          {:ok, {content_html, _, _}} <- make_report_content_html(data[:comment]),
          {:ok, statuses} <- get_report_statuses(account, data) do
       ActivityPub.flag(%{
-        context: Utils.generate_context_id(),
+        context: IDs.generate_context_id(),
         actor: user,
         account: account,
         statuses: statuses,
