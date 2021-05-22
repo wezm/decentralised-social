@@ -27,13 +27,13 @@ defmodule Pleroma.User do
   alias Pleroma.Repo
   alias Pleroma.User
   alias Pleroma.UserRelationship
-  alias Pleroma.Web
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.ActivityPub.Builder
   alias Pleroma.Web.ActivityPub.Pipeline
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.CommonAPI.Utils, as: CommonUtils
+  alias Pleroma.Web.Endpoint
   alias Pleroma.Web.OAuth
   alias Pleroma.Web.RelMe
   alias Pleroma.Workers.BackgroundWorker
@@ -352,27 +352,11 @@ defmodule Pleroma.User do
   def invisible?(%User{invisible: true}), do: true
   def invisible?(_), do: false
 
-  def avatar_url(user, options \\ []) do
-    case user.avatar do
-      %{"url" => [%{"href" => href} | _]} ->
-        href
-
-      _ ->
-        unless options[:no_default] do
-          Config.get([:assets, :default_user_avatar], "#{Web.Endpoint.url()}/images/avi.png")
-        end
-    end
-  end
-
-  def banner_url(user, options \\ []) do
-    case user.banner do
-      %{"url" => [%{"href" => href} | _]} -> href
-      _ -> !options[:no_default] && "#{Web.Endpoint.url()}/images/banner.png"
-    end
-  end
+  defdelegate avatar_url(user, options \\ []), to: User.Media
+  defdelegate banner_url(user, options \\ []), to: User.Media
 
   # Should probably be renamed or removed
-  def ap_id(%User{nickname: nickname}), do: "#{Web.Endpoint.url()}/users/#{nickname}"
+  def ap_id(%User{nickname: nickname}), do: "#{Endpoint.url()}/users/#{nickname}"
 
   def ap_followers(%User{follower_address: fa}) when is_binary(fa), do: fa
   def ap_followers(%User{} = user), do: "#{ap_id(user)}/followers"
@@ -1162,7 +1146,7 @@ defmodule Pleroma.User do
   @spec get_by_nickname(String.t()) :: User.t() | nil
   def get_by_nickname(nickname) do
     Repo.get_by(User, nickname: nickname) ||
-      if Regex.match?(~r(@#{Pleroma.Web.Endpoint.host()})i, nickname) do
+      if Regex.match?(~r(@#{Endpoint.host()})i, nickname) do
         Repo.get_by(User, nickname: local_nickname(nickname))
       end
   end
