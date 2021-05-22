@@ -31,6 +31,6 @@ defmodule Pleroma.Web.ApiSpec.Schemas.BooleanLike do
   })
 
   def after_cast(value, _schmea) do
-    {:ok, Pleroma.Web.ControllerHelper.truthy_param?(value)}
+    {:ok, Pleroma.Web.Params.truthy_param?(value)}
   end
 end
