@@ -8,7 +8,7 @@ defmodule Pleroma.Web.EmailView do
   import Phoenix.HTML.Link
 
   def avatar_url(user) do
-    Pleroma.User.avatar_url(user)
+    Pleroma.User.Media.avatar_url(user)
   end
 
   def format_date(date) when is_binary(date) do

@@ -351,24 +351,8 @@ defmodule Pleroma.User do
   def invisible?(%User{invisible: true}), do: true
   def invisible?(_), do: false
 
-  def avatar_url(user, options \\ []) do
-    case user.avatar do
-      %{"url" => [%{"href" => href} | _]} ->
-        href
-
-      _ ->
-        unless options[:no_default] do
-          Config.get([:assets, :default_user_avatar], "#{Config.url()}/images/avi.png")
-        end
-    end
-  end
-
-  def banner_url(user, options \\ []) do
-    case user.banner do
-      %{"url" => [%{"href" => href} | _]} -> href
-      _ -> !options[:no_default] && "#{Config.url()}/images/banner.png"
-    end
-  end
+  defdelegate avatar_url(user, options \\ []), to: User.Media
+  defdelegate banner_url(user, options \\ []), to: User.Media
 
   # Should probably be renamed or removed
   def ap_id(%User{nickname: nickname}), do: "#{Config.url()}/users/#{nickname}"
