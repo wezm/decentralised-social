@@ -8,8 +8,8 @@ defmodule Pleroma.Web.Auth.Authenticator do
 
   def implementation do
     Pleroma.Config.get(
-      Pleroma.Web.Auth.Authenticator,
-      Pleroma.Web.Auth.PleromaAuthenticator
+      __MODULE__,
+      Module.concat(["Pleroma.Web.Auth.PleromaAuthenticator"])
     )
   end
 
