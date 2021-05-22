@@ -22,4 +22,6 @@ defmodule Pleroma.Web.ActivityPub.IDs do
   def generate_id(type) do
     "#{Endpoint.url()}/#{type}/#{UUID.generate()}"
   end
+
+  def as_local_public, do: Endpoint.url() <> "/#Public"
 end
