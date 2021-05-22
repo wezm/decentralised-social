@@ -292,7 +292,7 @@ defmodule Pleroma.ReverseProxy do
       headers,
       "user-agent",
       0,
-      {"user-agent", Pleroma.Application.user_agent()}
+      {"user-agent", Pleroma.Web.Endpoint.user_agent()}
     )
   end
 

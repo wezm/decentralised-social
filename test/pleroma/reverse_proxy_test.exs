@@ -63,7 +63,7 @@ defmodule Pleroma.ReverseProxyTest do
       |> Plug.Conn.put_req_header("user-agent", "fake/1.0")
       |> ReverseProxy.call("/user-agent")
 
-    assert json_response(conn, 200) == %{"user-agent" => Pleroma.Application.user_agent()}
+    assert json_response(conn, 200) == %{"user-agent" => Pleroma.Web.Endpoint.user_agent()}
   end
 
   test "closed connection", %{conn: conn} do

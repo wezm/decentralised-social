@@ -18,7 +18,7 @@ defmodule Pleroma.HTTP.RequestBuilderTest do
       clear_config([:http, :user_agent], :default)
 
       assert RequestBuilder.headers(%Request{}, []) == %Request{
-               headers: [{"user-agent", Pleroma.Application.user_agent()}]
+               headers: [{"user-agent", Pleroma.Web.Endpoint.user_agent()}]
              }
     end
 

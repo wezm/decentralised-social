@@ -13,22 +13,6 @@ defmodule Pleroma.Application do
 
   @mix_env Mix.env()
 
-  def user_agent do
-    if Process.whereis(Pleroma.Web.Endpoint) do
-      case Config.get([:http, :user_agent], :default) do
-        :default ->
-          info = "#{Pleroma.Web.Endpoint.url()} <#{Config.get([:instance, :email], "")}>"
-          Pleroma.Project.named_version() <> "; " <> info
-
-        custom ->
-          custom
-      end
-    else
-      # fallback, if endpoint is not started yet
-      "Pleroma Data Loader"
-    end
-  end
-
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do

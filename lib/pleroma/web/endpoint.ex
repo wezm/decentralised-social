@@ -198,4 +198,20 @@ defmodule Pleroma.Web.Endpoint do
   def websocket_url do
     String.replace_leading(url(), "http", "ws")
   end
+
+  def user_agent do
+    if Process.whereis(__MODULE__) do
+      case Config.get([:http, :user_agent], :default) do
+        :default ->
+          info = "#{url()} <#{Config.get([:instance, :email], "")}>"
+          Pleroma.Project.named_version() <> "; " <> info
+
+        custom ->
+          custom
+      end
+    else
+      # fallback, if endpoint is not started yet
+      "Pleroma Data Loader"
+    end
+  end
 end

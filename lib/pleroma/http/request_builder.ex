@@ -36,7 +36,7 @@ defmodule Pleroma.HTTP.RequestBuilder do
     headers_list =
       with true <- Pleroma.Config.get([:http, :send_user_agent]),
            nil <- Enum.find(headers, fn {key, _val} -> String.downcase(key) == "user-agent" end) do
-        [{"user-agent", Pleroma.Application.user_agent()} | headers]
+        [{"user-agent", Pleroma.Web.Endpoint.user_agent()} | headers]
       else
         _ ->
           headers

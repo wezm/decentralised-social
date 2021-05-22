@@ -79,7 +79,7 @@ defmodule Pleroma.Web.RichMedia.Helpers do
   def fetch_data_for_activity(_), do: %{}
 
   def rich_media_get(url) do
-    headers = [{"user-agent", Pleroma.Application.user_agent() <> "; Bot"}]
+    headers = [{"user-agent", Pleroma.Web.Endpoint.user_agent() <> "; Bot"}]
 
     head_check =
       case Pleroma.HTTP.head(url, headers, @options) do
