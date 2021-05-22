@@ -11,22 +11,14 @@ defmodule Pleroma.Application do
 
   require Logger
 
-  @name Mix.Project.config()[:name]
-  @version Mix.Project.config()[:version]
-  @repository Mix.Project.config()[:source_url]
   @mix_env Mix.env()
-
-  def name, do: @name
-  def version, do: @version
-  def named_version, do: @name <> " " <> @version
-  def repository, do: @repository
 
   def user_agent do
     if Process.whereis(Pleroma.Web.Endpoint) do
       case Config.get([:http, :user_agent], :default) do
         :default ->
           info = "#{Pleroma.Web.Endpoint.url()} <#{Config.get([:instance, :email], "")}>"
-          named_version() <> "; " <> info
+          Pleroma.Project.named_version() <> "; " <> info
 
         custom ->
           custom

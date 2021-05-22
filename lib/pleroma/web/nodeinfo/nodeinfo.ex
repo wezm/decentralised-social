@@ -24,8 +24,8 @@ defmodule Pleroma.Web.Nodeinfo.Nodeinfo do
     %{
       version: "2.0",
       software: %{
-        name: Pleroma.Application.name() |> String.downcase(),
-        version: Pleroma.Application.version()
+        name: Pleroma.Project.name() |> String.downcase(),
+        version: Pleroma.Project.version()
       },
       protocols: Publisher.gather_nodeinfo_protocol_names(),
       services: %{
@@ -78,7 +78,7 @@ defmodule Pleroma.Web.Nodeinfo.Nodeinfo do
     updated_software =
       raw_response
       |> Map.get(:software)
-      |> Map.put(:repository, Pleroma.Application.repository())
+      |> Map.put(:repository, Pleroma.Project.repository())
 
     raw_response
     |> Map.put(:software, updated_software)
