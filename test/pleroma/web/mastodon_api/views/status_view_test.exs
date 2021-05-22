@@ -492,7 +492,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
 
   test "put the url advertised in the Activity in to the url attribute" do
     id = "https://wedistribute.org/wp-json/pterotype/v1/object/85810"
-    [activity] = Activity.search(nil, id)
+    [activity] = Activity.Search.search(nil, id)
 
     status = StatusView.render("show.json", %{activity: activity})
 

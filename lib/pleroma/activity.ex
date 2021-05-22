@@ -351,8 +351,6 @@ defmodule Pleroma.Activity do
     Activity.Queries.exclude_authors(query, deactivated_users)
   end
 
-  defdelegate search(user, query, options \\ []), to: Pleroma.Activity.Search
-
   def direct_conversation_id(activity, for_user) do
     alias Pleroma.Conversation.Participation
 

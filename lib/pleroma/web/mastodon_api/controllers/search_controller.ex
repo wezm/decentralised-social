@@ -98,7 +98,7 @@ defmodule Pleroma.Web.MastodonAPI.SearchController do
   end
 
   defp resource_search(_, "statuses", query, options) do
-    statuses = with_fallback(fn -> Activity.search(options[:for_user], query, options) end)
+    statuses = with_fallback(fn -> Activity.Search.search(options[:for_user], query, options) end)
 
     StatusView.render("index.json",
       activities: statuses,

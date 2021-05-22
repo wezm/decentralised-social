@@ -147,7 +147,7 @@ defmodule Pleroma.ActivityTest do
       japanese_activity: japanese_activity,
       user: user
     } do
-      activities = Activity.search(user, "更新情報")
+      activities = Activity.Search.search(user, "更新情報")
 
       assert [^japanese_activity] = activities
     end
@@ -157,19 +157,19 @@ defmodule Pleroma.ActivityTest do
       remote_activity: remote_activity,
       user: user
     } do
-      activities = Enum.sort_by(Activity.search(user, "find me"), & &1.id)
+      activities = Enum.sort_by(Activity.Search.search(user, "find me"), & &1.id)
 
       assert [^local_activity, ^remote_activity] = activities
     end
 
     test "find only local statuses for unauthenticated users", %{local_activity: local_activity} do
-      assert [^local_activity] = Activity.search(nil, "find me")
+      assert [^local_activity] = Activity.Search.search(nil, "find me")
     end
 
     test "find only local statuses for unauthenticated users  when `limit_to_local_content` is `:all`",
          %{local_activity: local_activity} do
       clear_config([:instance, :limit_to_local_content], :all)
-      assert [^local_activity] = Activity.search(nil, "find me")
+      assert [^local_activity] = Activity.Search.search(nil, "find me")
     end
 
     test "find all statuses for unauthenticated users when `limit_to_local_content` is `false`",
@@ -179,7 +179,7 @@ defmodule Pleroma.ActivityTest do
          } do
       clear_config([:instance, :limit_to_local_content], false)
 
-      activities = Enum.sort_by(Activity.search(nil, "find me"), & &1.id)
+      activities = Enum.sort_by(Activity.Search.search(nil, "find me"), & &1.id)
 
       assert [^local_activity, ^remote_activity] = activities
     end
