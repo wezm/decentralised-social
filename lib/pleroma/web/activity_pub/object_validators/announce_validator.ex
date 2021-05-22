@@ -24,7 +24,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidator do
     field(:type, :string)
     field(:object, ObjectValidators.ObjectID)
     field(:actor, ObjectValidators.ObjectID)
-    field(:context, :string, autogenerate: {IDs, :generate_context_id, []})
+    field(:context, :string)
     field(:to, ObjectValidators.Recipients, default: [])
     field(:cc, ObjectValidators.Recipients, default: [])
     field(:published, ObjectValidators.DateTime)
@@ -69,11 +69,10 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidator do
          false <- Visibility.is_public?(object) do
       same_actor = object.data["actor"] == actor.ap_id
       recipients = get_field(cng, :to) ++ get_field(cng, :cc)
-      local_public = IDs.as_local_public()
 
       is_public =
         Enum.member?(recipients, Pleroma.Constants.as_public()) or
-          Enum.member?(recipients, local_public)
+          Enum.member?(recipients, IDs.as_local_public())
 
       cond do
         same_actor && is_public ->
