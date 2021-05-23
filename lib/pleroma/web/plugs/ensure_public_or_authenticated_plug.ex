@@ -12,7 +12,6 @@ defmodule Pleroma.Web.Plugs.EnsurePublicOrAuthenticatedPlug do
   import Plug.Conn
 
   alias Pleroma.Config
-  alias Pleroma.User
 
   use Pleroma.Web, :plug
 
@@ -28,7 +27,7 @@ defmodule Pleroma.Web.Plugs.EnsurePublicOrAuthenticatedPlug do
       {true, _} ->
         conn
 
-      {false, %{assigns: %{user: %User{}}}} ->
+      {false, %{assigns: %{user: user}}} when is_struct(user) ->
         conn
 
       {false, _} ->
