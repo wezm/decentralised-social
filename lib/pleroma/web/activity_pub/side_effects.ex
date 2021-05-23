@@ -36,7 +36,7 @@ defmodule Pleroma.Web.ActivityPub.SideEffects do
   # Elixir 1.9 compiler complains unless we do it like this
   defp fallback(a, b), do: a || b
 
-  defp ap_streamer(), do: fallback(@ap_streamer, ActivityPub)
+  defp ap_streamer, do: fallback(@ap_streamer, ActivityPub)
 
   @impl true
   def handle(object, meta \\ [])

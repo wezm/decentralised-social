@@ -403,7 +403,8 @@ defmodule Pleroma.Web.AdminAPI.UserControllerTest do
     end
 
     test "pagination works correctly with service users", %{conn: conn} do
-      service1 = User.get_or_create_service_actor_by_ap_id(Web.Endpoint.url() <> "/meido", "meido")
+      service1 =
+        User.get_or_create_service_actor_by_ap_id(Web.Endpoint.url() <> "/meido", "meido")
 
       insert_list(25, :user)
 

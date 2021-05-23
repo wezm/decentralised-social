@@ -6,7 +6,7 @@ defmodule Pleroma.Gun.ConnectionPool.Worker do
   alias Pleroma.Gun
   use GenServer, restart: :temporary
 
-  defp registry(), do: Pleroma.Gun.ConnectionPool
+  defp registry, do: Pleroma.Gun.ConnectionPool
 
   def start_link([key | _] = opts) do
     GenServer.start_link(__MODULE__, opts, name: {:via, Registry, {registry(), key}})

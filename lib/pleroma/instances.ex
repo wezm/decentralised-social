@@ -5,7 +5,7 @@
 defmodule Pleroma.Instances do
   @moduledoc "Instances context."
 
-  defp adapter(), do: Pleroma.Instances.Instance
+  defp adapter, do: Pleroma.Instances.Instance
 
   def filter_reachable(urls_or_hosts), do: adapter().filter_reachable(urls_or_hosts)
   def reachable?(url_or_host), do: adapter().reachable(url_or_host)
@@ -14,7 +14,7 @@ defmodule Pleroma.Instances do
   def set_unreachable(url_or_host, unreachable_since \\ nil),
     do: adapter().set_unreachable(url_or_host, unreachable_since)
 
-  def get_consistently_unreachable(), do: adapter().get_consistently_unreachable()
+  def get_consistently_unreachable, do: adapter().get_consistently_unreachable()
 
   def set_consistently_unreachable(url_or_host),
     do: set_unreachable(url_or_host, reachability_datetime_threshold())

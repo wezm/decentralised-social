@@ -5,8 +5,8 @@
 defmodule Pleroma.Web.ActivityPub.ObjectValidators.ArticleNoteValidatorTest do
   use Pleroma.DataCase, async: true
 
-  alias Pleroma.Web.ActivityPub.ObjectValidators.ArticleNoteValidator
   alias Pleroma.Web.ActivityPub.IDs
+  alias Pleroma.Web.ActivityPub.ObjectValidators.ArticleNoteValidator
 
   import Pleroma.Factory
 

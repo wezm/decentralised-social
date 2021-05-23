@@ -5,7 +5,7 @@
 defmodule Pleroma.Gun.ConnectionPool.Reclaimer do
   use GenServer, restart: :temporary
 
-  defp registry(), do: Pleroma.Gun.ConnectionPool
+  defp registry, do: Pleroma.Gun.ConnectionPool
 
   def start_monitor do
     pid =

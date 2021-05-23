@@ -21,12 +21,12 @@ defmodule Pleroma.Web.ActivityPub.Pipeline do
   # Elixir 1.9 compiler complains unless we do it like this
   defp fallback(a, b), do: a || b
 
-  defp side_effects(), do: fallback(@side_effects, ActivityPub.SideEffects)
-  defp federator(), do: fallback(@federator, Federator)
-  defp object_validator(), do: fallback(@object_validator, ActivityPub.ObjectValidator)
-  defp mrf(), do: fallback(@mrf, ActivityPub.MRF)
-  defp activity_pub(), do: fallback(@activity_pub, ActivityPub.ActivityPub)
-  defp config(), do: fallback(@config, Pleroma.Config)
+  defp side_effects, do: fallback(@side_effects, ActivityPub.SideEffects)
+  defp federator, do: fallback(@federator, Federator)
+  defp object_validator, do: fallback(@object_validator, ActivityPub.ObjectValidator)
+  defp mrf, do: fallback(@mrf, ActivityPub.MRF)
+  defp activity_pub, do: fallback(@activity_pub, ActivityPub.ActivityPub)
+  defp config, do: fallback(@config, Pleroma.Config)
 
   @spec common_pipeline(map(), keyword()) ::
           {:ok, Activity.t() | Object.t(), keyword()} | {:error, any()}
