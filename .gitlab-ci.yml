@@ -123,6 +123,15 @@ analysis:
     - mix deps.get
     - mix credo --strict --only=warnings,todo,fixme,consistency,readability
 
+cycles:
+  stage: test
+  cache: *testing_cache_policy
+  script:
+    - mix deps.get
+    - mix xref graph --format cycles --label compile > /tmp/cycles.log
+    - cat /tmp/cycles.log
+    - tail -n1 /tmp/cycles.log | grep -q "No cycles found"
+
 docs-deploy:
   stage: deploy
   cache: *testing_cache_policy
