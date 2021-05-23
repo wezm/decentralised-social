@@ -32,7 +32,7 @@ defmodule Pleroma.ReverseProxy.Client do
     |> client()
   end
 
-  defp client(Tesla.Adapter.Hackney), do: Pleroma.ReverseProxy.Client.Hackney
-  defp client(Tesla.Adapter.Gun), do: Pleroma.ReverseProxy.Client.Tesla
+  defp client(Tesla.Adapter.Hackney), do: Module.concat(["Pleroma.ReverseProxy.Client.Hackney"])
+  defp client(Tesla.Adapter.Gun), do: Module.concat(["Pleroma.ReverseProxy.Client.Tesla"])
   defp client(_), do: Pleroma.Config.get!(Pleroma.ReverseProxy.Client)
 end
