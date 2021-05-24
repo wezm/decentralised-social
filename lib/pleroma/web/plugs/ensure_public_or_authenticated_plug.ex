@@ -15,6 +15,8 @@ defmodule Pleroma.Web.Plugs.EnsurePublicOrAuthenticatedPlug do
 
   use Pleroma.Web, :plug
 
+  @user Module.concat(["Pleroma.User"])
+
   def init(options) do
     options
   end
@@ -27,7 +29,8 @@ defmodule Pleroma.Web.Plugs.EnsurePublicOrAuthenticatedPlug do
       {true, _} ->
         conn
 
-      {false, %{assigns: %{user: user}}} when is_struct(user) ->
+      # This weird match of %User{} prevents compile-time cycles
+      {false, %{assigns: %{user: %{__struct__: @user}}}} ->
         conn
 
       {false, _} ->
