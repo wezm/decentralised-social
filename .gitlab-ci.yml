@@ -126,8 +126,10 @@ analysis:
 cycles:
   stage: test
   cache: *testing_cache_policy
+  image: elixir:1.11
   script:
     - mix deps.get
+    - mix compile
     - mix xref graph --format cycles --label compile > /tmp/cycles.log
     - cat /tmp/cycles.log
     - tail -n1 /tmp/cycles.log | grep -q "No cycles found"
