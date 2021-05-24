@@ -401,9 +401,9 @@ defmodule Pleroma.UserTest do
         remote_user.nickname
       ])
 
-      cng = User.Registration.register_changeset(%User{}, @full_user_data)
+      cng = User.register_changeset(%User{}, @full_user_data)
 
-      {:ok, registered_user} = User.Registration.register(cng)
+      {:ok, registered_user} = User.register(cng)
 
       assert User.following?(registered_user, user)
       refute User.following?(registered_user, remote_user)
@@ -418,9 +418,9 @@ defmodule Pleroma.UserTest do
         user2.nickname
       ])
 
-      cng = User.Registration.register_changeset(%User{}, @full_user_data)
+      cng = User.register_changeset(%User{}, @full_user_data)
 
-      {:ok, registered_user} = User.Registration.register(cng)
+      {:ok, registered_user} = User.register(cng)
 
       assert User.following?(user1, registered_user)
       assert User.following?(user2, registered_user)
@@ -432,8 +432,8 @@ defmodule Pleroma.UserTest do
       clear_config([:welcome, :direct_message, :sender_nickname], welcome_user.nickname)
       clear_config([:welcome, :direct_message, :message], "Hello, this is a direct message")
 
-      cng = User.Registration.register_changeset(%User{}, @full_user_data)
-      {:ok, registered_user} = User.Registration.register(cng)
+      cng = User.register_changeset(%User{}, @full_user_data)
+      {:ok, registered_user} = User.register(cng)
       ObanHelpers.perform_all()
 
       activity = Repo.one(Pleroma.Activity)
@@ -448,8 +448,8 @@ defmodule Pleroma.UserTest do
       clear_config([:welcome, :chat_message, :sender_nickname], welcome_user.nickname)
       clear_config([:welcome, :chat_message, :message], "Hello, this is a chat message")
 
-      cng = User.Registration.register_changeset(%User{}, @full_user_data)
-      {:ok, registered_user} = User.Registration.register(cng)
+      cng = User.register_changeset(%User{}, @full_user_data)
+      {:ok, registered_user} = User.register(cng)
       ObanHelpers.perform_all()
 
       activity = Repo.one(Pleroma.Activity)
@@ -487,8 +487,8 @@ defmodule Pleroma.UserTest do
       clear_config([:welcome, :chat_message, :sender_nickname], welcome_user.nickname)
       clear_config([:welcome, :chat_message, :message], "Hello, this is a chat message")
 
-      cng = User.Registration.register_changeset(%User{}, @full_user_data)
-      {:ok, registered_user} = User.Registration.register(cng)
+      cng = User.register_changeset(%User{}, @full_user_data)
+      {:ok, registered_user} = User.register(cng)
       ObanHelpers.perform_all()
 
       activity = Repo.one(Pleroma.Activity)
@@ -509,8 +509,8 @@ defmodule Pleroma.UserTest do
 
       instance_name = Pleroma.Config.get([:instance, :name])
 
-      cng = User.Registration.register_changeset(%User{}, @full_user_data)
-      {:ok, registered_user} = User.Registration.register(cng)
+      cng = User.register_changeset(%User{}, @full_user_data)
+      {:ok, registered_user} = User.register(cng)
       ObanHelpers.perform_all()
 
       assert_email_sent(
@@ -524,8 +524,8 @@ defmodule Pleroma.UserTest do
     test "it sends a confirm email" do
       clear_config([:instance, :account_activation_required], true)
 
-      cng = User.Registration.register_changeset(%User{}, @full_user_data)
-      {:ok, registered_user} = User.Registration.register(cng)
+      cng = User.register_changeset(%User{}, @full_user_data)
+      {:ok, registered_user} = User.register(cng)
       ObanHelpers.perform_all()
 
       Pleroma.Emails.UserEmail.account_confirmation_email(registered_user)
@@ -539,8 +539,8 @@ defmodule Pleroma.UserTest do
       clear_config([:instance, :account_approval_required], true)
 
       {:ok, user} =
-        User.Registration.register_changeset(%User{}, @full_user_data)
-        |> User.Registration.register()
+        User.register_changeset(%User{}, @full_user_data)
+        |> User.register()
 
       ObanHelpers.perform_all()
 
@@ -557,8 +557,8 @@ defmodule Pleroma.UserTest do
       clear_config([:instance, :account_approval_required], false)
 
       {:ok, user} =
-        User.Registration.register_changeset(%User{}, @full_user_data)
-        |> User.Registration.register()
+        User.register_changeset(%User{}, @full_user_data)
+        |> User.register()
 
       ObanHelpers.perform_all()
 
@@ -579,7 +579,7 @@ defmodule Pleroma.UserTest do
       |> Map.keys()
       |> Enum.each(fn key ->
         params = Map.delete(@full_user_data, key)
-        changeset = User.Registration.register_changeset(%User{}, params)
+        changeset = User.register_changeset(%User{}, params)
 
         assert if key == :bio, do: changeset.valid?, else: not changeset.valid?
       end)
@@ -592,7 +592,7 @@ defmodule Pleroma.UserTest do
       |> Map.keys()
       |> Enum.each(fn key ->
         params = Map.delete(@full_user_data, key)
-        changeset = User.Registration.register_changeset(%User{}, params)
+        changeset = User.register_changeset(%User{}, params)
 
         assert if key in [:bio, :email], do: changeset.valid?, else: not changeset.valid?
       end)
@@ -607,7 +607,7 @@ defmodule Pleroma.UserTest do
         @full_user_data
         |> Map.put(:nickname, restricted_name)
 
-      changeset = User.Registration.register_changeset(%User{}, params)
+      changeset = User.register_changeset(%User{}, params)
 
       refute changeset.valid?
     end
@@ -617,26 +617,26 @@ defmodule Pleroma.UserTest do
 
       # Block with match
       params = Map.put(@full_user_data, :email, "troll@trolling.world")
-      changeset = User.Registration.register_changeset(%User{}, params)
+      changeset = User.register_changeset(%User{}, params)
       refute changeset.valid?
 
       # Block with subdomain match
       params = Map.put(@full_user_data, :email, "troll@gnomes.trolling.world")
-      changeset = User.Registration.register_changeset(%User{}, params)
+      changeset = User.register_changeset(%User{}, params)
       refute changeset.valid?
 
       # Pass with different domains that are similar
       params = Map.put(@full_user_data, :email, "troll@gnomestrolling.world")
-      changeset = User.Registration.register_changeset(%User{}, params)
+      changeset = User.register_changeset(%User{}, params)
       assert changeset.valid?
 
       params = Map.put(@full_user_data, :email, "troll@trolling.world.us")
-      changeset = User.Registration.register_changeset(%User{}, params)
+      changeset = User.register_changeset(%User{}, params)
       assert changeset.valid?
     end
 
     test "it sets the password_hash and ap_id" do
-      changeset = User.Registration.register_changeset(%User{}, @full_user_data)
+      changeset = User.register_changeset(%User{}, @full_user_data)
 
       assert changeset.valid?
 
@@ -647,7 +647,7 @@ defmodule Pleroma.UserTest do
     end
 
     test "it sets the 'accepts_chat_messages' set to true" do
-      changeset = User.Registration.register_changeset(%User{}, @full_user_data)
+      changeset = User.register_changeset(%User{}, @full_user_data)
       assert changeset.valid?
 
       {:ok, user} = Repo.insert(changeset)
@@ -656,7 +656,7 @@ defmodule Pleroma.UserTest do
     end
 
     test "it creates a confirmed user" do
-      changeset = User.Registration.register_changeset(%User{}, @full_user_data)
+      changeset = User.register_changeset(%User{}, @full_user_data)
       assert changeset.valid?
 
       {:ok, user} = Repo.insert(changeset)
@@ -677,7 +677,7 @@ defmodule Pleroma.UserTest do
     setup do: clear_config([:instance, :account_activation_required], true)
 
     test "it creates unconfirmed user" do
-      changeset = User.Registration.register_changeset(%User{}, @full_user_data)
+      changeset = User.register_changeset(%User{}, @full_user_data)
       assert changeset.valid?
 
       {:ok, user} = Repo.insert(changeset)
@@ -687,7 +687,7 @@ defmodule Pleroma.UserTest do
     end
 
     test "it creates confirmed user if :confirmed option is given" do
-      changeset = User.Registration.register_changeset(%User{}, @full_user_data, confirmed: true)
+      changeset = User.register_changeset(%User{}, @full_user_data, confirmed: true)
       assert changeset.valid?
 
       {:ok, user} = Repo.insert(changeset)
@@ -710,7 +710,7 @@ defmodule Pleroma.UserTest do
     setup do: clear_config([:instance, :account_approval_required], true)
 
     test "it creates unapproved user" do
-      changeset = User.Registration.register_changeset(%User{}, @full_user_data)
+      changeset = User.register_changeset(%User{}, @full_user_data)
       assert changeset.valid?
 
       {:ok, user} = Repo.insert(changeset)
@@ -731,7 +731,7 @@ defmodule Pleroma.UserTest do
           "Quia et nesciunt dolores numquam ipsam nisi sapiente soluta. Ullam repudiandae nisi quam porro officiis officiis ad. Consequatur animi velit ex quia. Odit voluptatem perferendis quia ut nisi. Dignissimos sit soluta atque aliquid dolorem ut dolorum ut. Labore voluptates iste iusto amet voluptatum earum. Ad fugit illum nam eos ut nemo. Pariatur ea fuga non aspernatur. Dignissimos debitis officia corporis est nisi ab et. Atque itaque alias eius voluptas minus. Accusamus numquam tempore occaecati in."
         )
 
-      changeset = User.Registration.register_changeset(%User{}, params)
+      changeset = User.register_changeset(%User{}, params)
 
       refute changeset.valid?
     end

@@ -31,7 +31,7 @@ defmodule Pleroma.Web.TwitterAPI.Controller do
   def confirm_email(conn, %{"user_id" => uid, "token" => token}) do
     with %User{} = user <- User.get_cached_by_id(uid),
          true <- user.local and !user.is_confirmed and user.confirmation_token == token,
-         {:ok, _} <- User.Registration.confirm(user) do
+         {:ok, _} <- User.confirm(user) do
       redirect(conn, to: "/")
     end
   end

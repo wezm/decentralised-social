@@ -4,7 +4,6 @@
 
 defmodule Pleroma.Web.Auth.LDAPAuthenticator do
   alias Pleroma.User
-  alias Pleroma.User.Registration
 
   require Logger
 
@@ -117,9 +116,9 @@ defmodule Pleroma.Web.Auth.LDAPAuthenticator do
             _ -> params
           end
 
-        changeset = Registration.register_changeset_ldap(%User{}, params)
+        changeset = User.register_changeset_ldap(%User{}, params)
 
-        case Registration.register(changeset) do
+        case User.register(changeset) do
           {:ok, user} -> user
           error -> error
         end

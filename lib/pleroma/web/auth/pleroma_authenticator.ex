@@ -73,7 +73,7 @@ defmodule Pleroma.Web.Auth.PleromaAuthenticator do
     random_password = :crypto.strong_rand_bytes(64) |> Base.encode64()
 
     with {:ok, new_user} <-
-           User.Registration.register_changeset(
+           User.register_changeset(
              %User{},
              %{
                email: email,
