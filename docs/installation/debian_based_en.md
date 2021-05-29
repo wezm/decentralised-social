@@ -38,22 +38,6 @@ sudo apt full-upgrade
 sudo apt install git build-essential postgresql postgresql-contrib cmake libmagic-dev
 ```
 
-### Install Elixir and Erlang
-
-* Download and add the Erlang repository:
-
-```shell
-wget -P /tmp/ https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb
-sudo dpkg -i /tmp/erlang-solutions_2.0_all.deb
-```
-
-* Install Elixir and Erlang:
-
-```shell
-sudo apt update
-sudo apt install elixir erlang-dev erlang-nox
-```
-
 ### Optional packages: [`docs/installation/optional/media_graphics_packages.md`](../installation/optional/media_graphics_packages.md)
 
 ```shell
@@ -83,6 +67,39 @@ sudo -Hu pleroma git clone -b stable https://git.pleroma.social/pleroma/pleroma 
 ```shell
 cd /opt/pleroma
 ```
+
+#### Install Elixir and Erlang
+
+* Become the Pleroma user:
+
+```shell
+sudo -Hu pleroma bash
+```
+
+* Install [asdf](https://asdf-vm.com/):
+
+```shell
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.0
+echo ". $HOME/.asdf/asdf.sh" >> ~/.bashrc
+echo ". $HOME/.asdf/completions/asdf.bash" >> ~/.bashrc
+exec bash
+asdf plugin-add erlang
+asdf plugin-add elixir
+```
+
+* Install Elixir and Erlang:
+
+```shell
+asdf install
+```
+
+* Return to the root user:
+
+```shell
+exit
+```
+
+#### Install Pleroma dependencies
 
 * Install the dependencies for Pleroma and answer with `yes` if it asks you to install `Hex`:
 
