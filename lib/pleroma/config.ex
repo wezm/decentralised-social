@@ -100,6 +100,10 @@ defmodule Pleroma.Config do
 
   def oauth_consumer_enabled?, do: oauth_consumer_strategies() != []
 
+  def feature_enabled?(feature_name) do
+    get([:features, feature_name]) not in [nil, false, :disabled, :auto]
+  end
+
   def uri do
     key = Module.concat(["Pleroma.Web.Endpoint"])
     url = get([key, :url]) |> Map.new()

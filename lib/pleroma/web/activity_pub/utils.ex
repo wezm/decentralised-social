@@ -37,6 +37,8 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   @supported_report_states ~w(open closed resolved)
   @valid_visibilities ~w(public unlisted private direct)
 
+  def as_local_public, do: Endpoint.url() <> "/#Public"
+
   # Some implementations send the actor URI as the actor field, others send the entire actor object,
   # so figure out what the actor's URI is based on what we have.
   def get_ap_id(%{"id" => id} = _), do: id
@@ -95,8 +97,11 @@ defmodule Pleroma.Web.ActivityPub.Utils do
         !label_in_collection?(ap_id, params["cc"])
 
     if need_splice? do
-      cc_list = extract_list(params["cc"])
-      Map.put(params, "cc", [ap_id | cc_list])
+      cc = [ap_id | extract_list(params["cc"])]
+
+      params
+      |> Map.put("cc", cc)
+      |> Maps.safe_put_in(["object", "cc"], cc)
     else
       params
     end
