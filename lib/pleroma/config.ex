@@ -99,4 +99,14 @@ defmodule Pleroma.Config do
   def oauth_consumer_strategies, do: get([:auth, :oauth_consumer_strategies], [])
 
   def oauth_consumer_enabled?, do: oauth_consumer_strategies() != []
+
+  def uri do
+    key = Module.concat(["Pleroma.Web.Endpoint"])
+    url = get([key, :url]) |> Map.new()
+    struct(URI, url)
+  end
+
+  def url, do: URI.to_string(uri())
+
+  def host, do: uri().host
 end

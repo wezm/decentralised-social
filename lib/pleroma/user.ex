@@ -33,7 +33,6 @@ defmodule Pleroma.User do
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.CommonAPI.Utils, as: CommonUtils
-  alias Pleroma.Web.Endpoint
   alias Pleroma.Web.OAuth
   alias Pleroma.Web.RelMe
   alias Pleroma.Workers.BackgroundWorker
@@ -359,7 +358,7 @@ defmodule Pleroma.User do
 
       _ ->
         unless options[:no_default] do
-          Config.get([:assets, :default_user_avatar], "#{Endpoint.url()}/images/avi.png")
+          Config.get([:assets, :default_user_avatar], "#{Config.url()}/images/avi.png")
         end
     end
   end
@@ -367,12 +366,12 @@ defmodule Pleroma.User do
   def banner_url(user, options \\ []) do
     case user.banner do
       %{"url" => [%{"href" => href} | _]} -> href
-      _ -> !options[:no_default] && "#{Endpoint.url()}/images/banner.png"
+      _ -> !options[:no_default] && "#{Config.url()}/images/banner.png"
     end
   end
 
   # Should probably be renamed or removed
-  def ap_id(%User{nickname: nickname}), do: "#{Endpoint.url()}/users/#{nickname}"
+  def ap_id(%User{nickname: nickname}), do: "#{Config.url()}/users/#{nickname}"
 
   def ap_followers(%User{follower_address: fa}) when is_binary(fa), do: fa
   def ap_followers(%User{} = user), do: "#{ap_id(user)}/followers"
@@ -1162,7 +1161,7 @@ defmodule Pleroma.User do
   @spec get_by_nickname(String.t()) :: User.t() | nil
   def get_by_nickname(nickname) do
     Repo.get_by(User, nickname: nickname) ||
-      if Regex.match?(~r(@#{Pleroma.Web.Endpoint.host()})i, nickname) do
+      if Regex.match?(~r(@#{Config.host()})i, nickname) do
         Repo.get_by(User, nickname: local_nickname(nickname))
       end
   end

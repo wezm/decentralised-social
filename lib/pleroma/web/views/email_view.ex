@@ -18,6 +18,6 @@ defmodule Pleroma.Web.EmailView do
   end
 
   def admin_user_url(%{id: id}) do
-    Pleroma.Web.Endpoint.url() <> "/pleroma/admin/#/users/" <> id
+    Pleroma.Config.url() <> "/pleroma/admin/#/users/" <> id
   end
 end
