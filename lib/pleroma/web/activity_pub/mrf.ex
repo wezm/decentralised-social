@@ -161,9 +161,7 @@ defmodule Pleroma.Web.ActivityPub.MRF do
           [description | acc]
         else
           Logger.warn(
-            "#{policy} config description doesn't have one or all required keys #{
-              inspect(@required_description_keys)
-            }"
+            "#{policy} config description doesn't have one or all required keys #{inspect(@required_description_keys)}"
           )
 
           acc
