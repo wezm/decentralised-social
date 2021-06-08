@@ -23,7 +23,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidator do
     field(:type, :string)
     field(:object, ObjectValidators.ObjectID)
     field(:actor, ObjectValidators.ObjectID)
-    field(:context, :string, autogenerate: {Utils, :generate_context_id, []})
+    field(:context, ObjectValidators.ContextID, autogenerate: true)
     field(:to, ObjectValidators.Recipients, default: [])
     field(:cc, ObjectValidators.Recipients, default: [])
     field(:published, ObjectValidators.DateTime)

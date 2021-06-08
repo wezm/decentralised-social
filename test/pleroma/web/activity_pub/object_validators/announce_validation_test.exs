@@ -33,6 +33,13 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidationTest do
       assert {:ok, _object, _meta} = ObjectValidator.validate(valid_announce, [])
     end
 
+    test "autogenerates a context ID", %{valid_announce: valid_announce} do
+      {:ok, %{"context" => context}, _} = ObjectValidator.validate(valid_announce, [])
+
+      assert String.starts_with?(context, "http://localhost:4001/contexts/")
+      assert String.length(context) == 67
+    end
+
     test "returns an error if the object can't be found", %{valid_announce: valid_announce} do
       without_object =
         valid_announce
