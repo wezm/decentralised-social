@@ -12,7 +12,6 @@ defmodule Pleroma.Web.Plugs.EnsurePublicOrAuthenticatedPlug do
   import Plug.Conn
 
   alias Pleroma.Config
-  alias Pleroma.User
 
   use Pleroma.Web, :plug
 
@@ -28,7 +27,9 @@ defmodule Pleroma.Web.Plugs.EnsurePublicOrAuthenticatedPlug do
       {true, _} ->
         conn
 
-      {false, %{assigns: %{user: %User{}}}} ->
+      # Avoid %User{} intentionally to reduce compile cycles.
+      # TODO: Use `is_struct/1` in Elixir 1.11
+      {false, %{assigns: %{user: %{__struct__: _}}}} ->
         conn
 
       {false, _} ->
