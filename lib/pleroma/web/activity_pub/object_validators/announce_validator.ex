@@ -5,11 +5,13 @@
 defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidator do
   use Ecto.Schema
 
+  alias Ecto.UUID
   alias Pleroma.EctoType.ActivityPub.ObjectValidators
   alias Pleroma.Object
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.ActivityPub.Visibility
+  alias Pleroma.Web.Endpoint
 
   import Ecto.Changeset
   import Pleroma.Web.ActivityPub.ObjectValidators.CommonValidations
@@ -18,12 +20,16 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AnnounceValidator do
 
   @primary_key false
 
+  def generate_context_id do
+    "#{Endpoint.url()}/contexts/#{UUID.generate()}"
+  end
+
   embedded_schema do
     field(:id, ObjectValidators.ObjectID, primary_key: true)
     field(:type, :string)
     field(:object, ObjectValidators.ObjectID)
     field(:actor, ObjectValidators.ObjectID)
-    field(:context, :string, autogenerate: {Utils, :generate_context_id, []})
+    field(:context, :string, autogenerate: {__MODULE__, :generate_context_id, []})
     field(:to, ObjectValidators.Recipients, default: [])
     field(:cc, ObjectValidators.Recipients, default: [])
     field(:published, ObjectValidators.DateTime)
