@@ -103,4 +103,25 @@ defmodule Pleroma.Config do
   def feature_enabled?(feature_name) do
     get([:features, feature_name]) not in [nil, false, :disabled, :auto]
   end
+
+  @doc """
+  Get the URI directly from application config, bypassing the Endpoint module.
+  """
+  def uri do
+    # `Pleroma.Web.Endpoint` is only being used as a key here (for equality check),
+    # so it's okay to use `Module.concat/1` to have the compiler ignore it.
+    endpoint_key = Module.concat(["Pleroma.Web.Endpoint"])
+
+    url =
+      get([endpoint_key, :url])
+      |> Map.new()
+
+    struct(URI, url)
+  end
+
+  @doc """
+  Similar to `Pleroma.Web.Endpoint.url/0`.
+  May be used where needed to avoid a compile-time dep on Endpoint.
+  """
+  def url, do: URI.to_string(uri())
 end

@@ -6,7 +6,7 @@ defmodule Pleroma.EctoType.ActivityPub.ObjectValidators.ContextID do
   use Ecto.Type
 
   alias Ecto.UUID
-  alias Pleroma.Web.Endpoint
+  alias Pleroma.Config
 
   def type, do: :string
 
@@ -19,6 +19,6 @@ defmodule Pleroma.EctoType.ActivityPub.ObjectValidators.ContextID do
   def load(data), do: {:ok, data}
 
   def autogenerate do
-    "#{Endpoint.url()}/contexts/#{UUID.generate()}"
+    "#{Config.url()}/contexts/#{UUID.generate()}"
   end
 end

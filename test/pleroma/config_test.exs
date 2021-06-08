@@ -136,4 +136,26 @@ defmodule Pleroma.ConfigTest do
     Pleroma.Config.delete([:lorem])
     Pleroma.Config.delete([:ipsum])
   end
+
+  describe "URI functions" do
+    setup do
+      url = [host: "lain.com", scheme: "https", port: 443]
+      clear_config([Pleroma.Web.Endpoint, :url], url)
+    end
+
+    test "uri/0" do
+      expected = %URI{
+        scheme: "https",
+        host: "lain.com",
+        port: 443
+      }
+
+      assert Pleroma.Config.uri() == expected
+    end
+
+    test "url/0" do
+      expected = "https://lain.com"
+      assert Pleroma.Config.url() == expected
+    end
+  end
 end
