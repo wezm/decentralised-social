@@ -157,6 +157,11 @@ analysis:
 
 cycles:
   stage: test
+  only:
+    changes:
+      - "**/*.ex"
+      - "**/*.exs"
+      - "mix.lock"
   cache: *testing_cache_policy
   script:
     - mix deps.get
