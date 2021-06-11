@@ -6,6 +6,7 @@ defmodule Pleroma.Web.Metadata.Utils do
   alias Pleroma.Activity
   alias Pleroma.Emoji
   alias Pleroma.Formatter
+  alias Pleroma.HTML
 
   def scrub_html_and_truncate(%{data: %{"content" => content}} = object) do
     content
@@ -21,8 +22,9 @@ defmodule Pleroma.Web.Metadata.Utils do
   def scrub_html_and_truncate(content, max_length \\ 200) when is_binary(content) do
     content
     |> Emoji.Formatter.demojify()
+    |> HTML.filter_tags(Pleroma.HTML.Scrubber.BreaksOnly)
     |> HtmlEntities.decode()
-    |> String.replace(~r/<br\s?\/?>/, " ")
+    |> String.replace(~r/<br\s?\/?>/, "&#10;&#13;")
     |> Formatter.truncate(max_length)
   end
 
