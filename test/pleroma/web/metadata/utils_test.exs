@@ -23,6 +23,22 @@ defmodule Pleroma.Web.Metadata.UtilsTest do
       assert Utils.scrub_html_and_truncate(note) == "Pleroma's really cool!"
     end
 
+    test "it replaces <br> with compatible HTML entity (objects)" do
+      user = insert(:user)
+
+      note =
+        insert(:note, %{
+          data: %{
+            "actor" => user.ap_id,
+            "id" => "https://pleroma.gov/objects/whatever",
+            "content" => "First line<br>Second line"
+          }
+        })
+
+      assert Utils.scrub_html_and_truncate(note) ==
+               "First line&#10;&#13;Second line"
+    end
+
     test "it returns text without encode HTML (binaries)" do
       assert Utils.scrub_html_and_truncate("Pleroma's really cool!") == "Pleroma's really cool!"
     end
@@ -44,7 +60,8 @@ defmodule Pleroma.Web.Metadata.UtilsTest do
     end
 
     test "it strips HTML tags and other entities (binaries)" do
-      assert Utils.scrub_html_and_truncate("<title>my title</title> <p>and a paragraph&#33;</p>") == "my title and a paragraph!"
+      assert Utils.scrub_html_and_truncate("<title>my title</title> <p>and a paragraph&#33;</p>") ==
+               "my title and a paragraph!"
     end
   end
 end

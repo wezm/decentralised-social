@@ -3,19 +3,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.Metadata.Utils do
-  alias Pleroma.Activity
   alias Pleroma.Emoji
   alias Pleroma.Formatter
   alias Pleroma.HTML
 
-  def scrub_html_and_truncate(%{data: %{"content" => content}} = object) do
+  def scrub_html_and_truncate(%{data: %{"content" => content}} = _object) do
     content
     # html content comes from DB already encoded, decode first and scrub after
-    |> HtmlEntities.decode()
-    |> String.replace(~r/<br\s?\/?>/, " ")
-    |> Activity.HTML.get_cached_stripped_html_for_activity(object, "metadata")
     |> Emoji.Formatter.demojify()
+    |> HTML.filter_tags(Pleroma.HTML.Scrubber.BreaksOnly)
     |> HtmlEntities.decode()
+    |> String.replace(~r/<br\s?\/?>/, "&#10;&#13;")
     |> Formatter.truncate()
   end
 
