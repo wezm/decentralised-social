@@ -49,7 +49,6 @@ defmodule Pleroma.Web.Metadata.Utils do
     # html content comes from DB already encoded, but demojify decodes for us
     content
     |> Emoji.Formatter.demojify()
-    |> HtmlEntities.decode()
     |> String.replace(~r/<br\s?\/?>/, " ")
     |> HTML.strip_tags()
     |> HtmlEntities.decode()
