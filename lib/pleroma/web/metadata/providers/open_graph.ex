@@ -19,7 +19,7 @@ defmodule Pleroma.Web.Metadata.Providers.OpenGraph do
         user: user
       }) do
     attachments = build_attachments(object)
-    scrubbed_content = Utils.scrub_html_and_truncate(object)
+    filtered_content = Utils.filter_html_and_truncate(object)
 
     [
       {:meta,
@@ -31,7 +31,7 @@ defmodule Pleroma.Web.Metadata.Providers.OpenGraph do
       {:meta,
        [
          property: "og:description",
-         content: scrubbed_content
+         content: filtered_content
        ], []},
       {:meta, [property: "og:type", content: "article"], []}
     ] ++
@@ -49,7 +49,7 @@ defmodule Pleroma.Web.Metadata.Providers.OpenGraph do
 
   @impl Provider
   def build_tags(%{user: user}) do
-    with truncated_bio = Utils.scrub_html_and_truncate(user.bio) do
+    with truncated_bio = Utils.filter_html_and_truncate(user.bio) do
       [
         {:meta,
          [

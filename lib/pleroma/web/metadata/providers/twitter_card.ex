@@ -16,11 +16,11 @@ defmodule Pleroma.Web.Metadata.Providers.TwitterCard do
   @impl Provider
   def build_tags(%{activity_id: id, object: object, user: user}) do
     attachments = build_attachments(id, object)
-    scrubbed_content = Utils.scrub_html_and_truncate(object)
+    filtered_content = Utils.filter_html_and_truncate(object)
 
     [
       title_tag(user),
-      {:meta, [property: "twitter:description", content: scrubbed_content], []}
+      {:meta, [property: "twitter:description", content: filtered_content], []}
     ] ++
       if attachments == [] or Metadata.activity_nsfw?(object) do
         [
@@ -34,7 +34,7 @@ defmodule Pleroma.Web.Metadata.Providers.TwitterCard do
 
   @impl Provider
   def build_tags(%{user: user}) do
-    with truncated_bio = Utils.scrub_html_and_truncate(user.bio) do
+    with truncated_bio = Utils.filter_html_and_truncate(user.bio) do
       [
         title_tag(user),
         {:meta, [property: "twitter:description", content: truncated_bio], []},
