@@ -7,6 +7,7 @@ defmodule Pleroma.Web.Feed.FeedView do
   use Pleroma.Web, :view
 
   alias Pleroma.Formatter
+  alias Pleroma.HTML
   alias Pleroma.Object
   alias Pleroma.User
   alias Pleroma.Web.MediaProxy
@@ -70,7 +71,9 @@ defmodule Pleroma.Web.Feed.FeedView do
 
   def activity_title(%{"content" => content}, opts \\ %{}) do
     content
-    |> Pleroma.Web.Metadata.Utils.scrub_html()
+    |> HtmlEntities.decode()
+    |> String.replace(~r/<br\s?\/?>/, " ")
+    |> HTML.strip_tags()
     |> Pleroma.Emoji.Formatter.demojify()
     |> Formatter.truncate(opts[:max_length], opts[:omission])
     |> escape()
