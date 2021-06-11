@@ -7,8 +7,8 @@ defmodule Pleroma.Web.Metadata.UtilsTest do
   import Pleroma.Factory
   alias Pleroma.Web.Metadata.Utils
 
-  describe "scrub_html_and_truncate/1" do
-    test "it returns text without encode HTML" do
+  describe "scrub_html_and_truncate" do
+    test "it returns text without encode HTML (objects)" do
       user = insert(:user)
 
       note =
@@ -22,11 +22,13 @@ defmodule Pleroma.Web.Metadata.UtilsTest do
 
       assert Utils.scrub_html_and_truncate(note) == "Pleroma's really cool!"
     end
-  end
 
-  describe "scrub_html_and_truncate/2" do
-    test "it returns text without encode HTML" do
+    test "it returns text without encode HTML (binaries)" do
       assert Utils.scrub_html_and_truncate("Pleroma's really cool!") == "Pleroma's really cool!"
+    end
+
+    test "it truncates to specified chars (binaries)" do
+      assert Utils.scrub_html_and_truncate("Pleroma's really cool!", 10) == "Pleroma..."
     end
   end
 end
