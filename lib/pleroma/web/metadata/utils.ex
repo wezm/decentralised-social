@@ -36,8 +36,9 @@ defmodule Pleroma.Web.Metadata.Utils do
   end
 
   defp do_filter_html_and_truncate(content, max_length \\ 200) when is_binary(content) do
-    # html content comes from DB already encoded, but demojify decodes for us
+    # html content comes from DB already encoded
     content
+    |> HtmlEntities.decode()
     |> Emoji.Formatter.demojify()
     |> HTML.filter_tags(Pleroma.HTML.Scrubber.BreaksOnly)
     |> HtmlEntities.decode()
@@ -46,8 +47,9 @@ defmodule Pleroma.Web.Metadata.Utils do
   end
 
   defp do_scrub_html_and_truncate(content, max_length \\ 200) when is_binary(content) do
-    # html content comes from DB already encoded, but demojify decodes for us
+    # html content comes from DB already encoded
     content
+    |> HtmlEntities.decode()
     |> Emoji.Formatter.demojify()
     |> String.replace(~r/<br\s?\/?>/, " ")
     |> HTML.strip_tags()
