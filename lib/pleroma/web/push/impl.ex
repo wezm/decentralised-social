@@ -6,11 +6,13 @@ defmodule Pleroma.Web.Push.Impl do
   @moduledoc "The module represents implementation push web notification"
 
   alias Pleroma.Activity
+  alias Pleroma.Emoji
+  alias Pleroma.Formatter
+  alias Pleroma.HTML
   alias Pleroma.Notification
   alias Pleroma.Object
   alias Pleroma.Repo
   alias Pleroma.User
-  alias Pleroma.Web.Metadata.Utils
   alias Pleroma.Web.Push.Subscription
 
   require Logger
@@ -127,7 +129,7 @@ defmodule Pleroma.Web.Push.Impl do
   def format_body(_activity, actor, %{data: %{"type" => "ChatMessage", "content" => content}}, _) do
     case content do
       nil -> "@#{actor.nickname}: (Attachment)"
-      content -> "@#{actor.nickname}: #{Utils.scrub_html_and_truncate(content, 80)}"
+      content -> "@#{actor.nickname}: #{filter_html_and_truncate(content, 80)}"
     end
   end
 
@@ -137,7 +139,7 @@ defmodule Pleroma.Web.Push.Impl do
         %{data: %{"content" => content}},
         _mastodon_type
       ) do
-    "@#{actor.nickname}: #{Utils.scrub_html_and_truncate(content, 80)}"
+    "@#{actor.nickname}: #{filter_html_and_truncate(content, 80)}"
   end
 
   def format_body(
@@ -146,7 +148,7 @@ defmodule Pleroma.Web.Push.Impl do
         %{data: %{"content" => content}},
         _mastodon_type
       ) do
-    "@#{actor.nickname} repeated: #{Utils.scrub_html_and_truncate(content, 80)}"
+    "@#{actor.nickname} repeated: #{filter_html_and_truncate(content, 80)}"
   end
 
   def format_body(
@@ -191,5 +193,16 @@ defmodule Pleroma.Web.Push.Impl do
       "pleroma:emoji_reaction" -> "New Reaction"
       type -> "New #{String.capitalize(type || "event")}"
     end
+  end
+
+  defp filter_html_and_truncate(content, max_length) when is_binary(content) do
+    # html content comes from DB already encoded
+    content
+    |> HtmlEntities.decode()
+    |> Emoji.Formatter.demojify()
+    |> HTML.filter_tags(Pleroma.HTML.Scrubber.BreaksOnly)
+    |> HtmlEntities.decode()
+    |> String.replace(~r/<br\s?\/?>/, "\r\n")
+    |> Formatter.truncate(max_length)
   end
 end

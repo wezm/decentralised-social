@@ -359,4 +359,29 @@ defmodule Pleroma.Web.Push.ImplTest do
              }
     end
   end
+
+  test "body for create activity handles newlines" do
+    user = insert(:user, nickname: "bob")
+    _user2 = insert(:user, nickname: "alice")
+
+    {:ok, activity} =
+      CommonAPI.post(user, %{
+        status: """
+        @alice Line one
+        Line two
+        Line three
+        """
+      })
+
+    object = Object.normalize(activity, fetch: false)
+
+    assert Impl.format_body(
+             %{
+               activity: activity
+             },
+             user,
+             object
+           ) ==
+             "@bob: @alice Line one\r\nLine two\r\nLine three"
+  end
 end
