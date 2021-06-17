@@ -15,6 +15,7 @@ defmodule Pleroma.Web.CommonAPITest do
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.ActivityPub.Transmogrifier
+  alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.ActivityPub.Visibility
   alias Pleroma.Web.AdminAPI.AccountView
   alias Pleroma.Web.CommonAPI
@@ -1213,15 +1214,15 @@ defmodule Pleroma.Web.CommonAPITest do
       assert {:ok, follower} = CommonAPI.unfollow(follower, followed)
       assert User.get_follow_state(follower, followed) == nil
 
-      assert %{id: ^activity_id, data: %{"state" => "cancelled"}} =
-               Pleroma.Web.ActivityPub.Utils.fetch_latest_follow(follower, followed)
+      assert %{id: ^activity_id, data: %{"state" => "reject"}} =
+               Utils.fetch_latest_follow(follower, followed)
 
       assert %{
                data: %{
                  "type" => "Undo",
-                 "object" => %{"type" => "Follow", "state" => "cancelled"}
+                 "object" => %{"type" => "Follow", "state" => "reject"}
                }
-             } = Pleroma.Web.ActivityPub.Utils.fetch_latest_undo(follower)
+             } = Utils.fetch_latest_undo(follower)
     end
 
     test "cancels a pending follow for a remote user" do
@@ -1235,15 +1236,15 @@ defmodule Pleroma.Web.CommonAPITest do
       assert {:ok, follower} = CommonAPI.unfollow(follower, followed)
       assert User.get_follow_state(follower, followed) == nil
 
-      assert %{id: ^activity_id, data: %{"state" => "cancelled"}} =
-               Pleroma.Web.ActivityPub.Utils.fetch_latest_follow(follower, followed)
+      assert %{id: ^activity_id, data: %{"state" => "reject"}} =
+               Utils.fetch_latest_follow(follower, followed)
 
       assert %{
                data: %{
                  "type" => "Undo",
-                 "object" => %{"type" => "Follow", "state" => "cancelled"}
+                 "object" => %{"type" => "Follow", "state" => "reject"}
                }
-             } = Pleroma.Web.ActivityPub.Utils.fetch_latest_undo(follower)
+             } = Utils.fetch_latest_undo(follower)
     end
   end
 
