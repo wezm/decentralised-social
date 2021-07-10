@@ -124,7 +124,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.ObjectAgePolicy do
         },
         %{
           key: :actions,
-          type: {:list, :atom},
+          type: :multiple_select,
           description:
             "A list of actions to apply to the post. `:delist` removes the post from public timelines; " <>
               "`:strip_followers` removes followers from the ActivityPub recipient list ensuring they won't be delivered to home timelines; " <>

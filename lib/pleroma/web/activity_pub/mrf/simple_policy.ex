@@ -255,63 +255,63 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
       children: [
         %{
           key: :media_removal,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "List of instances to strip media attachments from",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :media_nsfw,
           label: "Media NSFW",
-          type: {:list, :string},
+          type: :multiple_select,
           description: "List of instances to tag all media as NSFW (sensitive) from",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :federated_timeline_removal,
-          type: {:list, :string},
+          type: :multiple_select,
           description:
             "List of instances to remove from the Federated (aka The Whole Known Network) Timeline",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :reject,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "List of instances to reject activities from (except deletes)",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :accept,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "List of instances to only accept activities from (except deletes)",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :followers_only,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "Force posts from the given instances to be visible by followers only",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :report_removal,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "List of instances to reject reports from",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :avatar_removal,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "List of instances to strip avatars from",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :banner_removal,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "List of instances to strip banners from",
           suggestions: ["example.com", "*.example.com"]
         },
         %{
           key: :reject_deletes,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "List of instances to reject deletions from",
           suggestions: ["example.com", "*.example.com"]
         }

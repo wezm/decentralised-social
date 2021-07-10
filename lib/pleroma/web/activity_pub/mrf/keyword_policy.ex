@@ -138,7 +138,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
       children: [
         %{
           key: :reject,
-          type: {:list, :string},
+          type: :multiple_select,
           description: """
             A list of patterns which result in message being rejected.
 
@@ -148,7 +148,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
         },
         %{
           key: :federated_timeline_removal,
-          type: {:list, :string},
+          type: :multiple_select,
           description: """
             A list of patterns which result in message being removed from federated timelines (a.k.a unlisted).
 
@@ -158,7 +158,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
         },
         %{
           key: :replace,
-          type: {:list, :tuple},
+          type: {:keyword, :string},
           description: """
             **Pattern**: a string or [Regex](https://hexdocs.pm/elixir/Regex.html) in the format of `~r/PATTERN/`.
 

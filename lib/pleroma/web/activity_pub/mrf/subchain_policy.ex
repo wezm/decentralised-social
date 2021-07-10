@@ -52,7 +52,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.SubchainPolicy do
       children: [
         %{
           key: :match_actor,
-          type: {:map, {:list, :string}},
+          type: {:map, :multiple_select},
           description: "Matches a series of regular expressions against the actor field",
           suggestions: [
             %{

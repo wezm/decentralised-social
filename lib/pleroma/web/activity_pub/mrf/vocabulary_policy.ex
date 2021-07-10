@@ -51,14 +51,14 @@ defmodule Pleroma.Web.ActivityPub.MRF.VocabularyPolicy do
       children: [
         %{
           key: :accept,
-          type: {:list, :string},
+          type: :multiple_select,
           description:
             "A list of ActivityStreams terms to accept. If empty, all supported messages are accepted.",
           suggestions: ["Create", "Follow", "Mention", "Announce", "Like"]
         },
         %{
           key: :reject,
-          type: {:list, :string},
+          type: :multiple_select,
           description:
             "A list of ActivityStreams terms to reject. If empty, no messages are rejected.",
           suggestions: ["Create", "Follow", "Mention", "Announce", "Like"]

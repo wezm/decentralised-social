@@ -18,7 +18,7 @@ defmodule Pleroma.Web.ActivityPub.MRF do
       children: [
         %{
           key: :policies,
-          type: [:module, {:list, :module}],
+          type: {:multiple_select, :reduced_labels},
           description:
             "A list of MRF policies enabled. Module names are shortened (removed leading `Pleroma.Web.ActivityPub.MRF.` part), but on adding custom module you need to use full name.",
           suggestions: {:list_behaviour_implementations, Pleroma.Web.ActivityPub.MRF}
@@ -33,7 +33,7 @@ defmodule Pleroma.Web.ActivityPub.MRF do
         %{
           key: :transparency_exclusions,
           label: "MRF transparency exclusions",
-          type: {:list, :string},
+          type: :multiple_select,
           description:
             "Exclude specific instance names from MRF transparency. The use of the exclusions feature will be disclosed in nodeinfo as a boolean value.",
           suggestions: [

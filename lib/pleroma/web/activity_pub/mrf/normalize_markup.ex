@@ -36,7 +36,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.NormalizeMarkup do
       children: [
         %{
           key: :scrub_policy,
-          type: :module,
+          type: :select,
           suggestions: [Pleroma.HTML.Scrubber.Default]
         }
       ]

@@ -36,7 +36,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.MentionPolicy do
       children: [
         %{
           key: :actors,
-          type: {:list, :string},
+          type: :multiple_select,
           description: "A list of actors for which any post mentioning them will be dropped",
           suggestions: ["actor1", "actor2"]
         }
