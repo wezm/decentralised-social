@@ -599,13 +599,13 @@ config :pleroma, :config_description, [
       },
       %{
         key: :registrations_open,
-        type: :boolean,
+        type: {:boolean, :confirmationRequired},
         description:
           "Enable registrations for anyone. Invitations require this setting to be disabled."
       },
       %{
         key: :invites_enabled,
-        type: :boolean,
+        type: {:boolean, :confirmationRequired},
         description:
           "Enable user invitations for admins (depends on `registrations_open` being disabled)"
       },
