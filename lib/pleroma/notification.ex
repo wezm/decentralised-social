@@ -635,7 +635,12 @@ defmodule Pleroma.Notification do
       ) do
     actor = activity.data["actor"]
     follower = User.get_cached_by_ap_id(actor)
-    !User.following?(follower, user)
+
+    cond do
+      user.ap_id == actor -> false
+      !User.following?(follower, user) -> true
+      true -> false
+    end
   end
 
   # To do: consider defining recency in hours and checking FollowingRelationship with a single SQL
