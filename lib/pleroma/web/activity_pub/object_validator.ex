@@ -143,7 +143,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidator do
 
   def validate(%{"type" => type} = object, meta)
       when type in ~w[Accept Reject Follow Update Like EmojiReact Announce
-      ChatMessage Answer] do
+      ChatMessage Answer Add Remove] do
     validator =
       case type do
         "Accept" -> AcceptRejectValidator
@@ -155,21 +155,13 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidator do
         "Announce" -> AnnounceValidator
         "ChatMessage" -> ChatMessageValidator
         "Answer" -> AnswerValidator
+        "Add" -> AddRemoveValidator
+        "Remove" -> AddRemoveValidator
       end
 
     with {:ok, object} <-
            object
            |> validator.cast_and_validate()
-           |> Ecto.Changeset.apply_action(:insert) do
-      object = stringify_keys(object)
-      {:ok, object, meta}
-    end
-  end
-
-  def validate(%{"type" => type} = object, meta) when type in ~w(Add Remove) do
-    with {:ok, object} <-
-           object
-           |> AddRemoveValidator.cast_and_validate()
            |> Ecto.Changeset.apply_action(:insert) do
       object = stringify_keys(object)
       {:ok, object, meta}
