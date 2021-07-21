@@ -50,6 +50,12 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidators.AudioVideoValidator do
 
     field(:likes, {:array, ObjectValidators.ObjectID}, default: [])
     field(:announcements, {:array, ObjectValidators.ObjectID}, default: [])
+
+    # Used by Pleroma's Listen-Audio Scrobbler
+    field(:title, :string)
+    field(:artist, :string)
+    field(:album, :string)
+    field(:length, :integer)
   end
 
   def cast_and_apply(data) do

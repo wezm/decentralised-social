@@ -31,6 +31,7 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidator do
   alias Pleroma.Web.ActivityPub.ObjectValidators.EventValidator
   alias Pleroma.Web.ActivityPub.ObjectValidators.FollowValidator
   alias Pleroma.Web.ActivityPub.ObjectValidators.LikeValidator
+  alias Pleroma.Web.ActivityPub.ObjectValidators.ListenValidator
   alias Pleroma.Web.ActivityPub.ObjectValidators.QuestionValidator
   alias Pleroma.Web.ActivityPub.ObjectValidators.UndoValidator
   alias Pleroma.Web.ActivityPub.ObjectValidators.UpdateValidator
@@ -95,6 +96,21 @@ defmodule Pleroma.Web.ActivityPub.ObjectValidator do
            |> Ecto.Changeset.apply_action(:insert) do
       create_activity = stringify_keys(create_activity)
       {:ok, create_activity, meta}
+    end
+  end
+
+  def validate(
+        %{"type" => "Listen", "object" => %{"type" => "Audio"} = object} = activity,
+        meta
+      ) do
+    with {:ok, object_data} <- cast_and_apply(object),
+         meta = Keyword.put(meta, :object_data, object_data |> stringify_keys),
+         {:ok, activity} <-
+           activity
+           |> ListenValidator.cast_and_validate(meta)
+           |> Ecto.Changeset.apply_action(:insert) do
+      activity = stringify_keys(activity)
+      {:ok, activity, meta}
     end
   end
 

@@ -20,6 +20,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
   alias Pleroma.Repo
   alias Pleroma.Upload
   alias Pleroma.User
+  alias Pleroma.Web.ActivityPub.Builder
   alias Pleroma.Web.ActivityPub.MRF
   alias Pleroma.Web.ActivityPub.Transmogrifier
   alias Pleroma.Web.Streamer
@@ -310,7 +311,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     published = params[:published]
 
     listen_data =
-      make_listen_data(
+      Builder.listen(
         %{to: to, actor: actor, published: published, context: context, object: object},
         additional
       )
