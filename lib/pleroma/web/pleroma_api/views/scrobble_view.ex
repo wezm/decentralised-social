@@ -9,25 +9,35 @@ defmodule Pleroma.Web.PleromaAPI.ScrobbleView do
 
   alias Pleroma.Activity
   alias Pleroma.HTML
-  alias Pleroma.Object
   alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.CommonAPI.Utils
   alias Pleroma.Web.MastodonAPI.AccountView
 
-  def render("show.json", %{activity: %Activity{data: %{"type" => "Listen"}} = activity} = opts) do
-    object = Object.normalize(activity, fetch: false)
-
-    user = CommonAPI.get_user(activity.data["actor"])
-    created_at = Utils.to_masto_date(activity.data["published"])
+  def render(
+        "show.json",
+        %{
+          activity: %Activity{
+            id: id,
+            data: %{
+              "type" => "Listen",
+              "actor" => actor,
+              "published" => published,
+              "object" => object
+            }
+          }
+        } = opts
+      ) do
+    user = CommonAPI.get_user(actor)
+    created_at = Utils.to_masto_date(published)
 
     %{
-      id: activity.id,
+      id: id,
       account: AccountView.render("show.json", %{user: user, for: opts[:for]}),
       created_at: created_at,
-      title: object.data["title"] |> HTML.strip_tags(),
-      artist: object.data["artist"] |> HTML.strip_tags(),
-      album: object.data["album"] |> HTML.strip_tags(),
-      length: object.data["length"]
+      title: object["title"] |> HTML.strip_tags(),
+      artist: object["artist"] |> HTML.strip_tags(),
+      album: object["album"] |> HTML.strip_tags(),
+      length: object["length"]
     }
   end
 

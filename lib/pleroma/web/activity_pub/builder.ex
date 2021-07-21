@@ -337,4 +337,18 @@ defmodule Pleroma.Web.ActivityPub.Builder do
   defp pinned_url(nickname) when is_binary(nickname) do
     Pleroma.Web.Router.Helpers.activity_pub_url(Pleroma.Web.Endpoint, :pinned, nickname)
   end
+
+  def listen(%{to: to, actor: %{ap_id: actor}, object: object} = params, additional) do
+    {:ok,
+     %{
+       "type" => "Listen",
+       "id" => Utils.generate_activity_id(),
+       "to" => to |> Enum.uniq(),
+       "actor" => actor,
+       "object" => object,
+       "published" => Map.get(params, :published, Utils.make_date()),
+       "context" => params.context
+     }
+     |> Map.merge(additional), []}
+  end
 end

@@ -391,8 +391,14 @@ defmodule Pleroma.Web.CommonAPI do
   end
 
   def listen(user, data) do
-    with {:ok, draft} <- ActivityDraft.listen(user, data) do
-      ActivityPub.listen(draft.changes)
+    with {_, {:ok, %{changes: draft}}} <- {:draft, ActivityDraft.listen(user, data)},
+         {_, {:ok, activity_data, []}} <- {:builder, Builder.listen(draft, draft.additional)},
+         {_, {:ok, activity, _}} <-
+           {:pipeline, Pipeline.common_pipeline(activity_data, local: true)},
+         {_, %Activity{} = activity} <- {:norm, Activity.normalize(activity)} do
+      {:ok, activity}
+    else
+      e -> {:error, e}
     end
   end
 

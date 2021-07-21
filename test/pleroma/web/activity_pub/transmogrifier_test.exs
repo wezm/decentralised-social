@@ -295,7 +295,7 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
 
       {:ok, activity} = CommonAPI.listen(user, %{"title" => "lain radio episode 1"})
 
-      {:ok, _modified} = Transmogrifier.prepare_outgoing(activity.data)
+      {:ok, _modified} = Transmogrifier.prepare_outgoing(activity)
     end
 
     test "custom emoji urls are URI encoded" do

@@ -234,6 +234,18 @@ defmodule Pleroma.Web.ActivityPub.SideEffects do
     end
   end
 
+  # Tasks this handles
+  # - Actually create object
+  # - Rollback if we couldn't create it
+  @impl true
+  def handle(%{data: %{"type" => "Listen"}} = activity, meta) do
+    with {:ok, _object, meta} <- handle_object_creation(meta[:object_data], activity, meta) do
+      {:ok, activity, meta}
+    else
+      e -> Repo.rollback(e)
+    end
+  end
+
   # Tasks this handles:
   # - Add announce to object
   # - Set up notification

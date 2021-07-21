@@ -1371,9 +1371,9 @@ defmodule Pleroma.Web.CommonAPITest do
           length: 180_000
         })
 
-      object = Object.normalize(activity, fetch: false)
+      assert object = activity.data["object"]
 
-      assert object.data["title"] == "lain radio episode 1"
+      assert object["title"] == "lain radio episode 1"
 
       assert Visibility.get_visibility(activity) == "public"
     end
@@ -1381,7 +1381,7 @@ defmodule Pleroma.Web.CommonAPITest do
     test "respects visibility=private" do
       user = insert(:user)
 
-      {:ok, activity} =
+      {:ok, %Activity{} = activity} =
         CommonAPI.listen(user, %{
           title: "lain radio episode 1",
           album: "lain radio",
@@ -1390,11 +1390,23 @@ defmodule Pleroma.Web.CommonAPITest do
           visibility: "private"
         })
 
-      object = Object.normalize(activity, fetch: false)
+      assert object = activity.data["object"]
 
-      assert object.data["title"] == "lain radio episode 1"
+      assert object["title"] == "lain radio episode 1"
 
       assert Visibility.get_visibility(activity) == "private"
+    end
+
+    test "does not increase user note count" do
+      user = insert(:user)
+
+      {:ok, %Activity{actor: actor}} =
+        CommonAPI.listen(user, %{artist: "lain", title: "lain radio episode 1", length: 80_000})
+
+      assert actor == user.ap_id
+
+      user = User.get_cached_by_id(user.id)
+      assert user.note_count == 0
     end
   end
 
