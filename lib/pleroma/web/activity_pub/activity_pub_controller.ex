@@ -416,6 +416,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
         |> Map.put("attributedTo", actor)
         |> Map.put("actor", actor)
         |> Map.put("id", Utils.generate_object_id())
+        |> Map.put("published", Utils.make_date())
 
       {:ok, Map.put(activity, "object", object)}
     else
@@ -458,6 +459,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
       |> Map.drop(["nickname"])
       |> Map.put("id", Utils.generate_activity_id())
       |> Map.put("actor", actor)
+      |> Map.put("published", Utils.make_date())
 
     with {:ok, params} <- fix_user_message(user, params),
          {:ok, activity, _} <- Pipeline.common_pipeline(params, local: true),
