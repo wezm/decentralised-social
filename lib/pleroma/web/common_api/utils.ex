@@ -23,6 +23,19 @@ defmodule Pleroma.Web.CommonAPI.Utils do
   require Logger
   require Pleroma.Constants
 
+  defp raw_url_to_attachment(url, desc \\ nil) do
+    %{
+      "type" => "Document",
+      "name" => desc,
+      "url" => [
+        %{
+          "type" => "Link",
+          "href" => url
+        }
+      ]
+    }
+  end
+
   def attachments_from_ids(%{media_ids: ids, descriptions: desc}) do
     attachments_from_ids_descs(ids, desc)
   end
@@ -36,11 +49,15 @@ defmodule Pleroma.Web.CommonAPI.Utils do
   def attachments_from_ids_no_descs([]), do: []
 
   def attachments_from_ids_no_descs(ids) do
-    Enum.map(ids, fn media_id ->
-      case Repo.get(Object, media_id) do
-        %Object{data: data} -> data
-        _ -> nil
-      end
+    Enum.map(ids, fn
+      "http" <> _ = id ->
+        raw_url_to_attachment(id)
+
+      media_id ->
+        case Repo.get(Object, media_id) do
+          %Object{data: data} -> data
+          _ -> nil
+        end
     end)
     |> Enum.reject(&is_nil/1)
   end
@@ -50,10 +67,14 @@ defmodule Pleroma.Web.CommonAPI.Utils do
   def attachments_from_ids_descs(ids, descs_str) do
     {_, descs} = Jason.decode(descs_str)
 
-    Enum.map(ids, fn media_id ->
-      with %Object{data: data} <- Repo.get(Object, media_id) do
-        Map.put(data, "name", descs[media_id])
-      end
+    Enum.map(ids, fn
+      "http" <> _ = media_id ->
+        raw_url_to_attachment(media_id, descs[media_id])
+
+      media_id ->
+        with %Object{data: data} <- Repo.get(Object, media_id) do
+          Map.put(data, "name", descs[media_id])
+        end
     end)
     |> Enum.reject(&is_nil/1)
   end

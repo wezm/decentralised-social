@@ -453,7 +453,7 @@ defmodule Pleroma.Web.ApiSpec.StatusOperation do
           nullable: true,
           type: :array,
           items: %Schema{type: :string},
-          description: "Array of Attachment ids to be attached as media."
+          description: "Array of Attachment ids or URLs to be attached as media."
         },
         poll: poll_params(),
         in_reply_to_id: %Schema{

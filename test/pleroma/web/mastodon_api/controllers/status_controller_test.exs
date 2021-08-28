@@ -182,6 +182,18 @@ defmodule Pleroma.Web.MastodonAPI.StatusControllerTest do
       assert json_response_and_validate_schema(conn, 200)
     end
 
+    test "posting an undefined status with arbitrary URL as attachment", %{conn: conn} do
+      assert response =
+               conn
+               |> put_req_header("content-type", "application/json")
+               |> post("/api/v1/statuses", %{
+                 "media_ids" => ["https://example.org/corndog.jpeg"]
+               })
+               |> json_response_and_validate_schema(200)
+
+      assert [%{"url" => "https://example.org/corndog.jpeg"}] = response["media_attachments"]
+    end
+
     test "replying to a status", %{user: user, conn: conn} do
       {:ok, replied_to} = CommonAPI.post(user, %{status: "cofe"})
 

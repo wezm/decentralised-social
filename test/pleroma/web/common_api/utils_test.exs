@@ -655,6 +655,16 @@ defmodule Pleroma.Web.CommonAPI.UtilsTest do
       assert Utils.attachments_from_ids(%{media_ids: ["#{object.id}"]}) == [object.data]
     end
 
+    test "returns attachment object with raw URL" do
+      assert Utils.attachments_from_ids(%{media_ids: ["https://example.org/corndog.jpeg"]}) == [
+               %{
+                 "name" => nil,
+                 "type" => "Document",
+                 "url" => [%{"href" => "https://example.org/corndog.jpeg", "type" => "Link"}]
+               }
+             ]
+    end
+
     test "returns [] when not pass media_ids" do
       assert Utils.attachments_from_ids(%{}) == []
     end
