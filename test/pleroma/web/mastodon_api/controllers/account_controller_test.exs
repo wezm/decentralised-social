@@ -267,6 +267,17 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
   describe "user timelines" do
     setup do: oauth_access(["read:statuses"])
 
+    test "works with a user who has an empty pinned objects field", %{conn: conn} do
+      user = insert(:user, pinned_objects: nil)
+
+      assert resp =
+               conn
+               |> get("/api/v1/accounts/#{user.id}/statuses")
+               |> json_response_and_validate_schema(200)
+
+      assert [] == resp
+    end
+
     test "works with announces that are just addressed to public", %{conn: conn} do
       user = insert(:user, ap_id: "https://honktest/u/test", local: false)
       other_user = insert(:user)
