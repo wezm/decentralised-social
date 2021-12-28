@@ -9,7 +9,7 @@ defmodule Pleroma.Repo.Migrations.ChangeHashtagsNameToText do
 
   def down do
     alter table(:hashtags) do
-      modify(:name, :citext)
+      modify(:name, :text)
     end
   end
 end

@@ -6,15 +6,17 @@ defmodule Pleroma.Repo.Migrations.CaseInsensivtivity do
   # inconsistent failures happen because of index on `email` column.
 
   def up do
-    execute("create extension if not exists citext")
+    # execute("create extension if not exists citext")
+    #
+    # alter table(:users) do
+    #   modify(:email, :citext)
+    # end
+    #
+    # alter table(:users) do
+    #   modify(:nickname, :citext)
+    # end
 
-    alter table(:users) do
-      modify(:email, :citext)
-    end
-
-    alter table(:users) do
-      modify(:nickname, :citext)
-    end
+    :ok
   end
 
   def down do

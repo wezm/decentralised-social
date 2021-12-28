@@ -22,8 +22,8 @@ defmodule Pleroma.Repo.Migrations.UsersAndActivitiesFlakeId do
     clippy = start_clippy_heartbeats()
 
     # Lock both tables to avoid a running server to meddling with our transaction
-    execute("LOCK TABLE activities;")
-    execute("LOCK TABLE users;")
+    # execute("LOCK TABLE activities;")
+    # execute("LOCK TABLE users;")
 
     execute("""
       ALTER TABLE activities

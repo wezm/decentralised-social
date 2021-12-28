@@ -3,8 +3,8 @@ defmodule Pleroma.Repo.Migrations.RemoveRecipientsToAndCcFieldsFromActivities do
 
   def up do
     alter table(:activities) do
-      remove(:recipients_to)
-      remove(:recipients_cc)
+      remove_if_exists(:recipients_to, {:array, :string})
+      remove_if_exists(:recipients_cc, {:array, :string})
     end
   end
 
