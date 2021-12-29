@@ -136,7 +136,7 @@ defmodule Pleroma.Mixfile do
       {:calendar, "~> 1.0"},
       {:cachex, "~> 3.2"},
       {:poison, "~> 3.0", override: true},
-      {:tesla, "~> 1.4.0", override: true},
+      {:tesla, "~> 1.4.4", override: true},
       {:castore, "~> 0.1"},
       {:cowlib, "~> 2.9", override: true},
       {:gun, "~> 2.0.0-rc.1", override: true},
@@ -209,7 +209,6 @@ defmodule Pleroma.Mixfile do
       {:mock, "~> 0.3.5", only: :test},
       # temporary downgrade for excoveralls, hackney until hackney max_connections bug will be fixed
       {:excoveralls, "0.12.3", only: :test},
-      {:hackney, "~> 1.18.0", override: true},
       {:mox, "~> 1.0", only: :test},
       {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git", only: :test}
     ] ++ oauth_deps()

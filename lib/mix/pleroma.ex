@@ -28,16 +28,7 @@ defmodule Mix.Pleroma do
       Logger.remove_backend(:console)
     end
 
-    adapter = Application.get_env(:tesla, :adapter)
-
-    apps =
-      if adapter == Tesla.Adapter.Gun do
-        [:gun | @apps]
-      else
-        [:hackney | @apps]
-      end
-
-    Enum.each(apps, &Application.ensure_all_started/1)
+    Enum.each(@apps, &Application.ensure_all_started/1)
 
     oban_config = [
       crontab: [],
@@ -47,17 +38,15 @@ defmodule Mix.Pleroma do
       plugins: []
     ]
 
-    children =
-      [
-        Pleroma.Repo,
-        Pleroma.Emoji,
-        {Pleroma.Config.TransferTask, false},
-        Pleroma.Web.Endpoint,
-        {Oban, oban_config},
-        {Majic.Pool,
-         [name: Pleroma.MajicPool, pool_size: Pleroma.Config.get([:majic_pool, :size], 2)]}
-      ] ++
-        http_children(adapter)
+    children = [
+      Pleroma.Repo,
+      Pleroma.Emoji,
+      {Pleroma.Config.TransferTask, false},
+      Pleroma.Web.Endpoint,
+      {Oban, oban_config},
+      {Majic.Pool,
+       [name: Pleroma.MajicPool, pool_size: Pleroma.Config.get([:majic_pool, :size], 2)]}
+    ]
 
     cachex_children = Enum.map(@cachex_children, &Pleroma.Application.build_cachex(&1, []))
 
@@ -129,11 +118,4 @@ defmodule Mix.Pleroma do
   def escape_sh_path(path) do
     ~S(') <> String.replace(path, ~S('), ~S(\')) <> ~S(')
   end
-
-  defp http_children(Tesla.Adapter.Gun) do
-    Pleroma.Gun.ConnectionPool.children() ++
-      [{Task, &Pleroma.HTTP.AdapterHelper.Gun.limiter_setup/0}]
-  end
-
-  defp http_children(_), do: []
 end

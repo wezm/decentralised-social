@@ -103,11 +103,7 @@ IO.puts("RUM enabled: #{rum_enabled}")
 
 config :joken, default_signer: "yU8uHKq+yyAkZ11Hx//jcdacWc8yQ1bxAAGrplzB0Zwwjkp35v0RK9SO8WTPr6QZ"
 
-config :pleroma, Pleroma.ReverseProxy.Client, Pleroma.ReverseProxy.ClientMock
-
 config :pleroma, :modules, runtime_dir: "test/fixtures/modules"
-
-config :pleroma, Pleroma.Gun, Pleroma.GunMock
 
 config :pleroma, Pleroma.Emails.NewUsersDigestEmail, enabled: true
 

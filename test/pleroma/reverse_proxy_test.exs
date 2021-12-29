@@ -8,44 +8,10 @@ defmodule Pleroma.ReverseProxyTest do
   import Mox
 
   alias Pleroma.ReverseProxy
-  alias Pleroma.ReverseProxy.ClientMock
   alias Plug.Conn
-
-  setup_all do
-    {:ok, _} = Registry.start_link(keys: :unique, name: ClientMock)
-    :ok
-  end
-
-  setup :verify_on_exit!
-
-  defp request_mock(invokes) do
-    ClientMock
-    |> expect(:request, fn :get, url, headers, _body, _opts ->
-      Registry.register(ClientMock, url, 0)
-      body = headers |> Enum.into(%{}) |> Jason.encode!()
-
-      {:ok, 200,
-       [
-         {"content-type", "application/json"},
-         {"content-length", byte_size(body) |> to_string()}
-       ], %{url: url, body: body}}
-    end)
-    |> expect(:stream_body, invokes, fn %{url: url, body: body} = client ->
-      case Registry.lookup(ClientMock, url) do
-        [{_, 0}] ->
-          Registry.update_value(ClientMock, url, &(&1 + 1))
-          {:ok, body, client}
-
-        [{_, 1}] ->
-          Registry.unregister(ClientMock, url)
-          :done
-      end
-    end)
-  end
 
   describe "reverse proxy" do
     test "do not track successful request", %{conn: conn} do
-      request_mock(2)
       url = "/success"
 
       conn = ReverseProxy.call(conn, url)
@@ -56,8 +22,6 @@ defmodule Pleroma.ReverseProxyTest do
   end
 
   test "use Pleroma's user agent in the request; don't pass the client's", %{conn: conn} do
-    request_mock(2)
-
     conn =
       conn
       |> Plug.Conn.put_req_header("user-agent", "fake/1.0")
@@ -110,8 +74,6 @@ defmodule Pleroma.ReverseProxyTest do
 
   describe "max_body" do
     test "length returns error if content-length more than option", %{conn: conn} do
-      request_mock(0)
-
       assert capture_log(fn ->
                ReverseProxy.call(conn, "/huge-file", max_body_length: 4)
              end) =~

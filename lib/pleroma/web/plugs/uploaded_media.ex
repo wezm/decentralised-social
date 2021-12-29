@@ -89,8 +89,7 @@ defmodule Pleroma.Web.Plugs.UploadedMedia do
   defp get_media(conn, {:url, url}, true, _) do
     proxy_opts = [
       http: [
-        follow_redirect: true,
-        pool: :upload
+        follow_redirect: true
       ]
     ]
 
