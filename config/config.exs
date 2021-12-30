@@ -435,7 +435,7 @@ config :pleroma, :media_proxy,
     redirect_on_failure: false,
     max_body_length: 25 * 1_048_576,
     # Note: max_read_duration defaults to Pleroma.ReverseProxy.max_read_duration_default/1
-    max_read_duration: 30_000,
+    max_read_duration: 30_000
   ],
   whitelist: []
 
