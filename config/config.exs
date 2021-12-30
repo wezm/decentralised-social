@@ -178,7 +178,6 @@ config :tesla, :adapter, {Tesla.Adapter.Finch, name: MyFinch}
 # Configures http settings, upstream proxy etc.
 config :pleroma, :http,
   proxy_url: nil,
-  send_user_agent: true,
   user_agent: :default,
   adapter: []
 

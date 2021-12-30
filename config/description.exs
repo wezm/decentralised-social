@@ -2700,10 +2700,6 @@ config :pleroma, :config_description, [
         suggestions: ["localhost:9020", {:socks5, :localhost, 3090}]
       },
       %{
-        key: :send_user_agent,
-        type: :boolean
-      },
-      %{
         key: :user_agent,
         type: [:string, :atom],
         description:

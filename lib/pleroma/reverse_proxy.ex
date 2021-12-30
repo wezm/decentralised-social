@@ -231,7 +231,6 @@ defmodule Pleroma.ReverseProxy do
     |> downcase_headers()
     |> Enum.filter(fn {k, _} -> k in @keep_req_headers end)
     |> build_req_range_or_encoding_header(opts)
-    |> build_req_user_agent_header(opts)
     |> Keyword.merge(Keyword.get(opts, :req_headers, []))
   end
 
@@ -244,15 +243,6 @@ defmodule Pleroma.ReverseProxy do
     else
       headers
     end
-  end
-
-  defp build_req_user_agent_header(headers, _opts) do
-    List.keystore(
-      headers,
-      "user-agent",
-      0,
-      {"user-agent", Pleroma.Application.user_agent()}
-    )
   end
 
   defp build_resp_headers(headers, opts) do
