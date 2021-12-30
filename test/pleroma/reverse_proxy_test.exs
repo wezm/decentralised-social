@@ -27,6 +27,7 @@ defmodule Pleroma.ReverseProxyTest do
     end
 
     test "use Pleroma's user agent in the request; don't pass the client's", %{conn: conn} do
+      clear_config([:http, :send_user_agent], true)
       # Mock will fail if the client's user agent isn't filtered
       wanted_headers = [{"user-agent", Pleroma.Application.user_agent()}]
 
@@ -164,10 +165,7 @@ defmodule Pleroma.ReverseProxyTest do
 
     test "header is filtered", %{conn: conn} do
       # Mock will fail if the accept-language header isn't filtered
-      wanted_headers = [
-        {"user-agent", Pleroma.Application.user_agent()},
-        {"accept-encoding", "*"}
-      ]
+      wanted_headers = [{"accept-encoding", "*"}]
 
       Tesla.Mock.mock(fn %{url: "/headers", headers: ^wanted_headers} ->
         %Tesla.Env{
