@@ -1,22 +1,12 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ControllerHelper do
   use Pleroma.Web, :controller
 
   alias Pleroma.Pagination
-
-  # As in Mastodon API, per https://api.rubyonrails.org/classes/ActiveModel/Type/Boolean.html
-  @falsy_param_values [false, 0, "0", "f", "F", "false", "False", "FALSE", "off", "OFF"]
-
-  def explicitly_falsy_param?(value), do: value in @falsy_param_values
-
-  # Note: `nil` and `""` are considered falsy values in Pleroma
-  def falsy_param?(value),
-    do: explicitly_falsy_param?(value) or value in [nil, ""]
-
-  def truthy_param?(value), do: not falsy_param?(value)
+  alias Pleroma.Web.Utils.Params
 
   def json_response(conn, status, _) when status in [204, :no_content] do
     conn
@@ -48,13 +38,13 @@ defmodule Pleroma.Web.ControllerHelper do
 
   defp param_to_integer(_, default), do: default
 
-  def add_link_headers(conn, activities, extra_params \\ %{})
+  def add_link_headers(conn, entries, extra_params \\ %{})
 
-  def add_link_headers(%{assigns: %{skip_link_headers: true}} = conn, _activities, _extra_params),
+  def add_link_headers(%{assigns: %{skip_link_headers: true}} = conn, _entries, _extra_params),
     do: conn
 
-  def add_link_headers(conn, activities, extra_params) do
-    case get_pagination_fields(conn, activities, extra_params) do
+  def add_link_headers(conn, entries, extra_params) do
+    case get_pagination_fields(conn, entries, extra_params) do
       %{"next" => next_url, "prev" => prev_url} ->
         put_resp_header(conn, "link", "<#{next_url}>; rel=\"next\", <#{prev_url}>; rel=\"prev\"")
 
@@ -67,7 +57,7 @@ defmodule Pleroma.Web.ControllerHelper do
   defp build_pagination_fields(conn, min_id, max_id, extra_params) do
     params =
       conn.params
-      |> Map.drop(Map.keys(conn.path_params))
+      |> Map.drop(Map.keys(conn.path_params) |> Enum.map(&String.to_existing_atom/1))
       |> Map.merge(extra_params)
       |> Map.drop(@id_keys)
 
@@ -78,19 +68,15 @@ defmodule Pleroma.Web.ControllerHelper do
     }
   end
 
-  def get_pagination_fields(conn, activities, extra_params \\ %{}) do
-    case List.last(activities) do
+  def get_pagination_fields(conn, entries, extra_params \\ %{}) do
+    case List.last(entries) do
       %{pagination_id: max_id} when not is_nil(max_id) ->
-        %{pagination_id: min_id} =
-          activities
-          |> List.first()
+        %{pagination_id: min_id} = List.first(entries)
 
         build_pagination_fields(conn, min_id, max_id, extra_params)
 
       %{id: max_id} ->
-        %{id: min_id} =
-          activities
-          |> List.first()
+        %{id: min_id} = List.first(entries)
 
         build_pagination_fields(conn, min_id, max_id, extra_params)
 
@@ -127,6 +113,6 @@ defmodule Pleroma.Web.ControllerHelper do
     # To do once OpenAPI transition mess is over: just `truthy_param?(params[:with_relationships])`
     params
     |> Map.get(:with_relationships, params["with_relationships"])
-    |> truthy_param?()
+    |> Params.truthy_param?()
   end
 end

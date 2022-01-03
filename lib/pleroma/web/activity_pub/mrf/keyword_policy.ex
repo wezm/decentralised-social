@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
@@ -7,7 +7,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
 
   @moduledoc "Reject or Word-Replace messages with a keyword or regex"
 
-  @behaviour Pleroma.Web.ActivityPub.MRF
+  @behaviour Pleroma.Web.ActivityPub.MRF.Policy
   defp string_matches?(string, _) when not is_binary(string) do
     false
   end
@@ -20,9 +20,17 @@ defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
     String.match?(string, pattern)
   end
 
-  defp check_reject(%{"object" => %{"content" => content, "summary" => summary}} = message) do
+  defp object_payload(%{} = object) do
+    [object["content"], object["summary"], object["name"]]
+    |> Enum.filter(& &1)
+    |> Enum.join("\n")
+  end
+
+  defp check_reject(%{"object" => %{} = object} = message) do
+    payload = object_payload(object)
+
     if Enum.any?(Pleroma.Config.get([:mrf_keyword, :reject]), fn pattern ->
-         string_matches?(content, pattern) or string_matches?(summary, pattern)
+         string_matches?(payload, pattern)
        end) do
       {:reject, "[KeywordPolicy] Matches with rejected keyword"}
     else
@@ -30,12 +38,12 @@ defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
     end
   end
 
-  defp check_ftl_removal(
-         %{"to" => to, "object" => %{"content" => content, "summary" => summary}} = message
-       ) do
+  defp check_ftl_removal(%{"to" => to, "object" => %{} = object} = message) do
+    payload = object_payload(object)
+
     if Pleroma.Constants.as_public() in to and
          Enum.any?(Pleroma.Config.get([:mrf_keyword, :federated_timeline_removal]), fn pattern ->
-           string_matches?(content, pattern) or string_matches?(summary, pattern)
+           string_matches?(payload, pattern)
          end) do
       to = List.delete(to, Pleroma.Constants.as_public())
       cc = [Pleroma.Constants.as_public() | message["cc"] || []]
@@ -51,35 +59,24 @@ defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
     end
   end
 
-  defp check_replace(%{"object" => %{"content" => content, "summary" => summary}} = message) do
-    content =
-      if is_binary(content) do
-        content
-      else
-        ""
-      end
+  defp check_replace(%{"object" => %{} = object} = message) do
+    object =
+      ["content", "name", "summary"]
+      |> Enum.filter(fn field -> Map.has_key?(object, field) && object[field] end)
+      |> Enum.reduce(object, fn field, object ->
+        data =
+          Enum.reduce(
+            Pleroma.Config.get([:mrf_keyword, :replace]),
+            object[field],
+            fn {pat, repl}, acc -> String.replace(acc, pat, repl) end
+          )
 
-    summary =
-      if is_binary(summary) do
-        summary
-      else
-        ""
-      end
+        Map.put(object, field, data)
+      end)
 
-    {content, summary} =
-      Enum.reduce(
-        Pleroma.Config.get([:mrf_keyword, :replace]),
-        {content, summary},
-        fn {pattern, replacement}, {content_acc, summary_acc} ->
-          {String.replace(content_acc, pattern, replacement),
-           String.replace(summary_acc, pattern, replacement)}
-        end
-      )
+    message = Map.put(message, "object", object)
 
-    {:ok,
-     message
-     |> put_in(["object", "content"], content)
-     |> put_in(["object", "summary"], summary)}
+    {:ok, message}
   end
 
   @impl true
@@ -128,5 +125,49 @@ defmodule Pleroma.Web.ActivityPub.MRF.KeywordPolicy do
       |> Enum.into(%{})
 
     {:ok, %{mrf_keyword: mrf_keyword}}
+  end
+
+  @impl true
+  def config_description do
+    %{
+      key: :mrf_keyword,
+      related_policy: "Pleroma.Web.ActivityPub.MRF.KeywordPolicy",
+      label: "MRF Keyword",
+      description:
+        "Reject or Word-Replace messages matching a keyword or [Regex](https://hexdocs.pm/elixir/Regex.html).",
+      children: [
+        %{
+          key: :reject,
+          type: {:list, :string},
+          description: """
+            A list of patterns which result in message being rejected.
+
+            Each pattern can be a string or [Regex](https://hexdocs.pm/elixir/Regex.html) in the format of `~r/PATTERN/`.
+          """,
+          suggestions: ["foo", ~r/foo/iu]
+        },
+        %{
+          key: :federated_timeline_removal,
+          type: {:list, :string},
+          description: """
+            A list of patterns which result in message being removed from federated timelines (a.k.a unlisted).
+
+            Each pattern can be a string or [Regex](https://hexdocs.pm/elixir/Regex.html) in the format of `~r/PATTERN/`.
+          """,
+          suggestions: ["foo", ~r/foo/iu]
+        },
+        %{
+          key: :replace,
+          type: {:list, :tuple},
+          key_placeholder: "instance",
+          value_placeholder: "reason",
+          description: """
+            **Pattern**: a string or [Regex](https://hexdocs.pm/elixir/Regex.html) in the format of `~r/PATTERN/`.
+
+            **Replacement**: a string. Leaving the field empty is permitted.
+          """
+        }
+      ]
+    }
   end
 end

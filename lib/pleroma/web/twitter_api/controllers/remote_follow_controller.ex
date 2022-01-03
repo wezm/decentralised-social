@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.TwitterAPI.RemoteFollowController do
@@ -10,19 +10,18 @@ defmodule Pleroma.Web.TwitterAPI.RemoteFollowController do
   alias Pleroma.Activity
   alias Pleroma.MFA
   alias Pleroma.Object.Fetcher
-  alias Pleroma.Plugs.OAuthScopesPlug
   alias Pleroma.User
-  alias Pleroma.Web.Auth.Authenticator
   alias Pleroma.Web.Auth.TOTPAuthenticator
+  alias Pleroma.Web.Auth.WrapperAuthenticator
   alias Pleroma.Web.CommonAPI
 
   @status_types ["Article", "Event", "Note", "Video", "Page", "Question"]
 
-  plug(Pleroma.Web.FederatingPlug)
+  plug(Pleroma.Web.Plugs.FederatingPlug)
 
   # Note: follower can submit the form (with password auth) not being signed in (having no token)
   plug(
-    OAuthScopesPlug,
+    Pleroma.Web.Plugs.OAuthScopesPlug,
     %{fallback: :proceed_unauthenticated, scopes: ["follow", "write:follows"]}
     when action in [:do_follow]
   )
@@ -39,7 +38,7 @@ defmodule Pleroma.Web.TwitterAPI.RemoteFollowController do
   defp follow_status(conn, _user, acct) do
     with {:ok, object} <- Fetcher.fetch_object_from_id(acct),
          %Activity{id: activity_id} <- Activity.get_create_by_object_ap_id(object.data["id"]) do
-      redirect(conn, to: o_status_path(conn, :notice, activity_id))
+      redirect(conn, to: Routes.o_status_path(conn, :notice, activity_id))
     else
       error ->
         handle_follow_error(conn, error)
@@ -89,7 +88,7 @@ defmodule Pleroma.Web.TwitterAPI.RemoteFollowController do
   #
   def do_follow(conn, %{"authorization" => %{"name" => _, "password" => _, "id" => id}}) do
     with {_, %User{} = followee} <- {:fetch_user, User.get_cached_by_id(id)},
-         {_, {:ok, user}, _} <- {:auth, Authenticator.get_user(conn), followee},
+         {_, {:ok, user}, _} <- {:auth, WrapperAuthenticator.get_user(conn), followee},
          {_, _, _, false} <- {:mfa_required, followee, user, MFA.require?(user)},
          {:ok, _, _, _} <- CommonAPI.follow(user, followee) do
       redirect(conn, to: "/users/#{followee.id}")
@@ -135,7 +134,7 @@ defmodule Pleroma.Web.TwitterAPI.RemoteFollowController do
   end
 
   defp handle_follow_error(conn, {:mfa_required, followee, user, _} = _) do
-    {:ok, %{token: token}} = MFA.Token.create_token(user)
+    {:ok, %{token: token}} = MFA.Token.create(user)
     render(conn, "follow_mfa.html", %{followee: followee, mfa_token: token, error: false})
   end
 

@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.NotificationController do
@@ -8,8 +8,8 @@ defmodule Pleroma.Web.MastodonAPI.NotificationController do
   import Pleroma.Web.ControllerHelper, only: [add_link_headers: 2]
 
   alias Pleroma.Notification
-  alias Pleroma.Plugs.OAuthScopesPlug
   alias Pleroma.Web.MastodonAPI.MastodonAPI
+  alias Pleroma.Web.Plugs.OAuthScopesPlug
 
   @oauth_read_actions [:show, :index]
 
@@ -50,6 +50,7 @@ defmodule Pleroma.Web.MastodonAPI.NotificationController do
     favourite
     move
     pleroma:emoji_reaction
+    poll
   }
   def index(%{assigns: %{user: user}} = conn, params) do
     params =

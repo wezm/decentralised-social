@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.ReverseProxy.Client.Tesla do
@@ -28,7 +28,7 @@ defmodule Pleroma.ReverseProxy.Client.Tesla do
              url,
              body,
              headers,
-             Keyword.put(opts, :adapter, opts)
+             opts
            ) do
       if is_map(response.body) and method != :head do
         {:ok, response.status, response.headers, response.body}

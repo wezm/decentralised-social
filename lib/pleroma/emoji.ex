@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Emoji do
@@ -56,6 +56,9 @@ defmodule Pleroma.Emoji do
     end
   end
 
+  @spec exist?(String.t()) :: boolean()
+  def exist?(name), do: not is_nil(get(name))
+
   @doc "Returns all the emojos!!"
   @spec get_all() :: list({String.t(), String.t(), String.t()})
   def get_all do
@@ -99,30 +102,35 @@ defmodule Pleroma.Emoji do
     :ets.insert(@ets, emojis)
   end
 
-  @external_resource "lib/pleroma/emoji-data.txt"
+  @external_resource "lib/pleroma/emoji-test.txt"
+
+  regional_indicators =
+    Enum.map(127_462..127_487, fn codepoint ->
+      <<codepoint::utf8>>
+    end)
 
   emojis =
     @external_resource
     |> File.read!()
     |> String.split("\n")
-    |> Enum.filter(fn line -> line != "" and not String.starts_with?(line, "#") end)
+    |> Enum.filter(fn line ->
+      line != "" and not String.starts_with?(line, "#") and
+        String.contains?(line, "fully-qualified")
+    end)
     |> Enum.map(fn line ->
       line
       |> String.split(";", parts: 2)
       |> hd()
       |> String.trim()
-      |> String.split("..")
-      |> case do
-        [number] ->
-          <<String.to_integer(number, 16)::utf8>>
-
-        [first, last] ->
-          String.to_integer(first, 16)..String.to_integer(last, 16)
-          |> Enum.map(&<<&1::utf8>>)
-      end
+      |> String.split()
+      |> Enum.map(fn codepoint ->
+        <<String.to_integer(codepoint, 16)::utf8>>
+      end)
+      |> Enum.join()
     end)
-    |> List.flatten()
     |> Enum.uniq()
+
+  emojis = emojis ++ regional_indicators
 
   for emoji <- emojis do
     def is_unicode_emoji?(unquote(emoji)), do: true

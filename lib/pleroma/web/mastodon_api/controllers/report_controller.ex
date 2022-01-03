@@ -1,16 +1,14 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.ReportController do
-  alias Pleroma.Plugs.OAuthScopesPlug
-
   use Pleroma.Web, :controller
 
   action_fallback(Pleroma.Web.MastodonAPI.FallbackController)
 
   plug(Pleroma.Web.ApiSpec.CastAndValidate)
-  plug(OAuthScopesPlug, %{scopes: ["write:reports"]} when action == :create)
+  plug(Pleroma.Web.Plugs.OAuthScopesPlug, %{scopes: ["write:reports"]} when action == :create)
 
   defdelegate open_api_operation(action), to: Pleroma.Web.ApiSpec.ReportOperation
 

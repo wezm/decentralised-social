@@ -1,25 +1,14 @@
 # Installing on Alpine Linux
+
+{! backend/installation/otp_vs_from_source_source.include !}
+
 ## Installation
 
 This guide is a step-by-step installation guide for Alpine Linux. The instructions were verified against Alpine v3.10 standard image. You might miss additional dependencies if you use `netboot` instead.
 
 It assumes that you have administrative rights, either as root or a user with [sudo permissions](https://www.linode.com/docs/tools-reference/custom-kernels-distros/install-alpine-linux-on-your-linode/#configuration). If you want to run this guide with root, ignore the `sudo` at the beginning of the lines, unless it calls a user like `sudo -Hu pleroma`; in this case, use `su -l <username> -s $SHELL -c 'command'` instead.
 
-### Required packages
-
-* `postgresql`
-* `elixir`
-* `erlang`
-* `erlang-parsetools`
-* `erlang-xmerl`
-* `git`
-* Development Tools
-* `cmake`
-
-#### Optional packages used in this guide
-
-* `nginx` (preferred, example configs for other reverse proxies can be found in the repo)
-* `certbot` (or any other ACME client for Let’s Encrypt certificates)
+{! backend/installation/generic_dependencies.include !}
 
 ### Prepare the system
 
@@ -28,7 +17,6 @@ It assumes that you have administrative rights, either as root or a user with [s
 ```shell
 awk 'NR==2' /etc/apk/repositories | sed 's/main/community/' | tee -a /etc/apk/repositories
 ```
-
 
 * Then update the system, if not already done:
 
@@ -40,7 +28,7 @@ sudo apk upgrade
 * Install some tools, which are needed later:
 
 ```shell
-sudo apk add git build-base cmake
+sudo apk add git build-base cmake file-dev
 ```
 
 ### Install Elixir and Erlang
@@ -56,6 +44,7 @@ sudo apk add erlang erlang-runtime-tools erlang-xmerl elixir
 ```shell
 sudo apk add erlang-eldap
 ```
+
 ### Install PostgreSQL
 
 * Install Postgresql server:
@@ -74,6 +63,12 @@ sudo /etc/init.d/postgresql start
 
 ```shell
 sudo rc-update add postgresql
+```
+
+### Install media / graphics packages (optional, see [`docs/installation/optional/media_graphics_packages.md`](../installation/optional/media_graphics_packages.md))
+
+```shell
+sudo apk add ffmpeg imagemagick exiftool
 ```
 
 ### Install PleromaBE
@@ -107,7 +102,7 @@ cd /opt/pleroma
 sudo -Hu pleroma mix deps.get
 ```
 
-* Generate the configuration: `sudo -Hu pleroma mix pleroma.instance gen`
+* Generate the configuration: `sudo -Hu pleroma MIX_ENV=prod mix pleroma.instance gen`
   * Answer with `yes` if it asks you to install `rebar3`.
   * This may take some time, because parts of pleroma get compiled first.
   * After that it will ask you a few questions about your instance and generates a configuration file in `config/generated_config.exs`.
@@ -115,7 +110,7 @@ sudo -Hu pleroma mix deps.get
 * Check the configuration and if all looks right, rename it, so Pleroma will load it (`prod.secret.exs` for productive instance, `dev.secret.exs` for development instances):
 
 ```shell
-mv config/{generated_config.exs,prod.secret.exs}
+sudo -Hu pleroma mv config/{generated_config.exs,prod.secret.exs}
 ```
 
 * The previous command creates also the file `config/setup_db.psql`, with which you can create the database:
@@ -230,4 +225,4 @@ sudo -Hu pleroma MIX_ENV=prod mix pleroma.user new <username> <your@emailaddress
 
 ## Questions
 
-Questions about the installation or didn’t it work as it should be, ask in [#pleroma:matrix.org](https://matrix.heldscal.la/#/room/#freenode_#pleroma:matrix.org) or IRC Channel **#pleroma** on **Freenode**.
+Questions about the installation or didn’t it work as it should be, ask in [#pleroma:libera.chat](https://matrix.to/#/#pleroma:libera.chat) via Matrix or **#pleroma** on **libera.chat** via IRC.

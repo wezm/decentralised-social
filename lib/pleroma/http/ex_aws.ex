@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.HTTP.ExAws do
@@ -11,7 +11,7 @@ defmodule Pleroma.HTTP.ExAws do
 
   @impl true
   def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
-    http_opts = Keyword.put_new(http_opts, :adapter, pool: :upload)
+    http_opts = Keyword.put_new(http_opts, :pool, :upload)
 
     case HTTP.request(method, url, body, headers, http_opts) do
       {:ok, env} ->

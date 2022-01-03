@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Upload.Filter do
@@ -15,9 +15,13 @@ defmodule Pleroma.Upload.Filter do
 
   require Logger
 
-  @callback filter(Pleroma.Upload.t()) :: :ok | {:ok, Pleroma.Upload.t()} | {:error, any()}
+  @callback filter(upload :: struct()) ::
+              {:ok, :filtered}
+              | {:ok, :noop}
+              | {:ok, :filtered, upload :: struct()}
+              | {:error, any()}
 
-  @spec filter([module()], Pleroma.Upload.t()) :: {:ok, Pleroma.Upload.t()} | {:error, any()}
+  @spec filter([module()], upload :: struct()) :: {:ok, upload :: struct()} | {:error, any()}
 
   def filter([], upload) do
     {:ok, upload}
@@ -25,10 +29,13 @@ defmodule Pleroma.Upload.Filter do
 
   def filter([filter | rest], upload) do
     case filter.filter(upload) do
-      :ok ->
+      {:ok, :filtered} ->
         filter(rest, upload)
 
-      {:ok, upload} ->
+      {:ok, :filtered, upload} ->
+        filter(rest, upload)
+
+      {:ok, :noop} ->
         filter(rest, upload)
 
       error ->

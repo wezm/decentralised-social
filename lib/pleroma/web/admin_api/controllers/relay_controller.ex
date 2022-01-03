@@ -1,13 +1,13 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.AdminAPI.RelayController do
   use Pleroma.Web, :controller
 
   alias Pleroma.ModerationLog
-  alias Pleroma.Plugs.OAuthScopesPlug
   alias Pleroma.Web.ActivityPub.Relay
+  alias Pleroma.Web.Plugs.OAuthScopesPlug
 
   require Logger
 
@@ -15,11 +15,11 @@ defmodule Pleroma.Web.AdminAPI.RelayController do
 
   plug(
     OAuthScopesPlug,
-    %{scopes: ["write:follows"], admin: true}
+    %{scopes: ["admin:write:follows"]}
     when action in [:follow, :unfollow]
   )
 
-  plug(OAuthScopesPlug, %{scopes: ["read"], admin: true} when action == :index)
+  plug(OAuthScopesPlug, %{scopes: ["admin:read"]} when action == :index)
 
   action_fallback(Pleroma.Web.AdminAPI.FallbackController)
 
@@ -33,11 +33,7 @@ defmodule Pleroma.Web.AdminAPI.RelayController do
 
   def follow(%{assigns: %{user: admin}, body_params: %{relay_url: target}} = conn, _) do
     with {:ok, _message} <- Relay.follow(target) do
-      ModerationLog.insert_log(%{
-        action: "relay_follow",
-        actor: admin,
-        target: target
-      })
+      ModerationLog.insert_log(%{action: "relay_follow", actor: admin, target: target})
 
       json(conn, %{actor: target, followed_back: target in Relay.following()})
     else
@@ -48,13 +44,9 @@ defmodule Pleroma.Web.AdminAPI.RelayController do
     end
   end
 
-  def unfollow(%{assigns: %{user: admin}, body_params: %{relay_url: target}} = conn, _) do
-    with {:ok, _message} <- Relay.unfollow(target) do
-      ModerationLog.insert_log(%{
-        action: "relay_unfollow",
-        actor: admin,
-        target: target
-      })
+  def unfollow(%{assigns: %{user: admin}, body_params: %{relay_url: target} = params} = conn, _) do
+    with {:ok, _message} <- Relay.unfollow(target, %{force: params[:force]}) do
+      ModerationLog.insert_log(%{action: "relay_unfollow", actor: admin, target: target})
 
       json(conn, target)
     else

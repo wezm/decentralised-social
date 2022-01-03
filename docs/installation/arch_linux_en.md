@@ -1,4 +1,7 @@
 # Installing on Arch Linux
+
+{! backend/installation/otp_vs_from_source_source.include !}
+
 ## Installation
 
 This guide will assume that you have administrative rights, either as root or a user with [sudo permissions](https://wiki.archlinux.org/index.php/Sudo). If you want to run this guide with root, ignore the `sudo` at the beginning of the lines, unless it calls a user like `sudo -Hu pleroma`; in this case, use `su <username> -s $SHELL -c 'command'` instead.
@@ -10,11 +13,15 @@ This guide will assume that you have administrative rights, either as root or a 
 * `git`
 * `base-devel`
 * `cmake`
+* `file`
 
 #### Optional packages used in this guide
 
 * `nginx` (preferred, example configs for other reverse proxies can be found in the repo)
 * `certbot` (or any other ACME client for Let’s Encrypt certificates)
+* `ImageMagick`
+* `ffmpeg`
+* `exiftool`
 
 ### Prepare the system
 
@@ -27,7 +34,7 @@ sudo pacman -Syu
 * Install some of the above mentioned programs:
 
 ```shell
-sudo pacman -S git base-devel elixir cmake
+sudo pacman -S git base-devel elixir cmake file
 ```
 
 ### Install PostgreSQL
@@ -50,6 +57,12 @@ sudo -iu postgres initdb -D /var/lib/postgres/data
 
 ```shell
 sudo systemctl enable --now postgresql.service
+```
+
+### Install media / graphics packages (optional, see [`docs/installation/optional/media_graphics_packages.md`](../installation/optional/media_graphics_packages.md))
+
+```shell
+sudo pacman -S ffmpeg imagemagick perl-image-exiftool
 ```
 
 ### Install PleromaBE
@@ -82,7 +95,7 @@ cd /opt/pleroma
 sudo -Hu pleroma mix deps.get
 ```
 
-* Generate the configuration: `sudo -Hu pleroma mix pleroma.instance gen`
+* Generate the configuration: `sudo -Hu pleroma MIX_ENV=prod mix pleroma.instance gen`
   * Answer with `yes` if it asks you to install `rebar3`.
   * This may take some time, because parts of pleroma get compiled first.
   * After that it will ask you a few questions about your instance and generates a configuration file in `config/generated_config.exs`.
@@ -90,7 +103,7 @@ sudo -Hu pleroma mix deps.get
 * Check the configuration and if all looks right, rename it, so Pleroma will load it (`prod.secret.exs` for productive instance, `dev.secret.exs` for development instances):
 
 ```shell
-mv config/{generated_config.exs,prod.secret.exs}
+sudo -Hu pleroma mv config/{generated_config.exs,prod.secret.exs}
 ```
 
 * The previous command creates also the file `config/setup_db.psql`, with which you can create the database:
@@ -205,4 +218,4 @@ sudo -Hu pleroma MIX_ENV=prod mix pleroma.user new <username> <your@emailaddress
 
 ## Questions
 
-Questions about the installation or didn’t it work as it should be, ask in [#pleroma:matrix.org](https://matrix.heldscal.la/#/room/#freenode_#pleroma:matrix.org) or IRC Channel **#pleroma** on **Freenode**.
+Questions about the installation or didn’t it work as it should be, ask in [#pleroma:libera.chat](https://matrix.to/#/#pleroma:libera.chat) via Matrix or **#pleroma** on **libera.chat** via IRC.

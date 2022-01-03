@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Gun.Conn do
@@ -13,7 +13,7 @@ defmodule Pleroma.Gun.Conn do
     opts =
       opts
       |> Enum.into(%{})
-      |> Map.put_new(:await_up_timeout, pool_opts[:await_up_timeout] || 5_000)
+      |> Map.put_new(:connect_timeout, pool_opts[:connect_timeout] || 5_000)
       |> Map.put_new(:supervise, false)
       |> maybe_add_tls_opts(uri)
 
@@ -50,16 +50,14 @@ defmodule Pleroma.Gun.Conn do
 
     with open_opts <- Map.delete(opts, :tls_opts),
          {:ok, conn} <- Gun.open(proxy_host, proxy_port, open_opts),
-         {:ok, _} <- Gun.await_up(conn, opts[:await_up_timeout]),
+         {:ok, protocol} <- Gun.await_up(conn, opts[:connect_timeout]),
          stream <- Gun.connect(conn, connect_opts),
          {:response, :fin, 200, _} <- Gun.await(conn, stream) do
-      {:ok, conn}
+      {:ok, conn, protocol}
     else
       error ->
         Logger.warn(
-          "Opening proxied connection to #{compose_uri_log(uri)} failed with error #{
-            inspect(error)
-          }"
+          "Opening proxied connection to #{compose_uri_log(uri)} failed with error #{inspect(error)}"
         )
 
         error
@@ -88,14 +86,12 @@ defmodule Pleroma.Gun.Conn do
       |> Map.put(:socks_opts, socks_opts)
 
     with {:ok, conn} <- Gun.open(proxy_host, proxy_port, opts),
-         {:ok, _} <- Gun.await_up(conn, opts[:await_up_timeout]) do
-      {:ok, conn}
+         {:ok, protocol} <- Gun.await_up(conn, opts[:connect_timeout]) do
+      {:ok, conn, protocol}
     else
       error ->
         Logger.warn(
-          "Opening socks proxied connection to #{compose_uri_log(uri)} failed with error #{
-            inspect(error)
-          }"
+          "Opening socks proxied connection to #{compose_uri_log(uri)} failed with error #{inspect(error)}"
         )
 
         error
@@ -106,8 +102,8 @@ defmodule Pleroma.Gun.Conn do
     host = Pleroma.HTTP.AdapterHelper.parse_host(host)
 
     with {:ok, conn} <- Gun.open(host, port, opts),
-         {:ok, _} <- Gun.await_up(conn, opts[:await_up_timeout]) do
-      {:ok, conn}
+         {:ok, protocol} <- Gun.await_up(conn, opts[:connect_timeout]) do
+      {:ok, conn, protocol}
     else
       error ->
         Logger.warn(

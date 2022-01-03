@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.PleromaAPI.AccountController do
@@ -8,14 +8,18 @@ defmodule Pleroma.Web.PleromaAPI.AccountController do
   import Pleroma.Web.ControllerHelper,
     only: [json_response: 3, add_link_headers: 2, assign_account_by_id: 2]
 
-  alias Pleroma.Plugs.EnsurePublicOrAuthenticatedPlug
-  alias Pleroma.Plugs.OAuthScopesPlug
-  alias Pleroma.Plugs.RateLimiter
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.MastodonAPI.StatusView
+  alias Pleroma.Web.Plugs.OAuthScopesPlug
+  alias Pleroma.Web.Plugs.RateLimiter
 
   require Pleroma.Constants
+
+  plug(
+    Majic.Plug,
+    [pool: Pleroma.MajicPool] when action in [:update_avatar, :update_background, :update_banner]
+  )
 
   plug(
     OpenApiSpex.Plug.PutApiSpec,
@@ -24,10 +28,7 @@ defmodule Pleroma.Web.PleromaAPI.AccountController do
 
   plug(Pleroma.Web.ApiSpec.CastAndValidate)
 
-  plug(
-    :skip_plug,
-    [OAuthScopesPlug, EnsurePublicOrAuthenticatedPlug] when action == :confirmation_resend
-  )
+  plug(:skip_auth when action == :confirmation_resend)
 
   plug(
     OAuthScopesPlug,
@@ -42,7 +43,6 @@ defmodule Pleroma.Web.PleromaAPI.AccountController do
   plug(RateLimiter, [name: :account_confirmation_resend] when action == :confirmation_resend)
 
   plug(:assign_account_by_id when action in [:favourites, :subscribe, :unsubscribe])
-  plug(:put_view, Pleroma.Web.MastodonAPI.AccountView)
 
   defdelegate open_api_operation(action), to: Pleroma.Web.ApiSpec.PleromaAccountOperation
 
@@ -51,7 +51,7 @@ defmodule Pleroma.Web.PleromaAPI.AccountController do
     nickname_or_email = params[:email] || params[:nickname]
 
     with %User{} = user <- User.get_by_nickname_or_email(nickname_or_email),
-         {:ok, _} <- User.try_send_confirmation_email(user) do
+         {:ok, _} <- User.maybe_send_confirmation_email(user) do
       json_response(conn, :no_content, "")
     end
   end

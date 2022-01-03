@@ -1,11 +1,10 @@
-use Mix.Config
+import Config
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :pleroma, Pleroma.Web.Endpoint,
   http: [port: 4001],
-  url: [port: 4001],
-  server: true
+  url: [port: 4001]
 
 # Disable captha for tests
 config :pleroma, Pleroma.Captcha,
@@ -44,7 +43,7 @@ config :pleroma, Pleroma.Repo,
   pool_size: 10
 
 # Reduce hash rounds for testing
-config :pbkdf2_elixir, rounds: 1
+config :pleroma, :password, iterations: 1
 
 config :tesla, adapter: Tesla.Mock
 
@@ -58,8 +57,6 @@ config :web_push_encryption, :vapid_details,
   public_key:
     "BLH1qVhJItRGCfxgTtONfsOKDc9VRAraXw-3NsmjMngWSh7NxOizN6bkuRA7iLTMPS82PjwJAr3UoK9EC1IFrz4",
   private_key: "_-XZ0iebPrRfZ_o0-IatTdszYa8VCH1yLN-JauK7HHA"
-
-config :web_push_encryption, :http_client, Pleroma.Web.WebPushHttpClientMock
 
 config :pleroma, Pleroma.ScheduledActivity,
   daily_user_limit: 2,

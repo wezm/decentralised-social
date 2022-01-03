@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.TwitterAPI.UtilController do
@@ -10,21 +10,13 @@ defmodule Pleroma.Web.TwitterAPI.UtilController do
   alias Pleroma.Config
   alias Pleroma.Emoji
   alias Pleroma.Healthcheck
-  alias Pleroma.Notification
-  alias Pleroma.Plugs.OAuthScopesPlug
   alias Pleroma.User
   alias Pleroma.Web.CommonAPI
+  alias Pleroma.Web.Plugs.OAuthScopesPlug
   alias Pleroma.Web.WebFinger
 
-  plug(Pleroma.Web.FederatingPlug when action == :remote_subscribe)
-
-  plug(
-    OAuthScopesPlug,
-    %{scopes: ["follow", "write:follows"]}
-    when action == :follow_import
-  )
-
-  plug(OAuthScopesPlug, %{scopes: ["follow", "write:blocks"]} when action == :blocks_import)
+  plug(Pleroma.Web.ApiSpec.CastAndValidate when action != :remote_subscribe)
+  plug(Pleroma.Web.Plugs.FederatingPlug when action == :remote_subscribe)
 
   plug(
     OAuthScopesPlug,
@@ -38,7 +30,7 @@ defmodule Pleroma.Web.TwitterAPI.UtilController do
          ]
   )
 
-  plug(OAuthScopesPlug, %{scopes: ["write:notifications"]} when action == :notifications_read)
+  defdelegate open_api_operation(action), to: Pleroma.Web.ApiSpec.TwitterUtilOperation
 
   def remote_subscribe(conn, %{"nickname" => nick, "profile" => _}) do
     with %User{} = user <- User.get_cached_by_nickname(nick),
@@ -70,23 +62,17 @@ defmodule Pleroma.Web.TwitterAPI.UtilController do
     end
   end
 
-  def notifications_read(%{assigns: %{user: user}} = conn, %{"id" => notification_id}) do
-    with {:ok, _} <- Notification.read_one(user, notification_id) do
-      json(conn, %{status: "success"})
+  def remote_interaction(%{body_params: %{ap_id: ap_id, profile: profile}} = conn, _params) do
+    with {:ok, %{"subscribe_address" => template}} <- WebFinger.finger(profile) do
+      conn
+      |> json(%{url: String.replace(template, "{uri}", ap_id)})
     else
-      {:error, message} ->
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(403, Jason.encode!(%{"error" => message}))
+      _e -> json(conn, %{error: "Couldn't find user"})
     end
   end
 
   def frontend_configurations(conn, _params) do
-    config =
-      Config.get(:frontend_configurations, %{})
-      |> Enum.into(%{})
-
-    json(conn, config)
+    render(conn, "frontend_configurations.json")
   end
 
   def emoji(conn, _params) do
@@ -104,40 +90,13 @@ defmodule Pleroma.Web.TwitterAPI.UtilController do
     end
   end
 
-  def follow_import(conn, %{"list" => %Plug.Upload{} = listfile}) do
-    follow_import(conn, %{"list" => File.read!(listfile.path)})
-  end
-
-  def follow_import(%{assigns: %{user: follower}} = conn, %{"list" => list}) do
-    followed_identifiers =
-      list
-      |> String.split("\n")
-      |> Enum.map(&(&1 |> String.split(",") |> List.first()))
-      |> List.delete("Account address")
-      |> Enum.map(&(&1 |> String.trim() |> String.trim_leading("@")))
-      |> Enum.reject(&(&1 == ""))
-
-    User.follow_import(follower, followed_identifiers)
-    json(conn, "job started")
-  end
-
-  def blocks_import(conn, %{"list" => %Plug.Upload{} = listfile}) do
-    blocks_import(conn, %{"list" => File.read!(listfile.path)})
-  end
-
-  def blocks_import(%{assigns: %{user: blocker}} = conn, %{"list" => list}) do
-    blocked_identifiers = list |> String.split() |> Enum.map(&String.trim_leading(&1, "@"))
-    User.blocks_import(blocker, blocked_identifiers)
-    json(conn, "job started")
-  end
-
-  def change_password(%{assigns: %{user: user}} = conn, params) do
-    case CommonAPI.Utils.confirm_current_password(user, params["password"]) do
+  def change_password(%{assigns: %{user: user}, body_params: body_params} = conn, %{}) do
+    case CommonAPI.Utils.confirm_current_password(user, body_params.password) do
       {:ok, user} ->
         with {:ok, _user} <-
                User.reset_password(user, %{
-                 password: params["new_password"],
-                 password_confirmation: params["new_password_confirmation"]
+                 password: body_params.new_password,
+                 password_confirmation: body_params.new_password_confirmation
                }) do
           json(conn, %{status: "success"})
         else
@@ -154,10 +113,10 @@ defmodule Pleroma.Web.TwitterAPI.UtilController do
     end
   end
 
-  def change_email(%{assigns: %{user: user}} = conn, params) do
-    case CommonAPI.Utils.confirm_current_password(user, params["password"]) do
+  def change_email(%{assigns: %{user: user}, body_params: body_params} = conn, %{}) do
+    case CommonAPI.Utils.confirm_current_password(user, body_params.password) do
       {:ok, user} ->
-        with {:ok, _user} <- User.change_email(user, params["email"]) do
+        with {:ok, _user} <- User.change_email(user, body_params.email) do
           json(conn, %{status: "success"})
         else
           {:error, changeset} ->
@@ -173,8 +132,10 @@ defmodule Pleroma.Web.TwitterAPI.UtilController do
     end
   end
 
-  def delete_account(%{assigns: %{user: user}} = conn, params) do
-    password = params["password"] || ""
+  def delete_account(%{assigns: %{user: user}, body_params: body_params} = conn, params) do
+    # This endpoint can accept a query param or JSON body for backwards-compatibility.
+    # Submitting a JSON body is recommended, so passwords don't end up in server logs.
+    password = body_params[:password] || params[:password] || ""
 
     case CommonAPI.Utils.confirm_current_password(user, password) do
       {:ok, user} ->
@@ -187,9 +148,9 @@ defmodule Pleroma.Web.TwitterAPI.UtilController do
   end
 
   def disable_account(%{assigns: %{user: user}} = conn, params) do
-    case CommonAPI.Utils.confirm_current_password(user, params["password"]) do
+    case CommonAPI.Utils.confirm_current_password(user, params[:password]) do
       {:ok, user} ->
-        User.deactivate_async(user)
+        User.set_activation_async(user, false)
         json(conn, %{status: "success"})
 
       {:error, msg} ->

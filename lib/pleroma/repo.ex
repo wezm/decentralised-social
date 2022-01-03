@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Repo do
@@ -49,8 +49,22 @@ defmodule Pleroma.Repo do
     end
   end
 
-  def chunk_stream(query, chunk_size) do
-    # We don't actually need start and end funcitons of resource streaming,
+  @doc """
+  Returns a lazy enumerable that emits all entries from the data store matching the given query.
+
+  `returns_as` use to group records. use the `batches` option to fetch records in bulk.
+
+  ## Examples
+
+  # fetch records one-by-one
+  iex> Pleroma.Repo.chunk_stream(Pleroma.Activity.Queries.by_actor(ap_id), 500)
+
+  # fetch records in bulk
+  iex> Pleroma.Repo.chunk_stream(Pleroma.Activity.Queries.by_actor(ap_id), 500, :batches)
+  """
+  @spec chunk_stream(Ecto.Query.t(), integer(), atom()) :: Enumerable.t()
+  def chunk_stream(query, chunk_size, returns_as \\ :one, query_options \\ []) do
+    # We don't actually need start and end functions of resource streaming,
     # but it seems to be the only way to not fetch records one-by-one and
     # have individual records be the elements of the stream, instead of
     # lists of records
@@ -62,14 +76,19 @@ defmodule Pleroma.Repo do
           |> order_by(asc: :id)
           |> where([r], r.id > ^last_id)
           |> limit(^chunk_size)
-          |> all()
+          |> all(query_options)
           |> case do
             [] ->
               {:halt, last_id}
 
             records ->
               last_id = List.last(records).id
-              {records, last_id}
+
+              if returns_as == :one do
+                {records, last_id}
+              else
+                {[records], last_id}
+              end
           end
       end,
       fn _ -> :ok end

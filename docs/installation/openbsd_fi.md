@@ -10,13 +10,24 @@ suositeltavaa tehdä komennon `doas` avulla, katso `doas (1)` ja `doas.conf (5)`
 Tästä eteenpäin oletuksena on, että domain "esimerkki.com" osoittaa
 serverin IP-osoitteeseen.
 
-Jos asennuksen kanssa on ongelmia, IRC-kanava #pleroma Freenodessa tai
-Matrix-kanava #freenode_#pleroma:matrix.org ovat hyviä paikkoja löytää apua
+Jos asennuksen kanssa on ongelmia, IRC-kanava #pleroma Libera.chat tai
+Matrix-kanava #pleroma:libera.chat ovat hyviä paikkoja löytää apua
 (englanniksi), `/msg eal kukkuu` jos haluat välttämättä puhua härmää.
 
 Asenna tarvittava ohjelmisto:
 
-`# pkg_add git elixir gmake postgresql-server-10.3 postgresql-contrib-10.3 cmake`
+`# pkg_add git elixir gmake postgresql-server-10.3 postgresql-contrib-10.3 cmake ffmpeg ImageMagick`
+
+#### Optional software
+
+[`docs/installation/optional/media_graphics_packages.md`](../installation/optional/media_graphics_packages.md):
+  * ImageMagick
+  * ffmpeg
+  * exiftool
+
+Asenna tarvittava ohjelmisto:
+
+`# pkg_add ImageMagick ffmpeg p5-Image-ExifTool`
 
 Luo postgresql-tietokanta:
 

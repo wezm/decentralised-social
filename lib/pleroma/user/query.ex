@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.User.Query do
@@ -27,7 +27,7 @@ defmodule Pleroma.User.Query do
       - e.g. Pleroma.User.Query.build(%{ap_id: ["http://ap_id1", "http://ap_id2"]})
   """
   import Ecto.Query
-  import Pleroma.Web.AdminAPI.Search, only: [not_empty_string: 1]
+  import Pleroma.Web.Utils.Guards, only: [not_empty_string: 1]
 
   alias Pleroma.FollowingRelationship
   alias Pleroma.User
@@ -43,10 +43,14 @@ defmodule Pleroma.User.Query do
             active: boolean(),
             deactivated: boolean(),
             need_approval: boolean(),
+            unconfirmed: boolean(),
             is_admin: boolean(),
             is_moderator: boolean(),
+            is_suggested: boolean(),
+            is_discoverable: boolean(),
             super_users: boolean(),
             invisible: boolean(),
+            internal: boolean(),
             followers: User.t(),
             friends: User.t(),
             recipients_from_activity: [String.t()],
@@ -54,7 +58,8 @@ defmodule Pleroma.User.Query do
             ap_id: [String.t()],
             order_by: term(),
             select: term(),
-            limit: pos_integer()
+            limit: pos_integer(),
+            actor_types: [String.t()]
           }
           | map()
 
@@ -80,7 +85,9 @@ defmodule Pleroma.User.Query do
   end
 
   defp prepare_query(query, criteria) do
-    Enum.reduce(criteria, query, &compose_query/2)
+    criteria
+    |> Map.put_new(:internal, false)
+    |> Enum.reduce(query, &compose_query/2)
   end
 
   defp compose_query({key, value}, query)
@@ -107,12 +114,16 @@ defmodule Pleroma.User.Query do
     where(query, [u], fragment("? && ?", u.tags, ^tags))
   end
 
-  defp compose_query({:is_admin, _}, query) do
-    where(query, [u], u.is_admin)
+  defp compose_query({:is_admin, bool}, query) do
+    where(query, [u], u.is_admin == ^bool)
   end
 
-  defp compose_query({:is_moderator, _}, query) do
-    where(query, [u], u.is_moderator)
+  defp compose_query({:actor_types, actor_types}, query) when is_list(actor_types) do
+    where(query, [u], u.actor_type in ^actor_types)
+  end
+
+  defp compose_query({:is_moderator, bool}, query) do
+    where(query, [u], u.is_moderator == ^bool)
   end
 
   defp compose_query({:super_users, _}, query) do
@@ -128,28 +139,42 @@ defmodule Pleroma.User.Query do
   defp compose_query({:external, _}, query), do: location_query(query, false)
 
   defp compose_query({:active, _}, query) do
-    User.restrict_deactivated(query)
-    |> where([u], not is_nil(u.nickname))
-    |> where([u], u.approval_pending == false)
+    where(query, [u], u.is_active == true)
+    |> where([u], u.is_approved == true)
+    |> where([u], u.is_confirmed == true)
   end
 
   defp compose_query({:legacy_active, _}, query) do
     query
     |> where([u], fragment("not (?->'deactivated' @> 'true')", u.info))
-    |> where([u], not is_nil(u.nickname))
   end
 
   defp compose_query({:deactivated, false}, query) do
-    User.restrict_deactivated(query)
+    where(query, [u], u.is_active == true)
   end
 
   defp compose_query({:deactivated, true}, query) do
-    where(query, [u], u.deactivated == ^true)
-    |> where([u], not is_nil(u.nickname))
+    where(query, [u], u.is_active == false)
+  end
+
+  defp compose_query({:confirmation_pending, bool}, query) do
+    where(query, [u], u.is_confirmed != ^bool)
   end
 
   defp compose_query({:need_approval, _}, query) do
-    where(query, [u], u.approval_pending)
+    where(query, [u], u.is_approved == false)
+  end
+
+  defp compose_query({:unconfirmed, _}, query) do
+    where(query, [u], u.is_confirmed == false)
+  end
+
+  defp compose_query({:is_suggested, bool}, query) do
+    where(query, [u], u.is_suggested == ^bool)
+  end
+
+  defp compose_query({:is_discoverable, bool}, query) do
+    where(query, [u], u.is_discoverable == ^bool)
   end
 
   defp compose_query({:followers, %User{id: id}}, query) do
@@ -199,10 +224,15 @@ defmodule Pleroma.User.Query do
     limit(query, ^limit)
   end
 
+  defp compose_query({:internal, false}, query) do
+    query
+    |> where([u], not is_nil(u.nickname))
+    |> where([u], not like(u.nickname, "internal.%"))
+  end
+
   defp compose_query(_unsupported_param, query), do: query
 
   defp location_query(query, local) do
     where(query, [u], u.local == ^local)
-    |> where([u], not is_nil(u.nickname))
   end
 end

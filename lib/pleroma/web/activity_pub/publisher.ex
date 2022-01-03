@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ActivityPub.Publisher do
@@ -49,34 +49,31 @@ defmodule Pleroma.Web.ActivityPub.Publisher do
   """
   def publish_one(%{inbox: inbox, json: json, actor: %User{} = actor, id: id} = params) do
     Logger.debug("Federating #{id} to #{inbox}")
-
-    uri = URI.parse(inbox)
-
+    uri = %{path: path} = URI.parse(inbox)
     digest = "SHA-256=" <> (:crypto.hash(:sha256, json) |> Base.encode64())
 
     date = Pleroma.Signature.signed_date()
 
     signature =
       Pleroma.Signature.sign(actor, %{
-        "(request-target)": "post #{uri.path}",
+        "(request-target)": "post #{path}",
         host: signature_host(uri),
         "content-length": byte_size(json),
         digest: digest,
         date: date
       })
 
-    with {:ok, %{status: code}} when code in 200..299 <-
-           result =
-             HTTP.post(
-               inbox,
-               json,
-               [
-                 {"Content-Type", "application/activity+json"},
-                 {"Date", date},
-                 {"signature", signature},
-                 {"digest", digest}
-               ]
-             ) do
+    with {:ok, %{status: code}} = result when code in 200..299 <-
+           HTTP.post(
+             inbox,
+             json,
+             [
+               {"Content-Type", "application/activity+json"},
+               {"Date", date},
+               {"signature", signature},
+               {"digest", digest}
+             ]
+           ) do
       if not Map.has_key?(params, :unreachable_since) || params[:unreachable_since] do
         Instances.set_reachable(inbox)
       end
@@ -114,6 +111,7 @@ defmodule Pleroma.Web.ActivityPub.Publisher do
 
       quarantined_instances =
         Config.get([:instance, :quarantined_instances], [])
+        |> Pleroma.Web.ActivityPub.MRF.instance_list_from_tuples()
         |> Pleroma.Web.ActivityPub.MRF.subdomains_regex()
 
       !Pleroma.Web.ActivityPub.MRF.subdomain_match?(quarantined_instances, host)
@@ -131,7 +129,7 @@ defmodule Pleroma.Web.ActivityPub.Publisher do
 
     fetchers =
       with %Activity{data: %{"type" => "Delete"}} <- activity,
-           %Object{id: object_id} <- Object.normalize(activity),
+           %Object{id: object_id} <- Object.normalize(activity, fetch: false),
            fetchers <- User.get_delivered_users_by_object_id(object_id),
            _ <- Delivery.delete_all_by_object_id(object_id) do
         fetchers
@@ -230,9 +228,7 @@ defmodule Pleroma.Web.ActivityPub.Publisher do
     end)
   end
 
-  @doc """
-  Publishes an activity to all relevant peers.
-  """
+  # Publishes an activity to all relevant peers.
   def publish(%User{} = actor, %Activity{} = activity) do
     public = is_public?(activity)
 
@@ -276,7 +272,7 @@ defmodule Pleroma.Web.ActivityPub.Publisher do
       },
       %{
         "rel" => "http://ostatus.org/schema/1.0/subscribe",
-        "template" => "#{Pleroma.Web.base_url()}/ostatus_subscribe?acct={uri}"
+        "template" => "#{Pleroma.Web.Endpoint.url()}/ostatus_subscribe?acct={uri}"
       }
     ]
   end

@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.AccountView do
@@ -7,6 +7,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
 
   alias Pleroma.FollowingRelationship
   alias Pleroma.User
+  alias Pleroma.UserNote
   alias Pleroma.UserRelationship
   alias Pleroma.Web.CommonAPI.Utils
   alias Pleroma.Web.MastodonAPI.AccountView
@@ -101,6 +102,15 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
         User.following?(target, reading_user)
       end
 
+    subscribing =
+      UserRelationship.exists?(
+        user_relationships,
+        :inverse_subscription,
+        target,
+        reading_user,
+        &User.subscribed_to?(&2, &1)
+      )
+
     # NOTE: adjust UserRelationship.view_relationships_option/2 on new relation-related flags
     %{
       id: to_string(target.id),
@@ -138,14 +148,8 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
           target,
           &User.muted_notifications?(&1, &2)
         ),
-      subscribing:
-        UserRelationship.exists?(
-          user_relationships,
-          :inverse_subscription,
-          target,
-          reading_user,
-          &User.subscribed_to?(&2, &1)
-        ),
+      subscribing: subscribing,
+      notifying: subscribing,
       requested: follow_state == :follow_pending,
       domain_blocking: User.blocks_domain?(reading_user, target),
       showing_reblogs:
@@ -156,7 +160,12 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
           target,
           &User.muting_reblogs?(&1, &2)
         ),
-      endorsed: false
+      endorsed: false,
+      note:
+        UserNote.show(
+          reading_user,
+          target
+        )
     }
   end
 
@@ -181,22 +190,20 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
     user = User.sanitize_html(user, User.html_filter_policy(opts[:for]))
     display_name = user.name || user.nickname
 
-    image = User.avatar_url(user) |> MediaProxy.url()
+    avatar = User.avatar_url(user) |> MediaProxy.url()
+    avatar_static = User.avatar_url(user) |> MediaProxy.preview_url(static: true)
     header = User.banner_url(user) |> MediaProxy.url()
+    header_static = User.banner_url(user) |> MediaProxy.preview_url(static: true)
 
     following_count =
-      if !user.hide_follows_count or !user.hide_follows or opts[:for] == user do
-        user.following_count || 0
-      else
-        0
-      end
+      if !user.hide_follows_count or !user.hide_follows or opts[:for] == user,
+        do: user.following_count,
+        else: 0
 
     followers_count =
-      if !user.hide_followers_count or !user.hide_followers or opts[:for] == user do
-        user.follower_count || 0
-      else
-        0
-      end
+      if !user.hide_followers_count or !user.hide_followers or opts[:for] == user,
+        do: user.follower_count,
+        else: 0
 
     bot = user.actor_type == "Service"
 
@@ -240,17 +247,17 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
       username: username_from_nickname(user.nickname),
       acct: user.nickname,
       display_name: display_name,
-      locked: user.locked,
+      locked: user.is_locked,
       created_at: Utils.to_masto_date(user.inserted_at),
       followers_count: followers_count,
       following_count: following_count,
       statuses_count: user.note_count,
       note: user.bio,
       url: user.uri || user.ap_id,
-      avatar: image,
-      avatar_static: image,
+      avatar: avatar,
+      avatar_static: avatar_static,
       header: header,
-      header_static: header,
+      header_static: header_static,
       emojis: emojis,
       fields: user.fields,
       bot: bot,
@@ -259,15 +266,20 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
         sensitive: false,
         fields: user.raw_fields,
         pleroma: %{
-          discoverable: user.discoverable,
+          discoverable: user.is_discoverable,
           actor_type: user.actor_type
         }
       },
+      last_status_at: user.last_status_at,
 
-      # Pleroma extension
+      # Pleroma extensions
+      # Note: it's insecure to output :email but fully-qualified nickname may serve as safe stub
+      fqn: User.full_nickname(user),
       pleroma: %{
         ap_id: user.ap_id,
-        confirmation_pending: user.confirmation_pending,
+        also_known_as: user.also_known_as,
+        is_confirmed: user.is_confirmed,
+        is_suggested: user.is_suggested,
         tags: user.tags,
         hide_followers_count: user.hide_followers_count,
         hide_follows_count: user.hide_follows_count,
@@ -291,6 +303,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
     |> maybe_put_allow_following_move(user, opts[:for])
     |> maybe_put_unread_conversation_count(user, opts[:for])
     |> maybe_put_unread_notification_count(user, opts[:for])
+    |> maybe_put_email_address(user, opts[:for])
   end
 
   defp username_from_nickname(string) when is_binary(string) do
@@ -377,7 +390,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
   defp maybe_put_allow_following_move(data, _, _), do: data
 
   defp maybe_put_activation_status(data, user, %User{is_admin: true}) do
-    Kernel.put_in(data, [:pleroma, :deactivated], user.deactivated)
+    Kernel.put_in(data, [:pleroma, :deactivated], !user.is_active)
   end
 
   defp maybe_put_activation_status(data, _, _), do: data
@@ -386,7 +399,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
     data
     |> Kernel.put_in(
       [:pleroma, :unread_conversation_count],
-      user.unread_conversation_count
+      Pleroma.Conversation.Participation.unread_count(user)
     )
   end
 
@@ -401,6 +414,16 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
   end
 
   defp maybe_put_unread_notification_count(data, _, _), do: data
+
+  defp maybe_put_email_address(data, %User{id: user_id}, %User{id: user_id} = user) do
+    Kernel.put_in(
+      data,
+      [:pleroma, :email],
+      user.email
+    )
+  end
+
+  defp maybe_put_email_address(data, _, _), do: data
 
   defp image_url(%{"url" => [%{"href" => href} | _]}), do: href
   defp image_url(_), do: nil

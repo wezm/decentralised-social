@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.AdminAPI.InviteController do
@@ -8,17 +8,17 @@ defmodule Pleroma.Web.AdminAPI.InviteController do
   import Pleroma.Web.ControllerHelper, only: [json_response: 3]
 
   alias Pleroma.Config
-  alias Pleroma.Plugs.OAuthScopesPlug
   alias Pleroma.UserInviteToken
+  alias Pleroma.Web.Plugs.OAuthScopesPlug
 
   require Logger
 
   plug(Pleroma.Web.ApiSpec.CastAndValidate)
-  plug(OAuthScopesPlug, %{scopes: ["read:invites"], admin: true} when action == :index)
+  plug(OAuthScopesPlug, %{scopes: ["admin:read:invites"]} when action == :index)
 
   plug(
     OAuthScopesPlug,
-    %{scopes: ["write:invites"], admin: true} when action in [:create, :revoke, :email]
+    %{scopes: ["admin:write:invites"]} when action in [:create, :revoke, :email]
   )
 
   action_fallback(Pleroma.Web.AdminAPI.FallbackController)

@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.PleromaAPI.ScrobbleView do
@@ -10,14 +10,14 @@ defmodule Pleroma.Web.PleromaAPI.ScrobbleView do
   alias Pleroma.Activity
   alias Pleroma.HTML
   alias Pleroma.Object
+  alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.CommonAPI.Utils
   alias Pleroma.Web.MastodonAPI.AccountView
-  alias Pleroma.Web.MastodonAPI.StatusView
 
   def render("show.json", %{activity: %Activity{data: %{"type" => "Listen"}} = activity} = opts) do
-    object = Object.normalize(activity)
+    object = Object.normalize(activity, fetch: false)
 
-    user = StatusView.get_user(activity.data["actor"])
+    user = CommonAPI.get_user(activity.data["actor"])
     created_at = Utils.to_masto_date(activity.data["published"])
 
     %{

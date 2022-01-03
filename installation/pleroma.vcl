@@ -1,3 +1,4 @@
+# Recommended varnishncsa logging format: '%h %l %u %t "%m %{X-Forwarded-Proto}i://%{Host}i%U%q %H" %s %b "%{Referer}i" "%{User-agent}i"'
 vcl 4.1;
 import std;
 
@@ -14,8 +15,11 @@ acl purge {
 sub vcl_recv {
     # Redirect HTTP to HTTPS
     if (std.port(server.ip) != 443) {
+      set req.http.X-Forwarded-Proto = "http";
       set req.http.x-redir = "https://" + req.http.host + req.url;
       return (synth(750, ""));
+    } else {
+      set req.http.X-Forwarded-Proto = "https";
     }
 
     # CHUNKED SUPPORT
@@ -53,6 +57,13 @@ sub vcl_backend_response {
     if (bereq.http.x-range ~ "bytes=" && beresp.status == 206) {
       set beresp.ttl = 10m;
       set beresp.http.CR = beresp.http.content-range;
+    }
+
+    # Bypass cache for large files
+    # 50000000 ~ 50MB
+    if (std.integer(beresp.http.content-length, 0) > 50000000) {
+       set beresp.uncacheable = true;
+       return(deliver);
     }
 
     # Don't cache objects that require authentication
@@ -105,7 +116,7 @@ sub vcl_hash {
 
 sub vcl_backend_fetch {
     # Be more lenient for slow servers on the fediverse
-    if bereq.url ~ "^/proxy/" {
+    if (bereq.url ~ "^/proxy/") {
       set bereq.first_byte_timeout = 300s;
     }
 

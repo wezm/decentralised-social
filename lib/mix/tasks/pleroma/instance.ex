@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Mix.Tasks.Pleroma.Instance do
@@ -33,7 +33,10 @@ defmodule Mix.Tasks.Pleroma.Instance do
           uploads_dir: :string,
           static_dir: :string,
           listen_ip: :string,
-          listen_port: :string
+          listen_port: :string,
+          strip_uploads: :string,
+          anonymize_uploads: :string,
+          dedupe_uploads: :string
         ],
         aliases: [
           o: :output,
@@ -158,11 +161,45 @@ defmodule Mix.Tasks.Pleroma.Instance do
         )
         |> Path.expand()
 
+      {strip_uploads_message, strip_uploads_default} =
+        if Pleroma.Utils.command_available?("exiftool") do
+          {"Do you want to strip location (GPS) data from uploaded images? This requires exiftool, it was detected as installed. (y/n)",
+           "y"}
+        else
+          {"Do you want to strip location (GPS) data from uploaded images? This requires exiftool, it was detected as not installed, please install it if you answer yes. (y/n)",
+           "n"}
+        end
+
+      strip_uploads =
+        get_option(
+          options,
+          :strip_uploads,
+          strip_uploads_message,
+          strip_uploads_default
+        ) === "y"
+
+      anonymize_uploads =
+        get_option(
+          options,
+          :anonymize_uploads,
+          "Do you want to anonymize the filenames of uploads? (y/n)",
+          "n"
+        ) === "y"
+
+      dedupe_uploads =
+        get_option(
+          options,
+          :dedupe_uploads,
+          "Do you want to deduplicate uploaded files? (y/n)",
+          "n"
+        ) === "y"
+
       Config.put([:instance, :static_dir], static_dir)
 
       secret = :crypto.strong_rand_bytes(64) |> Base.encode64() |> binary_part(0, 64)
       jwt_secret = :crypto.strong_rand_bytes(64) |> Base.encode64() |> binary_part(0, 64)
       signing_salt = :crypto.strong_rand_bytes(8) |> Base.encode64() |> binary_part(0, 8)
+      lv_signing_salt = :crypto.strong_rand_bytes(8) |> Base.encode64() |> binary_part(0, 8)
       {web_push_public_key, web_push_private_key} = :crypto.generate_key(:ecdh, :prime256v1)
       template_dir = Application.app_dir(:pleroma, "priv") <> "/templates"
 
@@ -181,6 +218,7 @@ defmodule Mix.Tasks.Pleroma.Instance do
           secret: secret,
           jwt_secret: jwt_secret,
           signing_salt: signing_salt,
+          lv_signing_salt: lv_signing_salt,
           web_push_public_key: Base.url_encode64(web_push_public_key, padding: false),
           web_push_private_key: Base.url_encode64(web_push_private_key, padding: false),
           db_configurable?: db_configurable?,
@@ -188,7 +226,13 @@ defmodule Mix.Tasks.Pleroma.Instance do
           uploads_dir: uploads_dir,
           rum_enabled: rum_enabled,
           listen_ip: listen_ip,
-          listen_port: listen_port
+          listen_port: listen_port,
+          upload_filters:
+            upload_filters(%{
+              strip: strip_uploads,
+              anonymize: anonymize_uploads,
+              dedupe: dedupe_uploads
+            })
         )
 
       result_psql =
@@ -199,6 +243,13 @@ defmodule Mix.Tasks.Pleroma.Instance do
           dbpass: dbpass,
           rum_enabled: rum_enabled
         )
+
+      config_dir = Path.dirname(config_path)
+      psql_dir = Path.dirname(psql_path)
+
+      [config_dir, psql_dir, static_dir, uploads_dir]
+      |> Enum.reject(&File.exists?/1)
+      |> Enum.map(&File.mkdir_p!/1)
 
       shell_info("Writing config to #{config_path}.")
 
@@ -220,7 +271,7 @@ defmodule Mix.Tasks.Pleroma.Instance do
     else
       shell_error(
         "The task would have overwritten the following files:\n" <>
-          (Enum.map(paths, &"- #{&1}\n") |> Enum.join("")) <>
+          (Enum.map(will_overwrite, &"- #{&1}\n") |> Enum.join("")) <>
           "Rerun with `--force` to overwrite them."
       )
     end
@@ -233,10 +284,6 @@ defmodule Mix.Tasks.Pleroma.Instance do
         indexable: indexable
       )
 
-    unless File.exists?(static_dir) do
-      File.mkdir_p!(static_dir)
-    end
-
     robots_txt_path = Path.join(static_dir, "robots.txt")
 
     if File.exists?(robots_txt_path) do
@@ -247,4 +294,31 @@ defmodule Mix.Tasks.Pleroma.Instance do
     File.write(robots_txt_path, robots_txt)
     shell_info("Writing #{robots_txt_path}.")
   end
+
+  defp upload_filters(filters) when is_map(filters) do
+    enabled_filters =
+      if filters.strip do
+        [Pleroma.Upload.Filter.Exiftool]
+      else
+        []
+      end
+
+    enabled_filters =
+      if filters.anonymize do
+        enabled_filters ++ [Pleroma.Upload.Filter.AnonymizeFilename]
+      else
+        enabled_filters
+      end
+
+    enabled_filters =
+      if filters.dedupe do
+        enabled_filters ++ [Pleroma.Upload.Filter.Dedupe]
+      else
+        enabled_filters
+      end
+
+    enabled_filters
+  end
+
+  defp upload_filters(_), do: []
 end

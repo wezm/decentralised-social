@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.Push.Impl do
@@ -16,10 +16,10 @@ defmodule Pleroma.Web.Push.Impl do
   require Logger
   import Ecto.Query
 
-  @types ["Create", "Follow", "Announce", "Like", "Move"]
+  @types ["Create", "Follow", "Announce", "Like", "Move", "EmojiReact"]
 
   @doc "Performs sending notifications for user subscriptions"
-  @spec perform(Notification.t()) :: list(any) | :error
+  @spec perform(Notification.t()) :: list(any) | :error | {:error, :unknown_type}
   def perform(
         %{
           activity: %{data: %{"type" => activity_type}} = activity,
@@ -32,7 +32,7 @@ defmodule Pleroma.Web.Push.Impl do
     mastodon_type = notification.type
     gcm_api_key = Application.get_env(:web_push_encryption, :gcm_api_key)
     avatar_url = User.avatar_url(actor)
-    object = Object.normalize(activity, false)
+    object = Object.normalize(activity, fetch: false)
     user = User.get_cached_by_id(user_id)
     direct_conversation_id = Activity.direct_conversation_id(activity, user)
 
@@ -64,20 +64,20 @@ defmodule Pleroma.Web.Push.Impl do
   @doc "Push message to web"
   def push_message(body, sub, api_key, subscription) do
     case WebPushEncryption.send_web_push(body, sub, api_key) do
-      {:ok, %{status_code: code}} when 400 <= code and code < 500 ->
+      {:ok, %{status: code}} when code in 400..499 ->
         Logger.debug("Removing subscription record")
         Repo.delete!(subscription)
         :ok
 
-      {:ok, %{status_code: code}} when 200 <= code and code < 300 ->
+      {:ok, %{status: code}} when code in 200..299 ->
         :ok
 
-      {:ok, %{status_code: code}} ->
+      {:ok, %{status: code}} ->
         Logger.error("Web Push Notification failed with code: #{code}")
         :error
 
-      _ ->
-        Logger.error("Web Push Notification failed with unknown error")
+      error ->
+        Logger.error("Web Push Notification failed with #{inspect(error)}")
         :error
     end
   end
@@ -124,8 +124,8 @@ defmodule Pleroma.Web.Push.Impl do
 
   def format_body(activity, actor, object, mastodon_type \\ nil)
 
-  def format_body(_activity, actor, %{data: %{"type" => "ChatMessage", "content" => content}}, _) do
-    case content do
+  def format_body(_activity, actor, %{data: %{"type" => "ChatMessage"} = data}, _) do
+    case data["content"] do
       nil -> "@#{actor.nickname}: (Attachment)"
       content -> "@#{actor.nickname}: #{Utils.scrub_html_and_truncate(content, 80)}"
     end
@@ -147,6 +147,15 @@ defmodule Pleroma.Web.Push.Impl do
         _mastodon_type
       ) do
     "@#{actor.nickname} repeated: #{Utils.scrub_html_and_truncate(content, 80)}"
+  end
+
+  def format_body(
+        %{activity: %{data: %{"type" => "EmojiReact", "content" => content}}},
+        actor,
+        _object,
+        _mastodon_type
+      ) do
+    "@#{actor.nickname} reacted with #{content}"
   end
 
   def format_body(
@@ -179,6 +188,7 @@ defmodule Pleroma.Web.Push.Impl do
       "reblog" -> "New Repeat"
       "favourite" -> "New Favorite"
       "pleroma:chat_mention" -> "New Chat Message"
+      "pleroma:emoji_reaction" -> "New Reaction"
       type -> "New #{String.capitalize(type || "event")}"
     end
   end

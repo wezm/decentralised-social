@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ApiSpec.Schemas.AccountRelationship do
@@ -10,7 +10,7 @@ defmodule Pleroma.Web.ApiSpec.Schemas.AccountRelationship do
 
   OpenApiSpex.schema(%{
     title: "AccountRelationship",
-    description: "Response schema for relationship",
+    description: "Relationship between current account and requested account",
     type: :object,
     properties: %{
       blocked_by: %Schema{type: :boolean},
@@ -22,9 +22,11 @@ defmodule Pleroma.Web.ApiSpec.Schemas.AccountRelationship do
       id: FlakeID,
       muting: %Schema{type: :boolean},
       muting_notifications: %Schema{type: :boolean},
+      note: %Schema{type: :string},
       requested: %Schema{type: :boolean},
       showing_reblogs: %Schema{type: :boolean},
-      subscribing: %Schema{type: :boolean}
+      subscribing: %Schema{type: :boolean},
+      notifying: %Schema{type: :boolean}
     },
     example: %{
       "blocked_by" => false,
@@ -36,9 +38,11 @@ defmodule Pleroma.Web.ApiSpec.Schemas.AccountRelationship do
       "id" => "9tKi3esbG7OQgZ2920",
       "muting" => false,
       "muting_notifications" => false,
+      "note" => "",
       "requested" => false,
       "showing_reblogs" => true,
-      "subscribing" => false
+      "subscribing" => false,
+      "notifying" => false
     }
   })
 end

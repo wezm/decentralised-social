@@ -1,3 +1,7 @@
+# Pleroma: A lightweight social networking server
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule Pleroma.Docs.JSON do
   @behaviour Pleroma.Docs.Generator
   @external_resource "config/description.exs"
@@ -7,7 +11,11 @@ defmodule Pleroma.Docs.JSON do
 
   @spec compile :: :ok
   def compile do
-    :persistent_term.put(@term, Pleroma.Docs.Generator.convert_to_strings(@raw_descriptions))
+    descriptions =
+      Pleroma.Web.ActivityPub.MRF.config_descriptions()
+      |> Enum.reduce(@raw_descriptions, fn description, acc -> [description | acc] end)
+
+    :persistent_term.put(@term, Pleroma.Docs.Generator.convert_to_strings(descriptions))
   end
 
   @spec compiled_descriptions :: Map.t()

@@ -1,12 +1,12 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.Auth.TOTPAuthenticator do
   alias Pleroma.MFA
   alias Pleroma.MFA.TOTP
-  alias Pleroma.Plugs.AuthenticationPlug
   alias Pleroma.User
+  alias Pleroma.Web.Plugs.AuthenticationPlug
 
   @doc "Verify code or check backup code."
   @spec verify(String.t(), User.t()) ::

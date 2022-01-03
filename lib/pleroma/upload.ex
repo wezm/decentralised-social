@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Upload do
@@ -23,6 +23,9 @@ defmodule Pleroma.Upload do
     is once created permanent and changing it (especially in uploaders) is probably a bad idea!
   * `:tempfile` - path to the temporary file. Prefer in-place changes on the file rather than changing the
   path as the temporary file is also tracked by `Plug.Upload{}` and automatically deleted once the request is over.
+  * `:width` - width of the media in pixels
+  * `:height` - height of the media in pixels
+  * `:blurhash` - string hash of the image encoded with the blurhash algorithm (https://blurha.sh/)
 
   Related behaviors:
 
@@ -31,6 +34,8 @@ defmodule Pleroma.Upload do
 
   """
   alias Ecto.UUID
+  alias Pleroma.Config
+  alias Pleroma.Maps
   require Logger
 
   @type source ::
@@ -52,9 +57,12 @@ defmodule Pleroma.Upload do
           name: String.t(),
           tempfile: String.t(),
           content_type: String.t(),
+          width: integer(),
+          height: integer(),
+          blurhash: String.t(),
           path: String.t()
         }
-  defstruct [:id, :name, :tempfile, :content_type, :path]
+  defstruct [:id, :name, :tempfile, :content_type, :width, :height, :blurhash, :path]
 
   defp get_description(opts, upload) do
     case {opts[:description], Pleroma.Config.get([Pleroma.Upload, :default_description])} do
@@ -66,6 +74,7 @@ defmodule Pleroma.Upload do
   end
 
   @spec store(source, options :: [option()]) :: {:ok, Map.t()} | {:error, any()}
+  @doc "Store a file. If using a `Plug.Upload{}` as the source, be sure to use `Majic.Plug` to ensure its content_type and filename is correct."
   def store(upload, opts \\ []) do
     opts = get_opts(opts)
 
@@ -87,9 +96,12 @@ defmodule Pleroma.Upload do
              "mediaType" => upload.content_type,
              "href" => url_from_spec(upload, opts.base_url, url_spec)
            }
+           |> Maps.put_if_present("width", upload.width)
+           |> Maps.put_if_present("height", upload.height)
          ],
          "name" => description
-       }}
+       }
+       |> Maps.put_if_present("blurhash", upload.blurhash)}
     else
       {:description_limit, _} ->
         {:error, :description_too_long}
@@ -129,24 +141,18 @@ defmodule Pleroma.Upload do
       uploader: Keyword.get(opts, :uploader, Pleroma.Config.get([__MODULE__, :uploader])),
       filters: Keyword.get(opts, :filters, Pleroma.Config.get([__MODULE__, :filters])),
       description: Keyword.get(opts, :description),
-      base_url:
-        Keyword.get(
-          opts,
-          :base_url,
-          Pleroma.Config.get([__MODULE__, :base_url], Pleroma.Web.base_url())
-        )
+      base_url: base_url()
     }
   end
 
   defp prepare_upload(%Plug.Upload{} = file, opts) do
-    with :ok <- check_file_size(file.path, opts.size_limit),
-         {:ok, content_type, name} <- Pleroma.MIME.file_mime_type(file.path, file.filename) do
+    with :ok <- check_file_size(file.path, opts.size_limit) do
       {:ok,
        %__MODULE__{
          id: UUID.generate(),
-         name: name,
+         name: file.filename,
          tempfile: file.path,
-         content_type: content_type
+         content_type: file.content_type
        }}
     end
   end
@@ -154,16 +160,17 @@ defmodule Pleroma.Upload do
   defp prepare_upload(%{img: "data:image/" <> image_data}, opts) do
     parsed = Regex.named_captures(~r/(?<filetype>jpeg|png|gif);base64,(?<data>.*)/, image_data)
     data = Base.decode64!(parsed["data"], ignore: :whitespace)
-    hash = String.downcase(Base.encode16(:crypto.hash(:sha256, data)))
+    hash = Base.encode16(:crypto.hash(:sha256, data), lower: true)
 
     with :ok <- check_binary_size(data, opts.size_limit),
          tmp_path <- tempfile_for_image(data),
-         {:ok, content_type, name} <-
-           Pleroma.MIME.bin_mime_type(data, hash <> "." <> parsed["filetype"]) do
+         {:ok, %{mime_type: content_type}} <-
+           Majic.perform({:bytes, data}, pool: Pleroma.MajicPool),
+         [ext | _] <- MIME.extensions(content_type) do
       {:ok,
        %__MODULE__{
          id: UUID.generate(),
-         name: name,
+         name: hash <> "." <> ext,
          tempfile: tmp_path,
          content_type: content_type
        }}
@@ -172,7 +179,7 @@ defmodule Pleroma.Upload do
 
   # For Mix.Tasks.MigrateLocalUploads
   defp prepare_upload(%__MODULE__{tempfile: path} = upload, _opts) do
-    with {:ok, content_type} <- Pleroma.MIME.file_mime_type(path) do
+    with {:ok, %{mime_type: content_type}} <- Majic.perform(path, pool: Pleroma.MajicPool) do
       {:ok, %__MODULE__{upload | content_type: content_type}}
     end
   end
@@ -215,16 +222,46 @@ defmodule Pleroma.Upload do
           ""
         end
 
-    prefix =
-      if is_nil(Pleroma.Config.get([__MODULE__, :base_url])) do
-        "media"
-      else
-        ""
-      end
-
-    [base_url, prefix, path]
+    [base_url, path]
     |> Path.join()
   end
 
   defp url_from_spec(_upload, _base_url, {:url, url}), do: url
+
+  def base_url do
+    uploader = Config.get([Pleroma.Upload, :uploader])
+    upload_base_url = Config.get([Pleroma.Upload, :base_url])
+    public_endpoint = Config.get([uploader, :public_endpoint])
+
+    case uploader do
+      Pleroma.Uploaders.Local ->
+        upload_base_url || Pleroma.Web.Endpoint.url() <> "/media/"
+
+      Pleroma.Uploaders.S3 ->
+        bucket = Config.get([Pleroma.Uploaders.S3, :bucket])
+        truncated_namespace = Config.get([Pleroma.Uploaders.S3, :truncated_namespace])
+        namespace = Config.get([Pleroma.Uploaders.S3, :bucket_namespace])
+
+        bucket_with_namespace =
+          cond do
+            !is_nil(truncated_namespace) ->
+              truncated_namespace
+
+            !is_nil(namespace) ->
+              namespace <> ":" <> bucket
+
+            true ->
+              bucket
+          end
+
+        if public_endpoint do
+          Path.join([public_endpoint, bucket_with_namespace])
+        else
+          Path.join([upload_base_url, bucket_with_namespace])
+        end
+
+      _ ->
+        public_endpoint || upload_base_url || Pleroma.Web.Endpoint.url() <> "/media/"
+    end
+  end
 end

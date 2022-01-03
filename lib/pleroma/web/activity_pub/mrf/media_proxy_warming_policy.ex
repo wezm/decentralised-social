@@ -1,43 +1,48 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ActivityPub.MRF.MediaProxyWarmingPolicy do
   @moduledoc "Preloads any attachments in the MediaProxy cache by prefetching them"
-  @behaviour Pleroma.Web.ActivityPub.MRF
+  @behaviour Pleroma.Web.ActivityPub.MRF.Policy
 
   alias Pleroma.HTTP
   alias Pleroma.Web.MediaProxy
-  alias Pleroma.Workers.BackgroundWorker
 
   require Logger
 
-  @options [
-    pool: :media
+  @adapter_options [
+    pool: :media,
+    recv_timeout: 10_000
   ]
 
-  def perform(:prefetch, url) do
-    Logger.debug("Prefetching #{inspect(url)}")
+  defp prefetch(url) do
+    # Fetching only proxiable resources
+    if MediaProxy.enabled?() and MediaProxy.url_proxiable?(url) do
+      # If preview proxy is enabled, it'll also hit media proxy (so we're caching both requests)
+      prefetch_url = MediaProxy.preview_url(url)
 
-    opts =
-      if Application.get_env(:tesla, :adapter) == Tesla.Adapter.Hackney do
-        Keyword.put(@options, :recv_timeout, 10_000)
+      Logger.debug("Prefetching #{inspect(url)} as #{inspect(prefetch_url)}")
+
+      if Pleroma.Config.get(:env) == :test do
+        fetch(prefetch_url)
       else
-        @options
+        ConcurrentLimiter.limit(__MODULE__, fn ->
+          Task.start(fn -> fetch(prefetch_url) end)
+        end)
       end
-
-    url
-    |> MediaProxy.url()
-    |> HTTP.get([], adapter: opts)
+    end
   end
 
-  def perform(:preload, %{"object" => %{"attachment" => attachments}} = _message) do
+  defp fetch(url), do: HTTP.get(url, [], @adapter_options)
+
+  defp preload(%{"object" => %{"attachment" => attachments}} = _message) do
     Enum.each(attachments, fn
       %{"url" => url} when is_list(url) ->
         url
         |> Enum.each(fn
           %{"href" => href} ->
-            BackgroundWorker.enqueue("media_proxy_prefetch", %{"url" => href})
+            prefetch(href)
 
           x ->
             Logger.debug("Unhandled attachment URL object #{inspect(x)}")
@@ -53,7 +58,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.MediaProxyWarmingPolicy do
         %{"type" => "Create", "object" => %{"attachment" => attachments} = _object} = message
       )
       when is_list(attachments) and length(attachments) > 0 do
-    BackgroundWorker.enqueue("media_proxy_preload", %{"message" => message})
+    preload(message)
 
     {:ok, message}
   end

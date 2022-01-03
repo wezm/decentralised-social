@@ -41,13 +41,12 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
-use Mix.Config
+import Config
 
 # General application configuration
 config :pleroma, ecto_repos: [Pleroma.Repo]
 
 config :pleroma, Pleroma.Repo,
-  types: Pleroma.PostgresTypes,
   telemetry_event: [Pleroma.Repo.Instrumenter],
   migration_lock: nil
 
@@ -64,23 +63,24 @@ config :pleroma, Pleroma.Upload,
   filters: [Pleroma.Upload.Filter.Dedupe],
   link_name: false,
   proxy_remote: false,
-  proxy_opts: [
-    redirect_on_failure: false,
-    max_body_length: 25 * 1_048_576,
-    http: [
-      follow_redirect: true,
-      pool: :upload
-    ]
-  ],
   filename_display_max_length: 30,
-  default_description: nil
+  default_description: nil,
+  base_url: nil
 
 config :pleroma, Pleroma.Uploaders.Local, uploads: "uploads"
 
 config :pleroma, Pleroma.Uploaders.S3,
   bucket: nil,
-  streaming_enabled: true,
-  public_endpoint: "https://s3.amazonaws.com"
+  bucket_namespace: nil,
+  truncated_namespace: nil,
+  streaming_enabled: true
+
+config :ex_aws, :s3,
+  # host: "s3.wasabisys.com", # required if not Amazon AWS
+  access_key_id: nil,
+  secret_access_key: nil,
+  # region: "us-east-1", # may be required for Amazon AWS
+  scheme: "https://"
 
 config :pleroma, :emoji,
   shortcode_globs: ["/emoji/custom/**/*.png"],
@@ -123,7 +123,6 @@ websocket_config = [
 
 # Configures the endpoint
 config :pleroma, Pleroma.Web.Endpoint,
-  instrumenters: [Pleroma.Web.Endpoint.Instrumenter],
   url: [host: "localhost"],
   http: [
     ip: {127, 0, 0, 1},
@@ -140,15 +139,18 @@ config :pleroma, Pleroma.Web.Endpoint,
   ],
   protocol: "https",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
+  live_view: [signing_salt: "U5ELgdEwTD3n1+D5s0rY0AMg8/y1STxZ3Zvsl3bWh+oBcGrYdil0rXqPMRd3Glcq"],
   signing_salt: "CqaoopA2",
   render_errors: [view: Pleroma.Web.ErrorView, accepts: ~w(json)],
-  pubsub: [name: Pleroma.PubSub, adapter: Phoenix.PubSub.PG2],
+  pubsub_server: Pleroma.PubSub,
   secure_cookie_flag: true,
   extra_cookie_attrs: [
     "SameSite=Lax"
   ]
 
 # Configures Elixir's Logger
+config :logger, truncate: 65536
+
 config :logger, :console,
   level: :debug,
   format: "\n$time $metadata[$level] $message\n",
@@ -191,7 +193,6 @@ config :pleroma, :instance,
   instance_thumbnail: "/instance/thumbnail.jpeg",
   limit: 5_000,
   description_limit: 5_000,
-  chat_limit: 5_000,
   remote_limit: 100_000,
   upload_limit: 16_000_000,
   avatar_upload_limit: 2_000_000,
@@ -216,7 +217,6 @@ config :pleroma, :instance,
   allow_relay: true,
   public: true,
   quarantined_instances: [],
-  managed_config: true,
   static_dir: "instance/static/",
   allowed_post_formats: [
     "text/plain",
@@ -225,6 +225,7 @@ config :pleroma, :instance,
     "text/bbcode"
   ],
   autofollowed_nicknames: [],
+  autofollowing_nicknames: [],
   max_pinned_statuses: 1,
   attachment_links: false,
   max_report_comment_size: 1000,
@@ -254,7 +255,10 @@ config :pleroma, :instance,
       length: 16
     ]
   ],
-  show_reactions: true
+  show_reactions: true,
+  password_reset_token_validity: 60 * 60 * 24,
+  profile_directory: true,
+  privileged_staff: false
 
 config :pleroma, :welcome,
   direct_message: [
@@ -306,7 +310,7 @@ config :pleroma, :frontend_configurations,
     hideSitename: false,
     hideUserStats: false,
     loginMethod: "password",
-    logo: "/static/logo.png",
+    logo: "/static/logo.svg",
     logoMargin: ".1em",
     logoMask: true,
     minimalScopesMode: false,
@@ -322,9 +326,6 @@ config :pleroma, :frontend_configurations,
     subjectLineBehavior: "email",
     theme: "pleroma-dark",
     webPushNotifications: false
-  },
-  masto_fe: %{
-    showInstanceSpecificPanel: true
   }
 
 config :pleroma, :assets,
@@ -343,8 +344,8 @@ config :pleroma, :assets,
 config :pleroma, :manifest,
   icons: [
     %{
-      src: "/static/logo.png",
-      type: "image/png"
+      src: "/static/logo.svg",
+      type: "image/svg+xml"
     }
   ],
   theme_color: "#282c37",
@@ -353,6 +354,7 @@ config :pleroma, :manifest,
 config :pleroma, :activitypub,
   unfollow_blocked: true,
   outgoing_blocks: true,
+  blockers_visible: true,
   follow_handshake_timeout: 500,
   note_replies_output_limit: 5,
   sign_object_fetches: true,
@@ -391,6 +393,11 @@ config :pleroma, :mrf_keyword,
   federated_timeline_removal: [],
   replace: []
 
+config :pleroma, :mrf_hashtag,
+  sensitive: ["nsfw"],
+  reject: [],
+  federated_timeline_removal: []
+
 config :pleroma, :mrf_subchain, match_actor: %{}
 
 config :pleroma, :mrf_activity_expiration, days: 365
@@ -403,6 +410,8 @@ config :pleroma, :mrf_vocabulary,
 config :pleroma, :mrf_object_age,
   threshold: 604_800,
   actions: [:delist, :strip_followers]
+
+config :pleroma, :mrf_follow_bot, follower_nickname: nil
 
 config :pleroma, :rich_media,
   enabled: true,
@@ -424,6 +433,8 @@ config :pleroma, :media_proxy,
   proxy_opts: [
     redirect_on_failure: false,
     max_body_length: 25 * 1_048_576,
+    # Note: max_read_duration defaults to Pleroma.ReverseProxy.max_read_duration_default/1
+    max_read_duration: 30_000,
     http: [
       follow_redirect: true,
       pool: :media
@@ -436,11 +447,23 @@ config :pleroma, Pleroma.Web.MediaProxy.Invalidation.Http,
   headers: [],
   options: []
 
-config :pleroma, Pleroma.Web.MediaProxy.Invalidation.Script, script_path: nil
+config :pleroma, Pleroma.Web.MediaProxy.Invalidation.Script,
+  script_path: nil,
+  url_format: nil
 
-config :pleroma, :chat, enabled: true
+# Note: media preview proxy depends on media proxy to be enabled
+config :pleroma, :media_preview_proxy,
+  enabled: false,
+  thumbnail_max_width: 600,
+  thumbnail_max_height: 600,
+  image_quality: 85,
+  min_content_length: 100 * 1024
 
-config :phoenix, :format_encoders, json: Jason
+config :pleroma, :shout,
+  enabled: true,
+  limit: 5_000
+
+config :phoenix, :format_encoders, json: Jason, "activity+json": Jason
 
 config :phoenix, :json_library, Jason
 
@@ -454,9 +477,7 @@ config :pleroma, :gopher,
 config :pleroma, Pleroma.Web.Metadata,
   providers: [
     Pleroma.Web.Metadata.Providers.OpenGraph,
-    Pleroma.Web.Metadata.Providers.TwitterCard,
-    Pleroma.Web.Metadata.Providers.RelMe,
-    Pleroma.Web.Metadata.Providers.Feed
+    Pleroma.Web.Metadata.Providers.TwitterCard
   ],
   unfurl_nsfw: false
 
@@ -532,22 +553,25 @@ config :pleroma, Oban,
   log: false,
   queues: [
     activity_expiration: 10,
+    token_expiration: 5,
+    filter_expiration: 1,
+    backup: 1,
     federator_incoming: 50,
     federator_outgoing: 50,
+    ingestion_queue: 50,
     web_push: 50,
     mailer: 10,
     transmogrifier: 20,
     scheduled_activities: 10,
+    poll_notifications: 10,
     background: 5,
     remote_fetcher: 2,
-    attachments_cleanup: 5,
-    new_users_digest: 1
+    attachments_cleanup: 1,
+    new_users_digest: 1,
+    mute_expire: 5
   ],
   plugins: [Oban.Plugins.Pruner],
   crontab: [
-    {"0 0 * * *", Pleroma.Workers.Cron.ClearOauthTokenWorker},
-    {"0 * * * *", Pleroma.Workers.Cron.StatsWorker},
-    {"* * * * *", Pleroma.Workers.Cron.PurgeExpiredActivitiesWorker},
     {"0 0 * * 0", Pleroma.Workers.Cron.DigestEmailsWorker},
     {"0 0 * * *", Pleroma.Workers.Cron.NewUsersDigestWorker}
   ]
@@ -599,10 +623,7 @@ config :ueberauth,
        base_path: "/oauth",
        providers: ueberauth_providers
 
-config :pleroma,
-       :auth,
-       enforce_oauth_admin_scope_usage: true,
-       oauth_consumer_strategies: oauth_consumer_strategies
+config :pleroma, :auth, oauth_consumer_strategies: oauth_consumer_strategies
 
 config :pleroma, Pleroma.Emails.Mailer, adapter: Swoosh.Adapters.Sendmail, enabled: false
 
@@ -619,7 +640,12 @@ config :pleroma, Pleroma.Emails.UserEmail,
 
 config :pleroma, Pleroma.Emails.NewUsersDigestEmail, enabled: false
 
-config :prometheus, Pleroma.Web.Endpoint.MetricsExporter, path: "/api/pleroma/app_metrics"
+config :prometheus, Pleroma.Web.Endpoint.MetricsExporter,
+  enabled: false,
+  auth: false,
+  ip_whitelist: [],
+  path: "/api/pleroma/app_metrics",
+  format: :text
 
 config :pleroma, Pleroma.ScheduledActivity,
   daily_user_limit: 25,
@@ -634,11 +660,15 @@ config :pleroma, :email_notifications,
   }
 
 config :pleroma, :oauth2,
-  token_expires_in: 600,
+  token_expires_in: 3600 * 24 * 365 * 100,
   issue_new_refresh_token: true,
   clean_expired_tokens: false
 
 config :pleroma, :database, rum_enabled: false
+
+config :pleroma, :features, improved_hashtag_timeline: :auto
+
+config :pleroma, :populate_hashtags_table, fault_rate_allowance: 0.01
 
 config :pleroma, :env, Mix.env()
 
@@ -658,9 +688,20 @@ config :pleroma, :rate_limit,
   account_confirmation_resend: {8_640_000, 5},
   ap_routes: {60_000, 15}
 
-config :pleroma, Pleroma.ActivityExpiration, enabled: true
+config :pleroma, Pleroma.Workers.PurgeExpiredActivity, enabled: true, min_lifetime: 600
 
-config :pleroma, Pleroma.Plugs.RemoteIp, enabled: true
+config :pleroma, Pleroma.Web.Plugs.RemoteIp,
+  enabled: true,
+  headers: ["x-forwarded-for"],
+  proxies: [],
+  reserved: [
+    "127.0.0.0/8",
+    "::1/128",
+    "fc00::/7",
+    "10.0.0.0/8",
+    "172.16.0.0/12",
+    "192.168.0.0/16"
+  ]
 
 config :pleroma, :static_fe, enabled: false
 
@@ -672,7 +713,7 @@ config :pleroma, :static_fe, enabled: false
 # With no frontend configuration, the bundled files from the `static` directory will
 # be used.
 #
-# config :pleroma, :frontends, 
+# config :pleroma, :frontends,
 # primary: %{"name" => "pleroma-fe", "ref" => "develop"},
 # admin: %{"name" => "admin-fe", "ref" => "stable"},
 # available: %{...}
@@ -698,7 +739,10 @@ config :pleroma, :frontends,
       "git" => "https://git.pleroma.social/pleroma/fedi-fe",
       "build_url" =>
         "https://git.pleroma.social/pleroma/fedi-fe/-/jobs/artifacts/${ref}/download?job=build",
-      "ref" => "master"
+      "ref" => "master",
+      "custom-http-headers" => [
+        {"service-worker-allowed", "/"}
+      ]
     },
     "admin-fe" => %{
       "name" => "admin-fe",
@@ -736,28 +780,28 @@ config :pleroma, :connections_pool,
   max_connections: 250,
   max_idle_time: 30_000,
   retry: 0,
-  await_up_timeout: 5_000
+  connect_timeout: 5_000
 
 config :pleroma, :pools,
   federation: [
     size: 50,
     max_waiting: 10,
-    timeout: 10_000
+    recv_timeout: 10_000
   ],
   media: [
     size: 50,
-    max_waiting: 10,
-    timeout: 10_000
+    max_waiting: 20,
+    recv_timeout: 15_000
   ],
   upload: [
     size: 25,
     max_waiting: 5,
-    timeout: 15_000
+    recv_timeout: 15_000
   ],
   default: [
     size: 10,
     max_waiting: 2,
-    timeout: 5_000
+    recv_timeout: 5_000
   ]
 
 config :pleroma, :hackney_pools,
@@ -774,6 +818,8 @@ config :pleroma, :hackney_pools,
     timeout: 300_000
   ]
 
+config :pleroma, :majic_pool, size: 2
+
 private_instance? = :if_instance_is_private
 
 config :pleroma, :restrict_unauthenticated,
@@ -784,7 +830,7 @@ config :pleroma, :restrict_unauthenticated,
 config :pleroma, Pleroma.Web.ApiSpec.CastAndValidate, strict: false
 
 config :pleroma, :mrf,
-  policies: Pleroma.Web.ActivityPub.MRF.ObjectAgePolicy,
+  policies: [Pleroma.Web.ActivityPub.MRF.ObjectAgePolicy, Pleroma.Web.ActivityPub.MRF.TagPolicy],
   transparency: true,
   transparency_exclusions: []
 
@@ -792,11 +838,30 @@ config :tzdata, :http_client, Pleroma.HTTP.Tzdata
 
 config :ex_aws, http_client: Pleroma.HTTP.ExAws
 
+config :web_push_encryption, http_client: Pleroma.HTTP.WebPush
+
 config :pleroma, :instances_favicons, enabled: false
 
 config :floki, :html_parser, Floki.HTMLParser.FastHtml
 
 config :pleroma, Pleroma.Web.Auth.Authenticator, Pleroma.Web.Auth.PleromaAuthenticator
+
+config :pleroma, Pleroma.User.Backup,
+  purge_after_days: 30,
+  limit_days: 7,
+  dir: nil
+
+config :pleroma, ConcurrentLimiter, [
+  {Pleroma.Web.RichMedia.Helpers, [max_running: 5, max_waiting: 5]},
+  {Pleroma.Web.ActivityPub.MRF.MediaProxyWarmingPolicy, [max_running: 5, max_waiting: 5]}
+]
+
+config :pleroma, :telemetry,
+  slow_queries_logging: [
+    enabled: false,
+    min_duration: 500_000,
+    exclude_sources: [nil, "oban_jobs"]
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -1,3 +1,7 @@
+# Pleroma: A lightweight social networking server
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule Pleroma.Web.ActivityPub.Builder do
   @moduledoc """
   This module builds the objects. Meant to be used for creating local objects.
@@ -11,6 +15,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
   alias Pleroma.Web.ActivityPub.Relay
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.ActivityPub.Visibility
+  alias Pleroma.Web.CommonAPI.ActivityDraft
 
   require Pleroma.Constants
 
@@ -76,7 +81,7 @@ defmodule Pleroma.Web.ActivityPub.Builder do
 
   @spec delete(User.t(), String.t()) :: {:ok, map(), keyword()}
   def delete(actor, object_id) do
-    object = Object.normalize(object_id, false)
+    object = Object.normalize(object_id, fetch: false)
 
     user = !object && User.get_cached_by_ap_id(object_id)
 
@@ -119,6 +124,37 @@ defmodule Pleroma.Web.ActivityPub.Builder do
        "published" => DateTime.utc_now() |> DateTime.to_iso8601()
      }
      |> Pleroma.Maps.put_if_present("context", context), []}
+  end
+
+  @spec note(ActivityDraft.t()) :: {:ok, map(), keyword()}
+  def note(%ActivityDraft{} = draft) do
+    data =
+      %{
+        "type" => "Note",
+        "to" => draft.to,
+        "cc" => draft.cc,
+        "content" => draft.content_html,
+        "summary" => draft.summary,
+        "sensitive" => draft.sensitive,
+        "context" => draft.context,
+        "attachment" => draft.attachments,
+        "actor" => draft.user.ap_id,
+        "tag" => Keyword.values(draft.tags) |> Enum.uniq()
+      }
+      |> add_in_reply_to(draft.in_reply_to)
+      |> Map.merge(draft.extra)
+
+    {:ok, data, []}
+  end
+
+  defp add_in_reply_to(object, nil), do: object
+
+  defp add_in_reply_to(object, in_reply_to) do
+    with %Object{} = in_reply_to_object <- Object.normalize(in_reply_to, fetch: false) do
+      Map.put(object, "inReplyTo", in_reply_to_object.data["id"])
+    else
+      _ -> object
+    end
   end
 
   def chat_message(actor, recipient, content, opts \\ []) do
@@ -218,6 +254,9 @@ defmodule Pleroma.Web.ActivityPub.Builder do
         actor.ap_id == Relay.ap_id() ->
           [actor.follower_address]
 
+        public? and Visibility.is_local_public?(object) ->
+          [actor.follower_address, object.data["actor"], Utils.as_local_public()]
+
         public? ->
           [actor.follower_address, object.data["actor"], Pleroma.Constants.as_public()]
 
@@ -265,5 +304,37 @@ defmodule Pleroma.Web.ActivityPub.Builder do
        "cc" => cc,
        "context" => object.data["context"]
      }, []}
+  end
+
+  @spec pin(User.t(), Object.t()) :: {:ok, map(), keyword()}
+  def pin(%User{} = user, object) do
+    {:ok,
+     %{
+       "id" => Utils.generate_activity_id(),
+       "target" => pinned_url(user.nickname),
+       "object" => object.data["id"],
+       "actor" => user.ap_id,
+       "type" => "Add",
+       "to" => [Pleroma.Constants.as_public()],
+       "cc" => [user.follower_address]
+     }, []}
+  end
+
+  @spec unpin(User.t(), Object.t()) :: {:ok, map, keyword()}
+  def unpin(%User{} = user, object) do
+    {:ok,
+     %{
+       "id" => Utils.generate_activity_id(),
+       "target" => pinned_url(user.nickname),
+       "object" => object.data["id"],
+       "actor" => user.ap_id,
+       "type" => "Remove",
+       "to" => [Pleroma.Constants.as_public()],
+       "cc" => [user.follower_address]
+     }, []}
+  end
+
+  defp pinned_url(nickname) when is_binary(nickname) do
+    Pleroma.Web.Router.Helpers.activity_pub_url(Pleroma.Web.Endpoint, :pinned, nickname)
   end
 end

@@ -18,21 +18,25 @@ If you are running Linux (glibc or musl) on x86/arm, the recommended way to inst
 ### From Source
 If your platform is not supported, or you just want to be able to edit the source code easily, you may install Pleroma from source.
 
-- [Debian-based](https://docs-develop.pleroma.social/backend/installation/debian_based_en/)
-- [Debian-based (jp)](https://docs-develop.pleroma.social/backend/installation/debian_based_jp/)
 - [Alpine Linux](https://docs-develop.pleroma.social/backend/installation/alpine_linux_en/)
 - [Arch Linux](https://docs-develop.pleroma.social/backend/installation/arch_linux_en/)
+- [CentOS 7](https://docs-develop.pleroma.social/backend/installation/centos7_en/)
+- [Debian-based](https://docs-develop.pleroma.social/backend/installation/debian_based_en/)
+- [Debian-based (jp)](https://docs-develop.pleroma.social/backend/installation/debian_based_jp/)
+- [FreeBSD](https://docs-develop.pleroma.social/backend/installation/freebsd_en/)
 - [Gentoo Linux](https://docs-develop.pleroma.social/backend/installation/gentoo_en/)
 - [NetBSD](https://docs-develop.pleroma.social/backend/installation/netbsd_en/)
 - [OpenBSD](https://docs-develop.pleroma.social/backend/installation/openbsd_en/)
 - [OpenBSD (fi)](https://docs-develop.pleroma.social/backend/installation/openbsd_fi/)
-- [CentOS 7](https://docs-develop.pleroma.social/backend/installation/centos7_en/)
 
 ### OS/Distro packages
-Currently Pleroma is not packaged by any OS/Distros, but if you want to package it for one, we can guide you through the process on our [community channels](#community-channels). If you want to change default options in your Pleroma package, please **discuss it with us first**.
+Currently Pleroma is packaged for [YunoHost](https://yunohost.org). If you want to package Pleroma for any OS/Distros, we can guide you through the process on our [community channels](#community-channels). If you want to change default options in your Pleroma package, please **discuss it with us first**.
 
 ### Docker
 While we don’t provide docker files, other people have written very good ones. Take a look at <https://github.com/angristan/docker-pleroma> or <https://glitch.sh/sn0w/pleroma-docker>.
+
+### Raspberry Pi
+Community maintained Raspberry Pi image that you can flash and run Pleroma on your Raspberry Pi. Available here <https://github.com/guysoft/PleromaPi>.
 
 ### Compilation Troubleshooting
 If you ever encounter compilation issues during the updating of Pleroma, you can try these commands and see if they fix things:
@@ -49,5 +53,5 @@ If you are not developing Pleroma, it is better to use the OTP release, which co
 - Latest Git revision: <https://docs-develop.pleroma.social>
 
 ## Community Channels
-* IRC: **#pleroma** and **#pleroma-dev** on freenode, webchat is available at <https://irc.pleroma.social>
-* Matrix: <https://matrix.to/#/#freenode_#pleroma:matrix.org> and <https://matrix.to/#/#freenode_#pleroma-dev:matrix.org>
+* IRC: **#pleroma** and **#pleroma-dev** on libera.chat, webchat is available at <https://irc.pleroma.social>
+* Matrix: [#pleroma:libera.chat](https://matrix.to/#/#pleroma:libera.chat) and [#pleroma-dev:libera.chat](https://matrix.to/#/#pleroma-dev:libera.chat)

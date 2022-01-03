@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Emails.Mailer do
@@ -35,6 +35,11 @@ defmodule Pleroma.Emails.Mailer do
   def deliver(email, config \\ [])
 
   def deliver(email, config) do
+    # temporary hackney fix until hackney max_connections bug is fixed
+    # https://git.pleroma.social/pleroma/pleroma/-/issues/2101
+    email =
+      Swoosh.Email.put_private(email, :hackney_options, ssl_options: [versions: [:"tlsv1.2"]])
+
     case enabled?() do
       true -> Swoosh.Mailer.deliver(email, parse_config(config))
       false -> {:error, :deliveries_disabled}

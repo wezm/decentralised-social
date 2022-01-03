@@ -4,11 +4,11 @@ defmodule Pleroma.Mixfile do
   def project do
     [
       app: :pleroma,
-      version: version("2.1.50"),
+      version: version("2.4.51"),
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
-      elixirc_options: [warnings_as_errors: warnings_as_errors(Mix.env())],
+      elixirc_options: [warnings_as_errors: warnings_as_errors()],
       xref: [exclude: [:eldap]],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -22,7 +22,7 @@ defmodule Pleroma.Mixfile do
       docs: [
         source_url_pattern:
           "https://git.pleroma.social/pleroma/pleroma/blob/develop/%{path}#L%{line}",
-        logo: "priv/static/static/logo.png",
+        logo: "priv/static/images/logo.png",
         extras: ["README.md", "CHANGELOG.md"] ++ Path.wildcard("docs/**/*.md"),
         groups_for_extras: [
           "Installation manuals": Path.wildcard("docs/installation/*.md"),
@@ -37,7 +37,8 @@ defmodule Pleroma.Mixfile do
         pleroma: [
           include_executables_for: [:unix],
           applications: [ex_syslogger: :load, syslog: :load, eldap: :transient],
-          steps: [:assemble, &put_otp_version/1, &copy_files/1, &copy_nginx_config/1]
+          steps: [:assemble, &put_otp_version/1, &copy_files/1, &copy_nginx_config/1],
+          config_providers: [{Pleroma.Config.ReleaseRuntimeProvider, []}]
         ]
       ]
     ]
@@ -78,6 +79,7 @@ defmodule Pleroma.Mixfile do
         :comeonin,
         :quack,
         :fast_sanitize,
+        :os_mon,
         :ssl
       ],
       included_applications: [:ex_syslogger]
@@ -85,12 +87,11 @@ defmodule Pleroma.Mixfile do
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:benchmark), do: ["lib", "benchmarks"]
+  defp elixirc_paths(:benchmark), do: ["lib", "benchmarks", "priv/scrubbers"]
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  defp warnings_as_errors(:prod), do: false
-  defp warnings_as_errors(_), do: true
+  defp warnings_as_errors, do: System.get_env("CI") == "true"
 
   # Specifies OAuth dependencies.
   defp oauth_deps do
@@ -114,45 +115,41 @@ defmodule Pleroma.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.17"},
+      {:phoenix, "~> 1.5.5"},
       {:tzdata, "~> 1.0.3"},
       {:plug_cowboy, "~> 2.3"},
-      {:phoenix_pubsub, "~> 1.1"},
+      {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:ecto_enum, "~> 1.4"},
-      {:ecto_sql, "~> 3.4.4"},
+      {:ecto_sql, "~> 3.6.2"},
       {:postgrex, ">= 0.15.5"},
-      {:oban, "~> 2.0.0"},
+      {:oban, "~> 2.3.4"},
       {:gettext, "~> 0.18"},
-      {:pbkdf2_elixir, "~> 1.2"},
       {:bcrypt_elixir, "~> 2.2"},
       {:trailing_format_plug, "~> 0.0.7"},
       {:fast_sanitize, "~> 0.2.0"},
       {:html_entities, "~> 0.5", override: true},
-      {:phoenix_html, "~> 2.14"},
+      {:phoenix_html, "~> 3.1", override: true},
       {:calendar, "~> 1.0"},
       {:cachex, "~> 3.2"},
       {:poison, "~> 3.0", override: true},
-      {:tesla,
-       git: "https://github.com/teamon/tesla/",
-       ref: "9f7261ca49f9f901ceb73b60219ad6f8a9f6aa30",
-       override: true},
+      {:tesla, "~> 1.4.0", override: true},
       {:castore, "~> 0.1"},
       {:cowlib, "~> 2.9", override: true},
-      {:gun,
-       github: "ninenines/gun", ref: "921c47146b2d9567eac7e9a4d2ccc60fffd4f327", override: true},
+      {:gun, "~> 2.0.0-rc.1", override: true},
+      {:finch, "~> 0.10.0"},
       {:jason, "~> 1.2"},
-      {:mogrify, "~> 0.7.4"},
-      {:ex_aws, "~> 2.1"},
+      {:mogrify, "~> 0.9.1"},
+      {:ex_aws, "~> 2.1.6"},
       {:ex_aws_s3, "~> 2.0"},
       {:sweet_xml, "~> 0.6.6"},
-      {:earmark, "1.4.3"},
+      {:earmark, "~> 1.4.15"},
       {:bbcode_pleroma, "~> 0.2.0"},
       {:crypt,
        git: "https://github.com/msantos/crypt.git",
-       ref: "f63a705f92c26955977ee62a313012e309a4d77a"},
+       ref: "f75cd55325e33cbea198fb41fe41871392f8fb76"},
       {:cors_plug, "~> 2.0"},
-      {:web_push_encryption, "~> 0.3"},
+      {:web_push_encryption, "~> 0.3.1"},
       {:swoosh, "~> 1.0"},
       {:phoenix_swoosh, "~> 0.3"},
       {:gen_smtp, "~> 0.13"},
@@ -160,27 +157,32 @@ defmodule Pleroma.Mixfile do
       {:floki, "~> 0.27"},
       {:timex, "~> 3.6"},
       {:ueberauth, "~> 0.4"},
-      {:linkify, "~> 0.2.0"},
-      {:http_signatures, "~> 0.1.0"},
+      {:linkify, "~> 0.5.1"},
+      {:http_signatures, "~> 0.1.1"},
       {:telemetry, "~> 0.3"},
       {:poolboy, "~> 1.5"},
       {:prometheus, "~> 4.6"},
-      {:prometheus_ex, "~> 3.0"},
+      {:prometheus_ex,
+       git: "https://git.pleroma.social/pleroma/elixir-libraries/prometheus.ex.git",
+       ref: "a4e9beb3c1c479d14b352fd9d6dd7b1f6d7deee5",
+       override: true},
       {:prometheus_plugs, "~> 1.1"},
       {:prometheus_phoenix, "~> 1.3"},
+      # Note: once `prometheus_phx` is integrated into `prometheus_phoenix`, remove the former:
+      {:prometheus_phx,
+       git: "https://git.pleroma.social/pleroma/elixir-libraries/prometheus-phx.git",
+       branch: "no-logging"},
       {:prometheus_ecto, "~> 1.4"},
       {:recon, "~> 2.5"},
       {:quack, "~> 0.1.1"},
       {:joken, "~> 2.0"},
       {:benchee, "~> 1.0"},
-      {:pot, "~> 0.11"},
+      {:pot, "~> 1.0"},
       {:esshd, "~> 0.1.0", runtime: Application.get_env(:esshd, :enabled, false)},
       {:ex_const, "~> 0.2"},
       {:plug_static_index_html, "~> 1.0.0"},
       {:flake_id, "~> 0.1.0"},
-      {:concurrent_limiter,
-       git: "https://git.pleroma.social/pleroma/elixir-libraries/concurrent_limiter.git",
-       ref: "55e92f84b4ed531bd487952a71040a9c69dc2807"},
+      {:concurrent_limiter, "~> 0.1.1"},
       {:remote_ip,
        git: "https://git.pleroma.social/pleroma/remote_ip.git",
        ref: "b647d0deecaa3acb140854fe4bda5b7e1dc6d1c8"},
@@ -188,9 +190,14 @@ defmodule Pleroma.Mixfile do
        git: "https://git.pleroma.social/pleroma/elixir-libraries/elixir-captcha.git",
        ref: "e0f16822d578866e186a0974d65ad58cddc1e2ab"},
       {:restarter, path: "./restarter"},
-      {:open_api_spex,
-       git: "https://git.pleroma.social/pleroma/elixir-libraries/open_api_spex.git",
-       ref: "f296ac0924ba3cf79c7a588c4c252889df4c2edd"},
+      {:majic, "~> 1.0"},
+      {:eblurhash, "~> 1.1.0"},
+      {:open_api_spex, "~> 3.10"},
+      {:phoenix_live_dashboard, "~> 0.6.2"},
+      {:ecto_psql_extras, "~> 0.6"},
+
+      # indirect dependency version override
+      {:plug, "~> 1.10.4", override: true},
 
       ## dev & test
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
@@ -199,8 +206,8 @@ defmodule Pleroma.Mixfile do
       {:mock, "~> 0.3.5", only: :test},
       # temporary downgrade for excoveralls, hackney until hackney max_connections bug will be fixed
       {:excoveralls, "0.12.3", only: :test},
-      {:hackney, "1.15.2", override: true},
-      {:mox, "~> 0.5", only: :test},
+      {:hackney, "~> 1.18.0", override: true},
+      {:mox, "~> 1.0", only: :test},
       {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git", only: :test}
     ] ++ oauth_deps()
   end
@@ -219,7 +226,9 @@ defmodule Pleroma.Mixfile do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
       docs: ["pleroma.docs", "docs"],
-      analyze: ["credo --strict --only=warnings,todo,fixme,consistency,readability"]
+      analyze: ["credo --strict --only=warnings,todo,fixme,consistency,readability"],
+      copyright: &add_copyright/1,
+      "copyright.bump": &bump_copyright/1
     ]
   end
 
@@ -321,5 +330,31 @@ defmodule Pleroma.Mixfile do
     [version, pre_release, build_metadata]
     |> Enum.filter(fn string -> string && string != "" end)
     |> Enum.join()
+  end
+
+  defp add_copyright(_) do
+    year = NaiveDateTime.utc_now().year
+    template = ~s[\
+# Pleroma: A lightweight social networking server
+# Copyright © 2017-#{year} Pleroma Authors <https://pleroma.social/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
+] |> String.replace("\n", "\\n")
+
+    find = "find lib test priv -type f \\( -name '*.ex' -or -name '*.exs' \\) -exec "
+    grep = "grep -L '# Copyright © [0-9\-]* Pleroma' {} \\;"
+    xargs = "xargs -n1 sed -i'' '1s;^;#{template};'"
+
+    :os.cmd(String.to_charlist("#{find}#{grep} | #{xargs}"))
+  end
+
+  defp bump_copyright(_) do
+    year = NaiveDateTime.utc_now().year
+    find = "find lib test priv -type f \\( -name '*.ex' -or -name '*.exs' \\)"
+
+    xargs =
+      "xargs sed -i'' 's;# Copyright © [0-9\-]* Pleroma.*$;# Copyright © 2017-#{year} Pleroma Authors <https://pleroma.social/>;'"
+
+    :os.cmd(String.to_charlist("#{find} | #{xargs}"))
   end
 end

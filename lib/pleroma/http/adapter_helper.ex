@@ -1,12 +1,12 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2021 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.HTTP.AdapterHelper do
   @moduledoc """
   Configure Tesla.Client with default and customized adapter options.
   """
-  @defaults [pool: :federation]
+  @defaults [pool: :federation, connect_timeout: 5_000, recv_timeout: 5_000]
 
   @type proxy_type() :: :socks4 | :socks5
   @type host() :: charlist() | :inet.ip_address()
