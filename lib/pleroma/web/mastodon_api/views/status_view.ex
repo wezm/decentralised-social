@@ -209,7 +209,184 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
     }
   end
 
-  def render("show.json", %{activity: %{data: %{"object" => _object}} = activity} = opts) do
+  def render("show.json", %{activity: %{data: %{"type" => "Note"}} = object} = opts) do
+    user = CommonAPI.get_user(object.data["actor"])
+    user_follower_address = user.follower_address
+
+    like_count = object.data["like_count"] || 0
+    announcement_count = object.data["announcement_count"] || 0
+
+    hashtags = Object.hashtags(object)
+    sensitive = object.data["sensitive"] || Enum.member?(hashtags, "nsfw")
+
+    tags = Object.tags(object)
+
+    tag_mentions =
+      tags
+      |> Enum.filter(fn tag -> is_map(tag) and tag["type"] == "Mention" end)
+      |> Enum.map(fn tag -> tag["href"] end)
+
+    mentions =
+      (object.data["to"] ++ tag_mentions)
+      |> Enum.uniq()
+      |> Enum.map(fn
+        Pleroma.Constants.as_public() -> nil
+        ^user_follower_address -> nil
+        ap_id -> User.get_cached_by_ap_id(ap_id)
+      end)
+      |> Enum.filter(& &1)
+      |> Enum.map(fn user -> AccountView.render("mention.json", %{user: user}) end)
+
+    favorited = opts[:for] && opts[:for].ap_id in (object.data["likes"] || [])
+
+    bookmarked = Activity.get_bookmark(object, opts[:for]) != nil
+
+    client_posted_this_activity = opts[:for] && user.id == opts[:for].id
+
+    expires_at =
+      with true <- client_posted_this_activity,
+           %Oban.Job{scheduled_at: scheduled_at} <-
+             Pleroma.Workers.PurgeExpiredActivity.get_expiration(object.id) do
+        scheduled_at
+      else
+        _ -> nil
+      end
+
+    thread_muted? =
+      cond do
+        is_nil(opts[:for]) -> false
+        is_boolean(object.thread_muted?) -> object.thread_muted?
+        true -> CommonAPI.thread_muted?(opts[:for], object)
+      end
+
+    attachment_data = object.data["attachment"] || []
+    attachments = render_many(attachment_data, StatusView, "attachment.json", as: :attachment)
+
+    created_at = Utils.to_masto_date(object.data["published"])
+
+    reply_to = get_reply_to(object, opts)
+
+    reply_to_user = reply_to && CommonAPI.get_user(reply_to.data["actor"])
+
+    content =
+      object
+      |> render_content()
+
+    content_html =
+      content
+      |> Activity.HTML.get_cached_scrubbed_html_for_activity(
+        User.html_filter_policy(opts[:for]),
+        object,
+        "mastoapi:content"
+      )
+
+    content_plaintext =
+      content
+      |> Activity.HTML.get_cached_stripped_html_for_activity(
+        object,
+        "mastoapi:content"
+      )
+
+    summary = object.data["summary"] || ""
+
+    card = render("card.json", Pleroma.Web.RichMedia.Helpers.fetch_data_for_activity(object))
+
+    url =
+      if user.local do
+        Pleroma.Web.Router.Helpers.o_status_url(Pleroma.Web.Endpoint, :notice, object)
+      else
+        object.data["url"] || object.data["external_url"] || object.data["id"]
+      end
+
+    direct_conversation_id =
+      with {_, nil} <- {:direct_conversation_id, opts[:direct_conversation_id]},
+           {_, true} <- {:include_id, opts[:with_direct_conversation_id]},
+           {_, %User{} = for_user} <- {:for_user, opts[:for]} do
+        Activity.direct_conversation_id(object, for_user)
+      else
+        {:direct_conversation_id, participation_id} when is_integer(participation_id) ->
+          participation_id
+
+        _e ->
+          nil
+      end
+
+    emoji_reactions =
+      object.data
+      |> Map.get("reactions", [])
+      |> EmojiReactionController.filter_allowed_users(
+        opts[:for],
+        Map.get(opts, :with_muted, false)
+      )
+      |> Stream.map(fn {emoji, users} ->
+        build_emoji_map(emoji, users, opts[:for])
+      end)
+      |> Enum.to_list()
+
+    # Status muted state (would do 1 request per status unless user mutes are preloaded)
+    muted =
+      thread_muted? ||
+        UserRelationship.exists?(
+          get_in(opts, [:relationships, :user_relationships]),
+          :mute,
+          opts[:for],
+          user,
+          fn for_user, user -> User.mutes?(for_user, user) end
+        )
+
+    {pinned?, pinned_at} = pin_data(object, user)
+
+    %{
+      id: to_string(object.id),
+      uri: object.data["id"],
+      url: url,
+      account:
+        AccountView.render("show.json", %{
+          user: user,
+          for: opts[:for]
+        }),
+      in_reply_to_id: reply_to && to_string(reply_to.id),
+      in_reply_to_account_id: reply_to_user && to_string(reply_to_user.id),
+      reblog: nil,
+      card: card,
+      content: content_html,
+      text: opts[:with_source] && object.data["source"],
+      created_at: created_at,
+      reblogs_count: announcement_count,
+      replies_count: object.data["repliesCount"] || 0,
+      favourites_count: like_count,
+      reblogged: reblogged?(object, opts[:for]),
+      favourited: present?(favorited),
+      bookmarked: present?(bookmarked),
+      muted: muted,
+      pinned: pinned?,
+      sensitive: sensitive,
+      spoiler_text: summary,
+      visibility: get_visibility(object),
+      media_attachments: attachments,
+      poll: render(PollView, "show.json", object: object, for: opts[:for]),
+      mentions: mentions,
+      tags: build_tags(tags),
+      application: build_application(object.data["generator"]),
+      language: nil,
+      emojis: build_emojis(object.data["emoji"]),
+      pleroma: %{
+        local: object.local,
+        conversation_id: get_context_id(object),
+        in_reply_to_account_acct: reply_to_user && reply_to_user.nickname,
+        content: %{"text/plain" => content_plaintext},
+        spoiler_text: %{"text/plain" => summary},
+        expires_at: expires_at,
+        direct_conversation_id: direct_conversation_id,
+        thread_muted: thread_muted?,
+        emoji_reactions: emoji_reactions,
+        parent_visible: visible_for_user?(reply_to, opts[:for]),
+        pinned_at: pinned_at
+      }
+    }
+  end
+
+  def render("show.json", %{activity: %{data: %{"type" => "Create", "object" => _object}} = activity} = opts) do
     object = Object.normalize(activity, fetch: false)
 
     user = CommonAPI.get_user(activity.data["actor"])

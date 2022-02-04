@@ -42,7 +42,7 @@ defmodule Pleroma.Web.MastodonAPI.TimelineController do
   def home(%{assigns: %{user: user}} = conn, params) do
     params =
       params
-      |> Map.put(:type, ["Create", "Announce"])
+      |> Map.put(:type, ["Note", "Announce"])
       |> Map.put(:blocking_user, user)
       |> Map.put(:muting_user, user)
       |> Map.put(:reply_filtering_user, user)
