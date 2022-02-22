@@ -64,7 +64,7 @@ If you click on a link, your browser’s request to the other site will include 
 
 ## systemd
 
-A systemd unit example is provided at `installation/pleroma.service`.
+A systemd unit example is provided at `installation/pleroma@.service`.
 
 ### PrivateTmp
 

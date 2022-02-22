@@ -125,16 +125,16 @@ OTP releases have different service files than from-source installs so they need
 === "Debian/Ubuntu"
     ```sh
     # Copy the service into a proper directory
-    cp ~pleroma/installation/pleroma.service /etc/systemd/system/pleroma.service
+    cp ~pleroma/installation/pleroma@.service /etc/systemd/system/pleroma@.service
 
     # Reload service files
     systemctl daemon-reload
 
     # Reenable pleroma to start on boot
-    systemctl reenable pleroma
+    systemctl reenable pleroma@prod
 
     # Start pleroma
-    systemctl start pleroma
+    systemctl start pleroma@prod
     ```
 
 ## Running mix tasks

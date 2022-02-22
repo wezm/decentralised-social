@@ -56,7 +56,7 @@ exit
 ```
 restart Pleroma (if using systemd):
 ```
-systemctl restart pleroma
+systemctl restart pleroma@prod
 ```
 
 # Tor Instance Access

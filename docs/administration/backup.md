@@ -32,8 +32,8 @@
 1. Optionally you can remove the users of your instance. This will trigger delete requests for their accounts and posts. Note that this is 'best effort' and doesn't mean that all traces of your instance will be gone from the fediverse.
     * You can do this from the admin-FE where you can select all local users and delete the accounts using the *Moderate multiple users* dropdown.
     * You can also list local users and delete them individualy using the CLI tasks for [Managing users](./CLI_tasks/user.md).
-2. Stop the Pleroma service `systemctl stop pleroma`
-3. Disable pleroma from systemd `systemctl disable pleroma`
+2. Stop the Pleroma service `systemctl stop pleroma@prod`
+3. Disable pleroma from systemd `systemctl disable pleroma@prod`
 4. Remove the files and folders you created during installation (see installation guide). This includes the pleroma, nginx and systemd files and folders.
 5. Reload nginx now that the configuration is removed `systemctl reload nginx`
 6. Remove the database and database user `sudo -Hu postgres psql -c 'DROP DATABASE <pleroma_db>;';` `sudo -Hu postgres psql -c 'DROP USER <pleroma_db>;'`

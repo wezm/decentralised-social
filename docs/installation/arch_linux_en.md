@@ -194,14 +194,14 @@ You can find example configurations for them in `/opt/pleroma/installation/`.
 * Copy example service file
 
 ```shell
-sudo cp /opt/pleroma/installation/pleroma.service /etc/systemd/system/pleroma.service
+sudo cp /opt/pleroma/installation/pleroma@.service /etc/systemd/system/pleroma@.service
 ```
 
 * Edit the service file and make sure that all paths fit your installation
-* Enable and start `pleroma.service`:
+* Enable and start `pleroma@prod.service`:
 
 ```shell
-sudo systemctl enable --now pleroma.service
+sudo systemctl enable --now pleroma@prod.service
 ```
 
 #### Create your first user

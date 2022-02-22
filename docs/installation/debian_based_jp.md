@@ -166,13 +166,13 @@ sudo certbot certonly --email <your@emailaddress> -d <yourdomain> --webroot -w /
 
 * サービスファイルのサンプルをコピーします。
 ```
-sudo cp /opt/pleroma/installation/pleroma.service /etc/systemd/system/pleroma.service
+sudo cp /opt/pleroma/installation/pleroma@.service /etc/systemd/system/pleroma@.service
 ```
 
 * サービスファイルを変更します。すべてのパスが正しいことを確認してください
-* サービスを有効化し `pleroma.service` を開始してください
+* サービスを有効化し `pleroma@prod.service` を開始してください
 ```
-sudo systemctl enable --now pleroma.service
+sudo systemctl enable --now pleroma@prod.service
 ```
 
 #### 初期ユーザの作成

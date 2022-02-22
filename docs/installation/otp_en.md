@@ -226,11 +226,11 @@ At this point if you open your (sub)domain in a browser you should see a 502 err
 === "Debian/Ubuntu"
     ```
     # Copy the service into a proper directory
-    cp /opt/pleroma/installation/pleroma.service /etc/systemd/system/pleroma.service
+    cp /opt/pleroma/installation/pleroma@.service /etc/systemd/system/pleroma@.service
 
     # Start pleroma and enable it on boot
-    systemctl start pleroma
-    systemctl enable pleroma
+    systemctl start pleroma@prod
+    systemctl enable pleroma@prod
     ```
 
 If everything worked, you should see Pleroma-FE when visiting your domain. If that didn't happen, try reviewing the installation steps, starting Pleroma in the foreground and seeing if there are any errrors.
