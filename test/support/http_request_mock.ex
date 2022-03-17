@@ -1075,6 +1075,14 @@ defmodule HttpRequestMock do
      }}
   end
 
+  def get("https://404.site" <> _, _, _, _) do
+    {:ok,
+     %Tesla.Env{
+       status: 404,
+       body: ""
+     }}
+  end
+
   def get(
         "https://zetsubou.xn--q9jyb4c/.well-known/webfinger?resource=acct:lain@zetsubou.xn--q9jyb4c",
         _,
