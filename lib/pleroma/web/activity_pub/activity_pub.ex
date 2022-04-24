@@ -1673,15 +1673,19 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
-  def pin_data_from_featured_collection(%{
-        "type" => type,
-        "orderedItems" => objects
-      })
+  def pin_data_from_featured_collection(ap_id, %{"type" => type} = data)
       when type in ["OrderedCollection", "Collection"] do
-    Map.new(objects, fn
-      %{"id" => object_ap_id} -> {object_ap_id, NaiveDateTime.utc_now()}
-      object_ap_id when is_binary(object_ap_id) -> {object_ap_id, NaiveDateTime.utc_now()}
-    end)
+    objects = Map.get(data, "orderedItems", nil)
+
+    if is_list(objects) do
+      Map.new(objects, fn
+        %{"id" => object_ap_id} -> {object_ap_id, NaiveDateTime.utc_now()}
+        object_ap_id when is_binary(object_ap_id) -> {object_ap_id, NaiveDateTime.utc_now()}
+      end)
+    else
+      Logger.error("Could not decode featured collection at #{ap_id}, #{inspect(data)}")
+      %{}
+    end
   end
 
   def fetch_and_prepare_featured_from_ap_id(nil) do
@@ -1690,7 +1694,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
 
   def fetch_and_prepare_featured_from_ap_id(ap_id) do
     with {:ok, data} <- Fetcher.fetch_and_contain_remote_object_from_id(ap_id) do
-      {:ok, pin_data_from_featured_collection(data)}
+      {:ok, pin_data_from_featured_collection(ap_id, data)}
     else
       e ->
         Logger.error("Could not decode featured collection at fetch #{ap_id}, #{inspect(e)}")
