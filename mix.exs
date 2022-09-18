@@ -5,7 +5,7 @@ defmodule Pleroma.Mixfile do
     [
       app: :pleroma,
       version: version("2.4.52"),
-      elixir: "~> 1.9",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       elixirc_options: [warnings_as_errors: warnings_as_errors()],
@@ -80,7 +80,8 @@ defmodule Pleroma.Mixfile do
         :quack,
         :fast_sanitize,
         :os_mon,
-        :ssl
+        :ssl,
+        :esshd
       ],
       included_applications: [:ex_syslogger]
     ]
@@ -194,7 +195,7 @@ defmodule Pleroma.Mixfile do
        ref: "e0f16822d578866e186a0974d65ad58cddc1e2ab"},
       {:restarter, path: "./restarter"},
       {:majic, "~> 1.0"},
-      {:eblurhash, "~> 1.1.0"},
+      {:eblurhash, "~> 1.2.2"},
       {:open_api_spex, "~> 3.10"},
       {:phoenix_live_dashboard, "~> 0.6.2"},
       {:ecto_psql_extras, "~> 0.6"},

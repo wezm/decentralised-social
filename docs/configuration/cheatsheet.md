@@ -18,6 +18,7 @@ To add configuration to your config file, you can copy it from the base config. 
 * `email`: Email used to reach an Administrator/Moderator of the instance.
 * `notify_email`: Email used for notifications.
 * `description`: The instance’s description, can be seen in nodeinfo and ``/api/v1/instance``.
+* `short_description`: Shorter version of instance description, can be seen on ``/api/v1/instance``.
 * `limit`: Posts character limit (CW/Subject included in the counter).
 * `description_limit`: The character limit for image descriptions.
 * `remote_limit`: Hard character limit beyond which remote posts will be dropped.
@@ -627,9 +628,15 @@ This filter replaces the filename (not the path) of an upload. For complete obfu
 
 No specific configuration.
 
-#### Pleroma.Upload.Filter.Exiftool
+#### Pleroma.Upload.Filter.Exiftool.StripLocation
 
 This filter only strips the GPS and location metadata with Exiftool leaving color profiles and attributes intact.
+
+No specific configuration.
+
+#### Pleroma.Upload.Filter.Exiftool.ReadDescription
+
+This filter reads the ImageDescription and iptc:Caption-Abstract fields with Exiftool so clients can prefill the media description field.
 
 No specific configuration.
 
