@@ -179,7 +179,7 @@ defmodule Pleroma.Activity do
   def get_by_ap_id_with_object(ap_id) do
     ap_id
     |> Queries.by_ap_id()
-    |> with_preloaded_object(:left)
+    |> with_preloaded_object(:inner)
     |> Repo.one()
   end
 

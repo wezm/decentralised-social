@@ -103,7 +103,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
       |> Enum.filter(&(&1.data["type"] == "Announce" && &1.data["object"]))
       |> Enum.map(&Object.normalize(&1, fetch: false).data["id"])
       |> Activity.create_by_object_ap_id()
-      |> Activity.with_preloaded_object(:left)
+      |> Activity.with_preloaded_object(:inner)
       |> Activity.with_preloaded_bookmark(reading_user)
       |> Activity.with_set_thread_muted_field(reading_user)
       |> Repo.all()
