@@ -1182,6 +1182,25 @@ defmodule Pleroma.UserTest do
       assert Enum.member?(res, followed_two)
       refute Enum.member?(res, not_followed)
     end
+
+    test "gets all friends (followed users) for a given user in nickname format" do
+      user = insert(:user)
+      followed_one = insert(:user)
+      followed_two = insert(:user)
+      not_followed = insert(:user)
+
+      {:ok, user, followed_one} = User.follow(user, followed_one)
+      {:ok, user, followed_two} = User.follow(user, followed_two)
+
+      res = User.get_friends_nicknames(user)
+
+      followed_one = User.get_cached_by_ap_id(followed_one.ap_id) |> User.full_nickname()
+      followed_two = User.get_cached_by_ap_id(followed_two.ap_id) |> User.full_nickname()
+      not_followed = User.get_cached_by_ap_id(not_followed.ap_id) |> User.full_nickname()
+      assert Enum.member?(res, followed_one)
+      assert Enum.member?(res, followed_two)
+      refute Enum.member?(res, not_followed)
+    end
   end
 
   describe "updating note and follower count" do

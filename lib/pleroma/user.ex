@@ -1358,6 +1358,13 @@ defmodule Pleroma.User do
     |> Repo.all()
   end
 
+  def get_friends_nicknames(%User{} = user, page \\ nil) do
+    user
+    |> get_friends_query(page)
+    |> Repo.all()
+    |> Enum.into([], fn x -> full_nickname(x) end)
+  end
+
   def increase_note_count(%User{} = user) do
     User
     |> where(id: ^user.id)
