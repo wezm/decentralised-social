@@ -364,6 +364,8 @@ defmodule Pleroma.Web.Router do
     post("/blocks_import", UserImportController, :blocks)
     post("/follow_import", UserImportController, :follow)
 
+    get("/follow_export", UserExportController, :following)
+
     get("/accounts/mfa", TwoFactorAuthenticationController, :settings)
     get("/accounts/mfa/backup_codes", TwoFactorAuthenticationController, :backup_codes)
     get("/accounts/mfa/setup/:method", TwoFactorAuthenticationController, :setup)
