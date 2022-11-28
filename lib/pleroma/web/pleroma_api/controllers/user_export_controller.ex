@@ -15,7 +15,15 @@ defmodule Pleroma.Web.PleromaAPI.UserExportController do
   @following_accounts_header "Account address,Show boosts,Notify on new posts,Languages\n"
 
   def following(%{assigns: %{user: follower}} = conn, _) do
-    friends = User.get_friends_nicknames(follower) |> Enum.join(",true,false,\n")
+    friends =
+      follower
+      |> User.get_friends_nicknames()
+      |> Enum.map(fn follow ->
+        [follow, !User.muting_reblogs?(follower, follow), !User.subscribed_to?(follower, follow), nil]
+        |> Enum.map(&Kernel.to_string(&1))
+        |> Enum.join(",")
+      end)
+      |> Enum.join("\n")
 
     csv_data = @following_accounts_header <> friends <> ",true,false,"
 
