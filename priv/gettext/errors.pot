@@ -90,12 +90,12 @@ msgid "must be equal to %{number}"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:558
+#: lib/pleroma/web/common_api.ex:574
 msgid "Account not found"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:316
+#: lib/pleroma/web/common_api.ex:332
 msgid "Already voted"
 msgstr ""
 
@@ -131,34 +131,34 @@ msgid "Comment must be up to %{max_size} characters"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/config_db.ex:200
+#: lib/pleroma/config_db.ex:199
 msgid "Config with params %{params} not found"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:167
-#: lib/pleroma/web/common_api.ex:171
+#: lib/pleroma/web/common_api.ex:183
+#: lib/pleroma/web/common_api.ex:187
 msgid "Could not delete"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:217
+#: lib/pleroma/web/common_api.ex:233
 msgid "Could not favorite"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:254
+#: lib/pleroma/web/common_api.ex:270
 msgid "Could not unfavorite"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:202
+#: lib/pleroma/web/common_api.ex:218
 msgid "Could not unrepeat"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:565
-#: lib/pleroma/web/common_api.ex:574
+#: lib/pleroma/web/common_api.ex:581
+#: lib/pleroma/web/common_api.ex:590
 msgid "Could not update state"
 msgstr ""
 
@@ -184,7 +184,7 @@ msgid "Invalid credentials."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:337
+#: lib/pleroma/web/common_api.ex:353
 msgid "Invalid indices"
 msgstr ""
 
@@ -231,7 +231,7 @@ msgid "Not found"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:308
+#: lib/pleroma/web/common_api.ex:324
 msgid "Poll's author can't vote"
 msgstr ""
 
@@ -275,7 +275,7 @@ msgid "Throttled"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:338
+#: lib/pleroma/web/common_api.ex:354
 msgid "Too many choices"
 msgstr ""
 
@@ -307,7 +307,7 @@ msgid "can't update outbox of %{nickname} as %{as_nickname}"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:510
+#: lib/pleroma/web/common_api.ex:526
 msgid "conversation is already muted"
 msgstr ""
 
@@ -419,12 +419,12 @@ msgid "CAPTCHA Error"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:266
+#: lib/pleroma/web/common_api.ex:282
 msgid "Could not add reaction emoji"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-#: lib/pleroma/web/common_api.ex:277
+#: lib/pleroma/web/common_api.ex:293
 msgid "Could not remove reaction emoji"
 msgstr ""
 

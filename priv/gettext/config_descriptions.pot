@@ -42,12 +42,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 #: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :quack"
-msgid "Quack-related settings"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
 msgctxt "config label at :cors_plug"
 msgid "CORS plug config"
 msgstr ""
@@ -80,12 +74,6 @@ msgstr ""
 #: lib/pleroma/docs/translator.ex:5
 msgctxt "config label at :pleroma"
 msgid "Pleroma Authenticator"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :quack"
-msgid "Quack Logger"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -284,18 +272,6 @@ msgstr ""
 #: lib/pleroma/docs/translator.ex:5
 msgctxt "config description at :pleroma-:mrf_rejectnonpublic"
 msgid "RejectNonPublic drops posts with non-public visibility settings."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple"
-msgid "Simple ingress policies"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_steal_emoji"
-msgid "Steals emojis from selected instances when it sees them."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -740,18 +716,6 @@ msgstr ""
 #: lib/pleroma/docs/translator.ex:5
 msgctxt "config label at :pleroma-:mrf_rejectnonpublic"
 msgid "MRF Reject Non Public"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple"
-msgid "MRF Simple"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_steal_emoji"
-msgid "MRF Emojis"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -2304,12 +2268,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 #: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_object_age > :actions"
-msgid "A list of actions to apply to the post. `:delist` removes the post from public timelines; `:strip_followers` removes followers from the ActivityPub recipient list ensuring they won't be delivered to home timelines; `:reject` rejects the message entirely"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
 msgctxt "config description at :pleroma-:mrf_object_age > :threshold"
 msgid "Required age (in seconds) of a post before actions are taken."
 msgstr ""
@@ -2324,84 +2282,6 @@ msgstr ""
 #: lib/pleroma/docs/translator.ex:5
 msgctxt "config description at :pleroma-:mrf_rejectnonpublic > :allow_followersonly"
 msgid "Whether to allow followers-only posts"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :accept"
-msgid "List of instances to only accept activities from (except deletes) and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :avatar_removal"
-msgid "List of instances to strip avatars from and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :banner_removal"
-msgid "List of instances to strip banners from and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :federated_timeline_removal"
-msgid "List of instances to remove from the Federated (aka The Whole Known Network) Timeline and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :followers_only"
-msgid "Force posts from the given instances to be visible by followers only and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :media_nsfw"
-msgid "List of instances to tag all media as NSFW (sensitive) from and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :media_removal"
-msgid "List of instances to strip media attachments from and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :reject"
-msgid "List of instances to reject activities from (except deletes) and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :reject_deletes"
-msgid "List of instances to reject deletions from and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_simple > :report_removal"
-msgid "List of instances to reject reports from and the reason for doing so"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_steal_emoji > :hosts"
-msgid "List of hosts to steal emojis from"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_steal_emoji > :rejected_shortcodes"
-msgid "  A list of patterns or matches to reject shortcodes with.\n\n  Each pattern can be a string or [Regex](https://hexdocs.pm/elixir/Regex.html) in the format of `~r/PATTERN/`.\n"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :pleroma-:mrf_steal_emoji > :size_limit"
-msgid "File size limit (in bytes), checked before an emoji is saved to the disk"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -3296,24 +3176,6 @@ msgstr ""
 #: lib/pleroma/docs/translator.ex:5
 msgctxt "config description at :prometheus-Pleroma.Web.Endpoint.MetricsExporter > :path"
 msgid "App metrics endpoint URI path."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :quack > :level"
-msgid "Log level"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :quack > :meta"
-msgid "Configure which metadata you want to report on"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config description at :quack > :webhook_url"
-msgid "Configure the Slack incoming webhook"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -4800,84 +4662,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 #: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :accept"
-msgid "Accept"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :avatar_removal"
-msgid "Avatar removal"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :banner_removal"
-msgid "Banner removal"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :federated_timeline_removal"
-msgid "Federated timeline removal"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :followers_only"
-msgid "Followers only"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :media_nsfw"
-msgid "Media NSFW"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :media_removal"
-msgid "Media removal"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :reject"
-msgid "Reject"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :reject_deletes"
-msgid "Reject deletes"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_simple > :report_removal"
-msgid "Report removal"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_steal_emoji > :hosts"
-msgid "Hosts"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_steal_emoji > :rejected_shortcodes"
-msgid "Rejected shortcodes"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :pleroma-:mrf_steal_emoji > :size_limit"
-msgid "Size limit"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
 msgctxt "config label at :pleroma-:mrf_subchain > :match_actor"
 msgid "Match actor"
 msgstr ""
@@ -5958,24 +5742,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 #: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :quack > :level"
-msgid "Level"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :quack > :meta"
-msgid "Meta"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
-msgctxt "config label at :quack > :webhook_url"
-msgid "Webhook URL"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-#: lib/pleroma/docs/translator.ex:5
 msgctxt "config label at :web_push_encryption-:vapid_details > :private_key"
 msgid "Private key"
 msgstr ""
@@ -6056,4 +5822,22 @@ msgstr ""
 #: lib/pleroma/docs/translator.ex:5
 msgctxt "config label at :pleroma-:delete_context_objects > :sleep_interval_ms"
 msgid "Sleep interval ms"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+#: lib/pleroma/docs/translator.ex:5
+msgctxt "config description at :pleroma-:instance > :report_strip_status"
+msgid "Strip associated statuses in reports to ids when closed/resolved, otherwise keep a copy"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+#: lib/pleroma/docs/translator.ex:5
+msgctxt "config description at :pleroma-:mrf_object_age > :actions"
+msgid "A list of actions to apply to the post. `:delist` removes the post from public timelines; `:strip_followers` removes followers from the ActivityPub recipient list ensuring they won't be delivered to home timelines, additionally for followers-only it degrades to a direct message; `:reject` rejects the message entirely"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+#: lib/pleroma/docs/translator.ex:5
+msgctxt "config label at :pleroma-:instance > :report_strip_status"
+msgid "Report strip status"
 msgstr ""
