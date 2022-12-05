@@ -946,10 +946,22 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     )
   end
 
+
   defp restrict_replies(query, %{
          reply_filtering_user: %User{} = user,
          reply_visibility: "following"
        }) do
+    restrict_replied_following(query, user)
+  end
+
+  defp restrict_replies(query, %{
+         reply_filtering_user: %User{} = user,
+       }) do
+    # Default to replies from following only
+    restrict_replied_following(query, user)
+  end
+
+  defp restrict_replied_following(query, user) do
     from(
       [activity, object] in query,
       where:
